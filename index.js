@@ -1,9 +1,11 @@
 require('dotenv').config();
+console.log(process.env.DATABASE_URL);
 const express = require('express');
 const axios = require('axios');
 const pool = require('./database');
 
 const app = express();
+app.use(express.json());
 
 async function getAccessToken() {
   const response = await axios.post(`https://id.twitch.tv/oauth2/token`, null, {
@@ -19,7 +21,6 @@ async function getAccessToken() {
 app.get('/games/search', async (req, res) => {
   const { query } = req.query;
   const accessToken = await getAccessToken();
-
   const response = await axios.post('https://api.igdb.com/v4/games', 
     `search "${query}"; fields name,cover; limit 10;`,
     {
@@ -29,9 +30,11 @@ app.get('/games/search', async (req, res) => {
       }
     }
   );
-
   res.json(response.data);
 });
+
+const authRoutes = require('./auth');
+app.use('/auth', authRoutes);
 
 app.listen(3000, () => {
   console.log('Server running on http://localhost:3000');
