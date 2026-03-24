@@ -3,6 +3,7 @@ const express = require('express');
 const axios = require('axios');
 const authRoutes = require('./routes/auth');
 const gameRoutes = require('./routes/games');
+const profileRoutes = require('./routes/profile');
 const authenticateToken = require('./middleware/authenticate');
 
 const app = express();
@@ -36,6 +37,7 @@ app.get('/games/search', async (req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/games', authenticateToken, gameRoutes);
+app.use('/profile', authenticateToken, profileRoutes);
 
 app.listen(3000, () => {
   console.log('Server running on http://localhost:3000');

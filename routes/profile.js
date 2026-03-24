@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('./database');
+const pool = require('../db/database');
 
 router.get('/', async (req, res) => {
   const user_id = req.user.userId;
