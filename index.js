@@ -5,9 +5,11 @@ const authRoutes = require('./routes/auth');
 const gameRoutes = require('./routes/games');
 const profileRoutes = require('./routes/profile');
 const authenticateToken = require('./middleware/authenticate');
+const { authLimiter, apiLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 app.use(express.json());
+app.use(apiLimiter);
 
 async function getAccessToken() {
   const response = await axios.post(`https://id.twitch.tv/oauth2/token`, null, {
@@ -35,7 +37,7 @@ app.get('/games/search', async (req, res) => {
   res.json(response.data);
 });
 
-app.use('/auth', authRoutes);
+app.use('/auth', authLimiter, authRoutes);
 app.use('/games', authenticateToken, gameRoutes);
 app.use('/profile', authenticateToken, profileRoutes);
 
