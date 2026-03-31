@@ -1,0 +1,6 @@
+model/ Java classes that map to database tables. One class per table.
+repository/ handles all database queries. Spring generates most of it automatically.
+controller/ defines your API endpoints. Receives requests, sends responses. Keep it thin.
+service/ where the actual logic lives. Controllers hand off to services to do the real work.
+security/ everything JWT and Spring Security related.
+dto/ simple classes that represent request/response bodies. Separates your API structure from your database structure.
