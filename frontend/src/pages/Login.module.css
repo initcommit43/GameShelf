@@ -1,0 +1,87 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: system-ui, sans-serif;
+}
+
+.card {
+  background: #16161d;
+  border: 0.5px solid #2a2a35;
+  border-radius: 12px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 500;
+  color: #378ADD;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #666677;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input {
+  background: #1e1e28;
+  border: 0.5px solid #2a2a35;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #e2e2e8;
+  outline: none;
+  width: 100%;
+}
+
+.input::placeholder {
+  color: #666677;
+}
+
+.button {
+  background: #185FA5;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  font-size: 13px;
+  color: #F09595;
+  text-align: center;
+}
+
+.link {
+  font-size: 13px;
+  color: #666677;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.linkText {
+  color: #378ADD;
+}
