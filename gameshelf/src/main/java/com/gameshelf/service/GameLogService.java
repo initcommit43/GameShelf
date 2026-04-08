@@ -10,6 +10,7 @@ import com.gameshelf.repository.GameRepository;
 import com.gameshelf.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,8 +26,20 @@ public class GameLogService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Game game = gameRepository.findById(request.getGameId())
-                .orElseThrow(() -> new RuntimeException("Game not found"));
+        Game game;
+        if (request.getIgdbId() != null) {
+            game = gameRepository.findByIgdbId(request.getIgdbId()).orElseGet(() -> {
+                Game newGame = Game.builder()
+                        .igdbId(request.getIgdbId())
+                        .title(request.getTitle())
+                        .coverUrl(request.getCoverUrl())
+                        .build();
+                return gameRepository.save(newGame);
+            });
+        } else {
+            game = gameRepository.findById(request.getGameId())
+                    .orElseThrow(() -> new RuntimeException("Game not found"));
+        }
 
         if (gameLogRepository.existsByUserIdAndGameId(user.getId(), game.getId())) {
             throw new RuntimeException("Game already logged");
@@ -70,6 +83,7 @@ public class GameLogService {
         gameLogRepository.delete(log);
     }
 
+    @Transactional(readOnly = true)
     public List<GameLogResponse> getUserLogs(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));

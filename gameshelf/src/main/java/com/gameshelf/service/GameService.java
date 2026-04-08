@@ -23,15 +23,24 @@ public class GameService {
     @Value("${igdb.access-token}")
     private String accessToken;
 
+    private RestClient igdbClient;
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        igdbClient = RestClient.builder()
+                .baseUrl("https://api.igdb.com/v4")
+                .defaultHeader("Client-ID", clientId)
+                .defaultHeader("Authorization", "Bearer " + accessToken)
+                .defaultHeader("Content-Type", "text/plain")
+                .build();
+    }
+
     public List<GameResponse> searchGames(String query) {
         String body = "search \"" + query + "\"; fields id,name,cover.url; limit 10;";
 
-        IgdbGame[] results = RestClient.create()
+        IgdbGame[] results = igdbClient
                 .post()
-                .uri("https://api.igdb.com/v4/games")
-                .header("Client-ID", clientId)
-                .header("Authorization", "Bearer " + accessToken)
-                .header("Content-Type", "text/plain")
+                .uri("/games")
                 .body(body)
                 .retrieve()
                 .body(IgdbGame[].class);

@@ -9,6 +9,9 @@ import lombok.*;
 @AllArgsConstructor
 public class GameLogRequest {
     private Long gameId;
+    private Integer igdbId;
+    private String title;
+    private String coverUrl;
     private GameStatus status;
     private Integer rating;
 }
