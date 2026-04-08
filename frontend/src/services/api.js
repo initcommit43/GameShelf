@@ -49,11 +49,11 @@ export const logService = {
     return res.json()
   },
 
-  addLog: async (gameId, status, rating) => {
+  addLog: async ({ igdbId, title, coverUrl, status, rating }) => {
     const res = await fetch(`${BASE_URL}/logs`, {
       method: 'POST',
       headers: getHeaders(),
-      body: JSON.stringify({ gameId, status, rating }),
+      body: JSON.stringify({ igdbId, title, coverUrl, status, rating }),
     })
     if (!res.ok) throw new Error('Failed to add log')
     return res.json()
