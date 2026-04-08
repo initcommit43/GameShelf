@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { authService } from '../services/api'
 
-function Login() {
+function Register() {
   const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -12,14 +14,18 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
     setLoading(true)
     try {
-      const data = await authService.login(username, password)
+      const data = await authService.register(username, email, password)
       localStorage.setItem('token', data.token)
       localStorage.setItem('username', data.username)
       navigate('/shelf')
     } catch (err) {
-      setError('Invalid username or password')
+      setError('Registration failed. Username or email may already be taken.')
     } finally {
       setLoading(false)
     }
@@ -29,15 +35,23 @@ function Login() {
     <div style={styles.container}>
       <div style={styles.card}>
         <h1 style={styles.logo}>GameShelf</h1>
-        <p style={styles.subtitle}>Track your games, own your backlog.</p>
+        <p style={styles.subtitle}>Create your account.</p>
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <input
             style={styles.input}
             type="text"
-            placeholder="Username or email"
+            placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <input
+            style={styles.input}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
           <input
@@ -48,14 +62,22 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          <input
+            style={styles.input}
+            type="password"
+            placeholder="Confirm password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
           {error && <p style={styles.error}>{error}</p>}
           <button style={styles.button} type="submit" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign in'}
+            {loading ? 'Creating account...' : 'Create account'}
           </button>
         </form>
 
         <p style={styles.link}>
-          No account? <Link to="/register" style={styles.linkText}>Register</Link>
+          Already have an account? <Link to="/login" style={styles.linkText}>Sign in</Link>
         </p>
       </div>
     </div>
@@ -133,4 +155,4 @@ const styles = {
   },
 }
 
-export default Login
+export default Register
