@@ -3,6 +3,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Shelf from './pages/Shelf'
 import Search from './pages/Search'
+import UserProfile from './pages/UserProfile'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/shelf" element={<Shelf />} />
       <Route path="/search" element={<Search />} />
+      <Route path="/profile" element={<UserProfile />} />
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
   )

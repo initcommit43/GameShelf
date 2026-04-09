@@ -1,34 +1,35 @@
-.container {
+.page {
   min-height: 100vh;
+  background: #0e0e0e;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
-  font-family: system-ui, sans-serif;
+  padding: 32px 24px;
 }
 
 .card {
-  background: #16161d;
-  border: 0.5px solid #2a2a35;
-  border-radius: 12px;
-  padding: 40px 36px;
   width: 100%;
   max-width: 400px;
 }
 
-.logo {
-  font-size: 24px;
-  font-weight: 500;
-  color: #378ADD;
-  margin-bottom: 8px;
+.logoWrap {
   text-align: center;
+  margin-bottom: 36px;
+}
+
+.logo {
+  font-family: 'Manrope', sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  color: #7aafff;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
 }
 
 .subtitle {
-  font-size: 14px;
-  color: #666677;
-  text-align: center;
-  margin-bottom: 32px;
+  font-size: 13px;
+  color: #adaaaa;
 }
 
 .form {
@@ -38,50 +39,65 @@
 }
 
 .input {
-  background: #1e1e28;
-  border: 0.5px solid #2a2a35;
-  border-radius: 8px;
-  padding: 12px 14px;
-  font-size: 14px;
-  color: #e2e2e8;
-  outline: none;
   width: 100%;
+  background: #000000;
+  border: 1px solid rgba(72, 72, 71, 0.35);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #e4e2e1;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input::placeholder {
-  color: #666677;
+  color: rgba(173, 170, 170, 0.45);
 }
 
-.button {
-  background: #185FA5;
-  border: none;
-  border-radius: 8px;
-  padding: 12px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #fff;
-  cursor: pointer;
-  margin-top: 4px;
-}
-
-.button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.input:focus {
+  border-color: rgba(122, 175, 255, 0.45);
+  box-shadow: 0 0 0 3px rgba(122, 175, 255, 0.08);
 }
 
 .error {
-  font-size: 13px;
-  color: #F09595;
+  font-size: 12px;
+  color: #ff716c;
   text-align: center;
+}
+
+.button {
+  background: linear-gradient(135deg, #7aafff, #5ea2ff);
+  border: none;
+  border-radius: 100px;
+  padding: 15px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: #002e5d;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 8px;
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 28px;
+  font-size: 13px;
+  color: #adaaaa;
 }
 
 .link {
-  font-size: 13px;
-  color: #666677;
-  text-align: center;
-  margin-top: 20px;
-}
-
-.linkText {
-  color: #378ADD;
+  color: #7aafff;
+  font-weight: 500;
 }

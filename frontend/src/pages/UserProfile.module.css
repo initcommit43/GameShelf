@@ -1,0 +1,300 @@
+/* ── Hero glow ── */
+.heroGlow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 300px;
+  background: radial-gradient(circle at 50% -20%, rgba(122, 175, 255, 0.12) 0%, rgba(14, 14, 14, 0) 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Avatar section ── */
+.avatarSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.avatarRing {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, #7aafff, #5ea2ff);
+  margin-bottom: 14px;
+}
+
+.avatarInner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #0e0e0e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarLetter {
+  font-family: 'Manrope', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: #7aafff;
+  text-transform: uppercase;
+}
+
+.userName {
+  font-family: 'Manrope', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.userMeta {
+  font-size: 11px;
+  font-weight: 600;
+  color: #adaaaa;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── Stats grid ── */
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.statCard {
+  background: #131313;
+  border-radius: 16px;
+  padding: 18px;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  transition: transform 0.15s;
+}
+
+.statCard:active {
+  transform: scale(0.97);
+}
+
+.statIcon {
+  font-size: 20px;
+  margin-bottom: auto;
+}
+
+.statIconBlue   { color: #7aafff; }
+.statIconGreen  { color: #4ade80; }
+.statIconAmber  { color: #f59e0b; }
+
+.statValue {
+  font-family: 'Manrope', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 9px;
+  font-weight: 700;
+  color: #adaaaa;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── Activity section ── */
+.sectionHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.sectionTitle {
+  font-family: 'Manrope', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+/* ── Activity list ── */
+.activityList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.activityRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #201f1f;
+  border-radius: 14px;
+  padding: 12px;
+  transition: background 0.15s;
+}
+
+.activityRow:active {
+  background: #262626;
+}
+
+@media (min-width: 768px) {
+  .activityRow:hover {
+    background: #262626;
+  }
+}
+
+.activityThumb {
+  width: 44px;
+  height: 58px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #131313;
+  flex-shrink: 0;
+}
+
+.activityThumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.activityThumbPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: #adaaaa;
+  text-align: center;
+  padding: 4px;
+  line-height: 1.2;
+}
+
+.activityInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.activityTitle {
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+
+.activityMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.activityStatus {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.statusPlaying   { color: #f59e0b; }
+.statusCompleted { color: #4ade80; }
+.statusDropped   { color: #ff716c; }
+.statusBacklog   { color: #adaaaa; }
+.statusWishlist  { color: #7aafff; }
+
+.activityDot {
+  font-size: 10px;
+  color: #adaaaa;
+}
+
+.activityRating {
+  font-size: 9px;
+  font-weight: 700;
+  color: #adaaaa;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── Empty activity ── */
+.emptyActivity {
+  text-align: center;
+  padding: 40px 0;
+  font-size: 13px;
+  color: #adaaaa;
+}
+
+/* ── Actions ── */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.logoutBtn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(72, 72, 71, 0.35);
+  border-radius: 100px;
+  padding: 14px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #adaaaa;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: background 0.15s, color 0.15s;
+}
+
+.logoutBtn:active {
+  background: #201f1f;
+  color: #ffffff;
+}
+
+@media (min-width: 768px) {
+  .logoutBtn {
+    max-width: 240px;
+  }
+
+  .logoutBtn:hover {
+    background: #201f1f;
+    color: #ffffff;
+  }
+}

@@ -33,10 +33,12 @@ function Register() {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.page}>
       <div className={styles.card}>
-        <h1 className={styles.logo}>GameShelf</h1>
-        <p className={styles.subtitle}>Create your account.</p>
+        <div className={styles.logoWrap}>
+          <h1 className={styles.logo}>GameShelf</h1>
+          <p className={styles.subtitle}>Create your account.</p>
+        </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <input
@@ -77,8 +79,8 @@ function Register() {
           </button>
         </form>
 
-        <p className={styles.link}>
-          Already have an account? <Link to="/login" className={styles.linkText}>Sign in</Link>
+        <p className={styles.footer}>
+          Already have an account? <Link to="/login" className={styles.link}>Sign in</Link>
         </p>
       </div>
     </div>

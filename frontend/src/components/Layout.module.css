@@ -1,0 +1,52 @@
+.shell {
+  min-height: 100vh;
+  background: #0e0e0e;
+}
+
+/* ── Mobile top header (title only, no nav) ── */
+.mobileHeader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: rgba(19, 19, 19, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.mobileTitle {
+  font-family: 'Manrope', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: #7aafff;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+/* ── Main content ── */
+/* Mobile: offset for fixed top header + fixed bottom nav */
+.main {
+  padding: 76px 20px 100px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ── Desktop overrides ── */
+@media (min-width: 768px) {
+  /* Hide the mobile-only title header */
+  .mobileHeader {
+    display: none;
+  }
+
+  /* Offset for the top nav bar (64px) with generous page padding */
+  .main {
+    padding: 104px 64px 64px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}

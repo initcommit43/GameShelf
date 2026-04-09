@@ -27,10 +27,12 @@ function Login() {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.page}>
       <div className={styles.card}>
-        <h1 className={styles.logo}>GameShelf</h1>
-        <p className={styles.subtitle}>Track your games, own your backlog.</p>
+        <div className={styles.logoWrap}>
+          <h1 className={styles.logo}>GameShelf</h1>
+          <p className={styles.subtitle}>Track your games, own your backlog.</p>
+        </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <input
@@ -55,8 +57,8 @@ function Login() {
           </button>
         </form>
 
-        <p className={styles.link}>
-          No account? <Link to="/register" className={styles.linkText}>Register</Link>
+        <p className={styles.footer}>
+          No account? <Link to="/register" className={styles.link}>Register</Link>
         </p>
       </div>
     </div>
