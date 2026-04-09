@@ -8,6 +8,15 @@ const getHeaders = () => {
   }
 }
 
+const parseError = async (res) => {
+  try {
+    const data = await res.json()
+    return data.message || data.error || 'Something went wrong'
+  } catch {
+    return 'Something went wrong'
+  }
+}
+
 export const authService = {
   register: async (username, email, password) => {
     const res = await fetch(`${BASE_URL}/auth/register`, {
@@ -15,7 +24,7 @@ export const authService = {
       headers: getHeaders(),
       body: JSON.stringify({ username, email, password }),
     })
-    if (!res.ok) throw new Error('Registration failed')
+    if (!res.ok) throw new Error(await parseError(res))
     return res.json()
   },
 
@@ -25,7 +34,7 @@ export const authService = {
       headers: getHeaders(),
       body: JSON.stringify({ username, password }),
     })
-    if (!res.ok) throw new Error('Invalid credentials')
+    if (!res.ok) throw new Error(await parseError(res))
     return res.json()
   },
 }
@@ -55,7 +64,7 @@ export const logService = {
       headers: getHeaders(),
       body: JSON.stringify({ igdbId, title, coverUrl, status, rating }),
     })
-    if (!res.ok) throw new Error('Failed to add log')
+    if (!res.ok) throw new Error(await parseError(res))
     return res.json()
   },
 
@@ -63,9 +72,9 @@ export const logService = {
     const res = await fetch(`${BASE_URL}/logs/${id}`, {
       method: 'PUT',
       headers: getHeaders(),
-      body: JSON.stringify({ status, rating }),
+      body: JSON.stringify({ status, rating: rating ?? null }),
     })
-    if (!res.ok) throw new Error('Failed to update log')
+    if (!res.ok) throw new Error(await parseError(res))
     return res.json()
   },
 
@@ -74,6 +83,6 @@ export const logService = {
       method: 'DELETE',
       headers: getHeaders(),
     })
-    if (!res.ok) throw new Error('Failed to delete log')
+    if (!res.ok) throw new Error(await parseError(res))
   },
 }

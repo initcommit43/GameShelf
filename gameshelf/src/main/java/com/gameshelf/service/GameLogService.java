@@ -57,6 +57,7 @@ public class GameLogService {
         return toResponse(log);
     }
 
+    @Transactional
     public GameLogResponse updateLog(String username, Long logId, GameLogRequest request) {
         GameLog log = gameLogRepository.findById(logId)
                 .orElseThrow(() -> new RuntimeException("Log not found"));
@@ -72,6 +73,7 @@ public class GameLogService {
         return toResponse(log);
     }
 
+    @Transactional
     public void deleteLog(String username, Long logId) {
         GameLog log = gameLogRepository.findById(logId)
                 .orElseThrow(() -> new RuntimeException("Log not found"));

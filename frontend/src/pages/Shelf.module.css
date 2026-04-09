@@ -160,10 +160,16 @@
   line-height: 1.3;
 }
 
+.gameBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
 .gameRating {
   font-size: 10px;
   color: #adaaaa;
-  margin-top: 2px;
 }
 
 /* ── List view ── */
@@ -233,11 +239,53 @@
   color: #adaaaa;
 }
 
+.listRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
 .listRating {
   font-size: 12px;
   font-weight: 600;
   color: #adaaaa;
-  flex-shrink: 0;
+}
+
+/* ── Action buttons (edit / delete) ── */
+.actionRow {
+  display: flex;
+  gap: 4px;
+}
+
+.actionBtn {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: rgba(173, 170, 170, 0.4);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  padding: 0;
+}
+
+.actionBtn svg {
+  width: 13px;
+  height: 13px;
+}
+
+.actionBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e4e2e1;
+}
+
+.actionBtnDelete:hover {
+  background: rgba(255, 113, 108, 0.12);
+  color: #ff716c;
 }
 
 /* ── Empty / Loading ── */
@@ -247,3 +295,223 @@
   font-size: 14px;
   color: #adaaaa;
 }
+
+/* ── Edit modal & delete confirmation ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .overlay {
+    align-items: center;
+  }
+}
+
+.sheet {
+  width: 100%;
+  max-width: 480px;
+  background: #1a1919;
+  border-radius: 20px 20px 0 0;
+  padding: 12px 20px 40px;
+}
+
+@media (min-width: 768px) {
+  .sheet {
+    border-radius: 20px;
+    padding: 28px;
+  }
+}
+
+.sheetHandle {
+  width: 36px;
+  height: 4px;
+  background: #484847;
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+
+@media (min-width: 768px) {
+  .sheetHandle { display: none; }
+}
+
+.sheetGame {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.sheetThumb {
+  width: 52px;
+  height: 70px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #131313;
+  flex-shrink: 0;
+}
+
+.sheetThumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sheetGameTitle {
+  font-family: 'Manrope', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.sheetLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #adaaaa;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+.statusRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.statusPill {
+  background: transparent;
+  border: 1px solid rgba(72, 72, 71, 0.35);
+  border-radius: 100px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #adaaaa;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.statusPillActive {
+  background: #7aafff;
+  border-color: #7aafff;
+  color: #002e5d;
+}
+
+.ratingRow {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.ratingBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #131313;
+  border: 1px solid rgba(72, 72, 71, 0.25);
+  font-size: 13px;
+  font-weight: 600;
+  color: #adaaaa;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ratingBtnActive {
+  background: #7aafff;
+  border-color: #7aafff;
+  color: #002e5d;
+}
+
+.confirmBtn {
+  width: 100%;
+  background: linear-gradient(135deg, #7aafff, #5ea2ff);
+  border: none;
+  border-radius: 100px;
+  padding: 15px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: #002e5d;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.confirmBtn:active { transform: scale(0.98); }
+.confirmBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.cancelBtn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(72, 72, 71, 0.35);
+  border-radius: 100px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #adaaaa;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cancelBtn:active { background: #201f1f; }
+
+/* ── Delete confirmation dialog ── */
+.confirmDialog {
+  width: calc(100% - 40px);
+  max-width: 360px;
+  background: #1a1919;
+  border-radius: 20px;
+  padding: 28px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.confirmTitle {
+  font-family: 'Manrope', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+}
+
+.confirmSub {
+  font-size: 13px;
+  color: #adaaaa;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.deleteBtn {
+  width: 100%;
+  background: rgba(255, 113, 108, 0.15);
+  border: 1px solid rgba(255, 113, 108, 0.3);
+  border-radius: 100px;
+  padding: 14px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ff716c;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+  transition: background 0.15s;
+}
+
+.deleteBtn:active { background: rgba(255, 113, 108, 0.25); }
