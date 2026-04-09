@@ -41,6 +41,7 @@ function StarRating({ count, total = 5 }) {
 function Landing() {
   const navigate = useNavigate()
   const isLoggedIn = !!localStorage.getItem('token')
+  const [heroQuery, setHeroQuery] = useState('')
   const [trendingGames, setTrendingGames] = useState([])
   const [trendingLoading, setTrendingLoading] = useState(true)
 
@@ -124,6 +125,28 @@ function Landing() {
             <h1 className={styles.heroHeadline}>
               Discover, collect, analyze your <em className={styles.heroAccent}>games</em>
             </h1>
+
+            <form
+              className={styles.heroSearch}
+              onSubmit={(e) => { e.preventDefault(); if (heroQuery.trim()) navigate(`/search?q=${encodeURIComponent(heroQuery.trim())}`) }}
+            >
+              <span className={styles.heroSearchIcon}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+              </span>
+              <input
+                className={styles.heroSearchInput}
+                type="text"
+                placeholder="Search for a game..."
+                value={heroQuery}
+                onChange={(e) => setHeroQuery(e.target.value)}
+              />
+              {heroQuery && (
+                <button type="submit" className={styles.heroSearchBtn}>Search</button>
+              )}
+            </form>
+
             <div className={styles.heroStats}>
               <div className={styles.heroStat}>
                 <span className={styles.heroStatValue}>2.4M</span>

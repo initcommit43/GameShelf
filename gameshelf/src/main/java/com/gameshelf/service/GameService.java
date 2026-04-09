@@ -1,5 +1,6 @@
 package com.gameshelf.service;
 
+import com.gameshelf.dto.GameDetailResponse;
 import com.gameshelf.dto.GameResponse;
 import com.gameshelf.model.Game;
 import com.gameshelf.repository.GameRepository;
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -95,6 +98,41 @@ public class GameService {
                 .toList();
     }
 
+    public GameDetailResponse getGameDetails(Integer igdbId) {
+        String body = "fields id,name,cover.url,summary,rating,genres.name,first_release_date,platforms.name; where id = " + igdbId + ";";
+
+        IgdbGame[] results = igdbClient
+                .post()
+                .uri("/games")
+                .body(body)
+                .retrieve()
+                .body(IgdbGame[].class);
+
+        if (results == null || results.length == 0) return null;
+
+        IgdbGame game = results[0];
+        String coverUrl = game.cover != null
+                ? "https:" + game.cover.url.replace("t_thumb", "t_cover_big")
+                : null;
+
+        List<String> genres = game.genres != null
+                ? Arrays.stream(game.genres).map(g -> g.name).toList()
+                : List.of();
+
+        List<String> platforms = game.platforms != null
+                ? Arrays.stream(game.platforms).map(p -> p.name).toList()
+                : List.of();
+
+        String releaseYear = game.first_release_date != null
+                ? String.valueOf(Instant.ofEpochSecond(game.first_release_date)
+                    .atZone(ZoneOffset.UTC)
+                    .getYear())
+                : null;
+
+        return new GameDetailResponse(igdbId, game.name, coverUrl, game.summary,
+                game.rating, genres, releaseYear, platforms);
+    }
+
     public GameResponse getOrSaveGame(Integer igdbId, String title, String coverUrl) {
         Game game = gameRepository.findByIgdbId(igdbId).orElseGet(() -> {
             Game newGame = Game.builder()
@@ -119,10 +157,23 @@ public class GameService {
         public Integer id;
         public String name;
         public IgdbCover cover;
+        public String summary;
+        public Double rating;
+        public IgdbGenre[] genres;
+        public Long first_release_date;
+        public IgdbPlatform[] platforms;
     }
 
     private static class IgdbCover {
         public String url;
+    }
+
+    private static class IgdbGenre {
+        public String name;
+    }
+
+    private static class IgdbPlatform {
+        public String name;
     }
 
     private static class IgdbPopularity {

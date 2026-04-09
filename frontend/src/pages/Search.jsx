@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { gameService, logService } from '../services/api'
 import Layout from '../components/Layout'
 import styles from './Search.module.css'
@@ -7,7 +7,8 @@ import styles from './Search.module.css'
 const STATUSES = ['PLAYING', 'COMPLETED', 'BACKLOG', 'DROPPED', 'WISHLIST']
 
 function Search() {
-  const [query, setQuery] = useState('')
+  const [searchParams] = useSearchParams()
+  const [query, setQuery] = useState(searchParams.get('q') || '')
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [selected, setSelected] = useState(null)
@@ -105,14 +106,15 @@ function Search() {
       ) : (
         <div className={styles.grid}>
           {results.map(game => (
-            <div key={game.id} className={styles.gameCard} onClick={() => openSheet(game)}>
-              <div className={styles.gameCoverWrapper}>
+            <div key={game.igdbId} className={styles.gameCard}>
+              <div className={styles.gameCoverWrapper} onClick={() => navigate(`/games/${game.igdbId}`)}>
                 {game.coverUrl
                   ? <img src={game.coverUrl} alt={game.title} className={styles.coverImg} />
                   : <div className={styles.coverPlaceholder}>{game.title}</div>
                 }
+                <button className={styles.addOverlay} onClick={(e) => { e.stopPropagation(); openSheet(game) }}>+</button>
               </div>
-              <div className={styles.gameTitle}>{game.title}</div>
+              <div className={styles.gameTitle} onClick={() => navigate(`/games/${game.igdbId}`)}>{game.title}</div>
             </div>
           ))}
         </div>

@@ -131,7 +131,7 @@ function Shelf() {
         <div className={styles.grid}>
           {filteredLogs.map(log => (
             <div key={log.id} className={styles.gameCard}>
-              <div className={styles.gameCoverWrapper}>
+              <div className={styles.gameCoverWrapper} onClick={() => log.igdbId && navigate(`/games/${log.igdbId}`)}>
                 {log.coverUrl
                   ? <img src={log.coverUrl} alt={log.gameTitle} className={styles.coverImg} />
                   : <div className={styles.coverPlaceholder}>{log.gameTitle}</div>
@@ -140,7 +140,7 @@ function Shelf() {
                   {log.status.charAt(0) + log.status.slice(1).toLowerCase()}
                 </div>
               </div>
-              <div className={styles.gameTitle}>{log.gameTitle}</div>
+              <div className={styles.gameTitle} onClick={() => log.igdbId && navigate(`/games/${log.igdbId}`)}>{log.gameTitle}</div>
               <div className={styles.gameBottom}>
                 <span className={styles.gameRating}>{log.rating ? `${log.rating}/10` : '—'}</span>
                 <div className={styles.actionRow}>

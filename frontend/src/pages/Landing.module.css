@@ -166,6 +166,62 @@
   font-style: italic;
 }
 
+.heroSearch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  padding: 6px 8px 6px 20px;
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.heroSearch:focus-within {
+  border-color: rgba(122, 175, 255, 0.45);
+  box-shadow: 0 0 0 4px rgba(122, 175, 255, 0.08);
+}
+
+.heroSearchIcon {
+  color: #adaaaa;
+  display: flex;
+  flex-shrink: 0;
+}
+
+.heroSearchInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  color: #e4e2e1;
+  padding: 8px 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.heroSearchInput::placeholder {
+  color: rgba(173, 170, 170, 0.5);
+}
+
+.heroSearchBtn {
+  background: linear-gradient(135deg, #7aafff, #5ea2ff);
+  border: none;
+  border-radius: 9999px;
+  padding: 10px 20px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #002e5d;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: filter 0.15s;
+}
+
+.heroSearchBtn:hover { filter: brightness(1.08); }
+
 .heroStats {
   display: flex;
   flex-wrap: wrap;

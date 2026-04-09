@@ -1,5 +1,6 @@
 package com.gameshelf.controller;
 
+import com.gameshelf.dto.GameDetailResponse;
 import com.gameshelf.dto.GameResponse;
 import com.gameshelf.service.GameService;
 import lombok.RequiredArgsConstructor;
@@ -23,5 +24,12 @@ public class GameController {
     @GetMapping("/trending")
     public ResponseEntity<List<GameResponse>> getTrendingGames() {
         return ResponseEntity.ok(gameService.getTrendingGames());
+    }
+
+    @GetMapping("/{igdbId}")
+    public ResponseEntity<GameDetailResponse> getGameDetails(@PathVariable Integer igdbId) {
+        GameDetailResponse response = gameService.getGameDetails(igdbId);
+        if (response == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(response);
     }
 }

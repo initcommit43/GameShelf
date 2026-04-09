@@ -5,6 +5,7 @@ import Register from './pages/Register'
 import Shelf from './pages/Shelf'
 import Search from './pages/Search'
 import UserProfile from './pages/UserProfile'
+import GameDetail from './pages/GameDetail'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path="/shelf" element={<Shelf />} />
       <Route path="/search" element={<Search />} />
       <Route path="/profile" element={<UserProfile />} />
+      <Route path="/games/:igdbId" element={<GameDetail />} />
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
   )

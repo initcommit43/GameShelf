@@ -53,6 +53,12 @@ export const gameService = {
     if (!res.ok) throw new Error('Failed to fetch trending games')
     return res.json()
   },
+
+  getDetails: async (igdbId) => {
+    const res = await fetch(`${BASE_URL}/games/${igdbId}`, { headers: getHeaders() })
+    if (!res.ok) throw new Error('Failed to fetch game details')
+    return res.json()
+  },
 }
 
 export const logService = {

@@ -100,6 +100,7 @@ public class GameLogService {
         return new GameLogResponse(
                 log.getId(),
                 log.getGame().getId(),
+                log.getGame().getIgdbId(),
                 log.getGame().getTitle(),
                 log.getGame().getCoverUrl(),
                 log.getStatus(),
