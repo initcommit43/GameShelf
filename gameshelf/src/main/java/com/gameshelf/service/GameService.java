@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +55,46 @@ public class GameService {
                 .toList();
     }
 
+    public List<GameResponse> getTrendingGames() {
+        // Step 1: fetch trending game IDs ordered by visit count
+        String popularityBody = "fields game_id; sort value desc; where popularity_type = 1; limit 12;";
+
+        IgdbPopularity[] popularityResults = igdbClient
+                .post()
+                .uri("/popularity_primitives")
+                .body(popularityBody)
+                .retrieve()
+                .body(IgdbPopularity[].class);
+
+        if (popularityResults == null || popularityResults.length == 0) return List.of();
+
+        // Build an id → rank map so we can restore popularity order later
+        Map<Integer, Integer> rankMap = new HashMap<>();
+        StringBuilder ids = new StringBuilder();
+        for (int i = 0; i < popularityResults.length; i++) {
+            rankMap.put(popularityResults[i].game_id, i);
+            if (i > 0) ids.append(",");
+            ids.append(popularityResults[i].game_id);
+        }
+
+        // Step 2: fetch game details for those IDs
+        String gamesBody = "fields id,name,cover.url; where id = (" + ids + ") & cover != null; limit 12;";
+
+        IgdbGame[] games = igdbClient
+                .post()
+                .uri("/games")
+                .body(gamesBody)
+                .retrieve()
+                .body(IgdbGame[].class);
+
+        if (games == null) return List.of();
+
+        return Arrays.stream(games)
+                .sorted(Comparator.comparingInt(g -> rankMap.getOrDefault(g.id, Integer.MAX_VALUE)))
+                .map(this::toGameResponse)
+                .toList();
+    }
+
     public GameResponse getOrSaveGame(Integer igdbId, String title, String coverUrl) {
         Game game = gameRepository.findByIgdbId(igdbId).orElseGet(() -> {
             Game newGame = Game.builder()
@@ -80,5 +123,9 @@ public class GameService {
 
     private static class IgdbCover {
         public String url;
+    }
+
+    private static class IgdbPopularity {
+        public Integer game_id;
     }
 }

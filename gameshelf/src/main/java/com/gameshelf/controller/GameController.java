@@ -19,4 +19,9 @@ public class GameController {
     public ResponseEntity<List<GameResponse>> searchGames(@RequestParam String query) {
         return ResponseEntity.ok(gameService.searchGames(query));
     }
+
+    @GetMapping("/trending")
+    public ResponseEntity<List<GameResponse>> getTrendingGames() {
+        return ResponseEntity.ok(gameService.getTrendingGames());
+    }
 }
