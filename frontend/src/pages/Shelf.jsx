@@ -109,16 +109,18 @@ function Shelf() {
         </div>
       </div>
 
-      <div className={styles.filterScroll}>
-        {filters.map(f => (
-          <button
-            key={f}
-            className={`${styles.filterTab}${activeFilter === f ? ` ${styles.filterActive}` : ''}`}
-            onClick={() => setActiveFilter(f)}
-          >
-            {f.charAt(0) + f.slice(1).toLowerCase()}
-          </button>
-        ))}
+      <div className={styles.filterWrapper}>
+        <div className={styles.filterScroll}>
+          {filters.map(f => (
+            <button
+              key={f}
+              className={`${styles.filterTab}${activeFilter === f ? ` ${styles.filterActive}` : ''}`}
+              onClick={() => setActiveFilter(f)}
+            >
+              {f.charAt(0) + f.slice(1).toLowerCase()}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (

@@ -47,6 +47,12 @@ export const gameService = {
     if (!res.ok) throw new Error('Search failed')
     return res.json()
   },
+
+  getTrending: async () => {
+    const res = await fetch(`${BASE_URL}/games/trending`)
+    if (!res.ok) throw new Error('Failed to fetch trending games')
+    return res.json()
+  },
 }
 
 export const logService = {

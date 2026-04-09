@@ -39,7 +39,7 @@ function SideNav() {
   return (
     <nav className={styles.nav}>
       <div className={styles.inner}>
-        <span className={styles.logo}>GameShelf</span>
+        <span className={styles.logo} onClick={() => navigate('/')}>GameShelf</span>
 
         <div className={styles.items}>
           {NAV_ITEMS.map(item => (

@@ -37,6 +37,7 @@
   color: #7aafff;
   letter-spacing: -0.02em;
   text-transform: uppercase;
+  cursor: pointer;
 }
 
 .items {
