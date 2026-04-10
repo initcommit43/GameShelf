@@ -98,6 +98,26 @@ public class GameService {
                 .toList();
     }
 
+    public List<GameResponse> browseGames(String sort, int offset) {
+        String validSort = List.of("rating", "hypes", "first_release_date").contains(sort) ? sort : "rating";
+        String body = String.format(
+                "fields id,name,cover.url,rating; where cover != null & rating != null & rating > 60; sort %s desc; limit 24; offset %d;",
+                validSort, offset);
+
+        IgdbGame[] results = igdbClient
+                .post()
+                .uri("/games")
+                .body(body)
+                .retrieve()
+                .body(IgdbGame[].class);
+
+        if (results == null) return List.of();
+
+        return Arrays.stream(results)
+                .map(this::toGameResponse)
+                .toList();
+    }
+
     public GameDetailResponse getGameDetails(Integer igdbId) {
         String body = "fields id,name,cover.url,summary,rating,genres.name,first_release_date,platforms.name; where id = " + igdbId + ";";
 

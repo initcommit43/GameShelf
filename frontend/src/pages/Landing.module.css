@@ -447,10 +447,7 @@
   padding: 48px 0;
 }
 
-@keyframes shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
+/* @keyframes shimmer is defined globally in index.css */
 
 /* ─────────────────────────────────────────
    EDITORIAL
@@ -1096,6 +1093,8 @@
 /* ─────────────────────────────────────────
    ADD TO SHELF MODAL
 ───────────────────────────────────────── */
+
+/* Fixed toasts (landing-specific: bottom: 24px, no bottom nav) */
 .successBanner {
   position: fixed;
   bottom: 24px;
@@ -1108,7 +1107,7 @@
   padding: 12px 24px;
   font-size: 13px;
   font-weight: 600;
-  z-index: 300;
+  z-index: var(--z-toast);
   white-space: nowrap;
 }
 
@@ -1124,177 +1123,27 @@
   padding: 12px 24px;
   font-size: 13px;
   font-weight: 600;
-  z-index: 300;
+  z-index: var(--z-toast);
   white-space: nowrap;
 }
 
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 200;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-@media (min-width: 768px) {
-  .overlay { align-items: center; }
-}
-
-.sheet {
-  width: 100%;
-  max-width: 480px;
-  background: #1a1919;
-  border-radius: 20px 20px 0 0;
-  padding: 12px 20px 40px;
-}
-
-@media (min-width: 768px) {
-  .sheet { border-radius: 20px; padding: 28px; }
-}
-
-.sheetHandle {
-  width: 36px;
-  height: 4px;
-  background: #484847;
-  border-radius: 2px;
-  margin: 0 auto 20px;
-}
-
-@media (min-width: 768px) {
-  .sheetHandle { display: none; }
-}
-
-.sheetGame {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 24px;
-}
-
-.sheetThumb {
-  width: 52px;
-  height: 70px;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #131313;
-  flex-shrink: 0;
-}
-
-.sheetThumbImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.sheetGameTitle {
-  font-family: 'Manrope', sans-serif;
-  font-size: 16px;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.02em;
-}
-
-.sheetLabel {
-  font-size: 10px;
-  font-weight: 700;
-  color: #adaaaa;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 10px;
-}
-
-.statusRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
-.statusPill {
-  background: transparent;
-  border: 1px solid rgba(72, 72, 71, 0.35);
-  border-radius: 100px;
-  padding: 6px 14px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #adaaaa;
-  cursor: pointer;
-  letter-spacing: 0.04em;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-
-.statusPillActive {
-  background: #7aafff;
-  border-color: #7aafff;
-  color: #002e5d;
-}
-
-.ratingRow {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
-.ratingBtn {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: #131313;
-  border: 1px solid rgba(72, 72, 71, 0.25);
-  font-size: 13px;
-  font-weight: 600;
-  color: #adaaaa;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s, color 0.15s;
-}
-
-.ratingBtnActive {
-  background: #7aafff;
-  border-color: #7aafff;
-  color: #002e5d;
-}
-
-.confirmBtn {
-  width: 100%;
-  background: linear-gradient(135deg, #7aafff, #5ea2ff);
-  border: none;
-  border-radius: 100px;
-  padding: 15px;
-  font-family: 'Manrope', sans-serif;
-  font-size: 14px;
-  font-weight: 800;
-  color: #002e5d;
-  cursor: pointer;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-  transition: transform 0.15s, opacity 0.15s;
-}
-
-.confirmBtn:active { transform: scale(0.98); }
-.confirmBtn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.cancelBtn {
-  width: 100%;
-  background: transparent;
-  border: 1px solid rgba(72, 72, 71, 0.35);
-  border-radius: 100px;
-  padding: 14px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #adaaaa;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.cancelBtn:active { background: #201f1f; }
+/* Sheet — composed from shared */
+.overlay        { composes: overlay        from '../shared.module.css'; }
+.sheet          { composes: sheet          from '../shared.module.css'; }
+.sheetHandle    { composes: sheetHandle    from '../shared.module.css'; }
+.sheetGame      { composes: sheetGame      from '../shared.module.css'; }
+.sheetThumb     { composes: sheetThumb     from '../shared.module.css'; }
+.sheetThumbImg  { composes: sheetThumbImg  from '../shared.module.css'; }
+.sheetGameTitle { composes: sheetGameTitle from '../shared.module.css'; }
+.sheetLabel     { composes: sheetLabel     from '../shared.module.css'; }
+.statusRow      { composes: statusRow      from '../shared.module.css'; }
+.statusPill     { composes: statusPill     from '../shared.module.css'; }
+.statusPillActive { composes: statusPillActive from '../shared.module.css'; }
+.ratingRow      { composes: ratingRow      from '../shared.module.css'; }
+.ratingBtn      { composes: ratingBtn      from '../shared.module.css'; }
+.ratingBtnActive { composes: ratingBtnActive from '../shared.module.css'; }
+.confirmBtn     { composes: confirmBtn     from '../shared.module.css'; }
+.cancelBtn      { composes: cancelBtn      from '../shared.module.css'; }
 
 /* ─────────────────────────────────────────
    FOOTER

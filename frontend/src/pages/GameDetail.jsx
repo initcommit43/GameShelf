@@ -49,7 +49,7 @@ function GameDetail() {
     if (!status) return
     setSubmitting(true)
     try {
-      await logService.addLog({ igdbId: game.igdbId, title: game.title, coverUrl: game.coverUrl, status, rating: rating ?? undefined })
+      await logService.addLog({ igdbId: game.igdbId, title: game.title, coverUrl: game.coverUrl, releaseYear: game.releaseYear, igdbRating: game.rating, status, rating: rating ?? undefined })
       closeSheet()
       setIsOnShelf(true)
       showToast(`"${game.title}" added to your shelf.`)

@@ -6,6 +6,7 @@ import Shelf from './pages/Shelf'
 import Search from './pages/Search'
 import UserProfile from './pages/UserProfile'
 import GameDetail from './pages/GameDetail'
+import Browse from './pages/Browse'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <Route path="/shelf" element={<Shelf />} />
       <Route path="/search" element={<Search />} />
       <Route path="/profile" element={<UserProfile />} />
+      <Route path="/browse" element={<Browse />} />
       <Route path="/games/:igdbId" element={<GameDetail />} />
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>

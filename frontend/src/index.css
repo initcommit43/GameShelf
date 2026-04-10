@@ -1,3 +1,74 @@
+/* ─────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg:        #0e0e0e;
+  --bg-mid:    #131313;
+  --bg-card:   #1a1919;
+  --bg-hover:  #201f1f;
+  --bg-active: #262626;
+
+  /* Text */
+  --text:       #ffffff;
+  --text-body:  #e4e2e1;
+  --text-muted: #adaaaa;
+  --text-faint: rgba(173, 170, 170, 0.45);
+
+  /* Accent */
+  --accent:      #7aafff;
+  --accent-dark: #5ea2ff;
+  --accent-text: #002e5d;
+  --accent-bg:   rgba(122, 175, 255, 0.1);
+  --accent-glow: rgba(122, 175, 255, 0.08);
+
+  /* Semantic */
+  --success: #4ade80;
+  --warning: #f59e0b;
+  --danger:  #ff716c;
+
+  /* Status colors */
+  --status-playing:   #f59e0b;
+  --status-completed: #4ade80;
+  --status-dropped:   #ff716c;
+  --status-backlog:   #adaaaa;
+  --status-wishlist:  #7aafff;
+
+  /* Borders */
+  --border:        rgba(72, 72, 71, 0.35);
+  --border-subtle: rgba(72, 72, 71, 0.15);
+  --border-faint:  rgba(72, 72, 71, 0.05);
+  --border-white:  rgba(255, 255, 255, 0.08);
+
+  /* Gradient */
+  --gradient-accent: linear-gradient(135deg, #7aafff, #5ea2ff);
+
+  /* Border radii */
+  --r-xs:   4px;
+  --r-sm:   6px;
+  --r-md:   8px;
+  --r-lg:  12px;
+  --r-xl:  16px;
+  --r-2xl: 20px;
+  --r-pill: 100px;
+
+  /* Typography */
+  --font-display: 'Manrope', sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+
+  /* Transitions */
+  --t:      0.15s;
+  --t-base: 0.2s;
+
+  /* Z-index layers */
+  --z-nav:     100;
+  --z-overlay: 200;
+  --z-toast:   300;
+}
+
+/* ─────────────────────────────────────────
+   RESET
+───────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -5,34 +76,24 @@
 }
 
 body {
-  background: #0e0e0e;
-  color: #ffffff;
-  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
-}
+a       { text-decoration: none; color: inherit; }
+button  { cursor: pointer; border: none; background: none; font-family: inherit; }
+input   { font-family: inherit; }
+img     { display: block; max-width: 100%; }
 
-button {
-  cursor: pointer;
-  border: none;
-  background: none;
-  font-family: inherit;
-}
+::-webkit-scrollbar { display: none; }
 
-input {
-  font-family: inherit;
-}
-
-img {
-  display: block;
-  max-width: 100%;
-}
-
-::-webkit-scrollbar {
-  display: none;
+/* ─────────────────────────────────────────
+   GLOBAL ANIMATION
+───────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }

@@ -26,6 +26,13 @@ public class GameController {
         return ResponseEntity.ok(gameService.getTrendingGames());
     }
 
+    @GetMapping("/browse")
+    public ResponseEntity<List<GameResponse>> browseGames(
+            @RequestParam(defaultValue = "rating") String sort,
+            @RequestParam(defaultValue = "0") int offset) {
+        return ResponseEntity.ok(gameService.browseGames(sort, offset));
+    }
+
     @GetMapping("/{igdbId}")
     public ResponseEntity<GameDetailResponse> getGameDetails(@PathVariable Integer igdbId) {
         GameDetailResponse response = gameService.getGameDetails(igdbId);

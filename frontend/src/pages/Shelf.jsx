@@ -6,6 +6,21 @@ import styles from './Shelf.module.css'
 
 const STATUSES = ['PLAYING', 'COMPLETED', 'BACKLOG', 'DROPPED', 'WISHLIST']
 
+const SORT_LABELS = {
+  DATE_ADDED: 'Date added',
+  RELEASE_YEAR: 'Release year',
+  IGDB_SCORE: 'IGDB score',
+  YOUR_RATING: 'Your rating',
+}
+
+const STATUS_SORT_ORDER = {
+  PLAYING: 1,
+  COMPLETED: 2,
+  WISHLIST: 3,
+  BACKLOG: 4,
+  DROPPED: 5,
+}
+
 const statusClassMap = {
   PLAYING: styles.statusPlaying,
   COMPLETED: styles.statusCompleted,
@@ -26,6 +41,8 @@ function Shelf() {
   const [submitting, setSubmitting] = useState(false)
 
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+  const [sortOption, setSortOption] = useState(null)
+  const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
 
   const navigate = useNavigate()
 
@@ -91,21 +108,115 @@ function Shelf() {
     ? logs
     : logs.filter(log => log.status === activeFilter)
 
+  const displayedLogs = (() => {
+    if (!sortOption) return filteredLogs
+    const sorted = [...filteredLogs]
+    if (STATUSES.includes(sortOption)) {
+      return sorted.sort((a, b) => {
+        const aOrder = a.status === sortOption ? 0 : STATUS_SORT_ORDER[a.status]
+        const bOrder = b.status === sortOption ? 0 : STATUS_SORT_ORDER[b.status]
+        if (aOrder !== bOrder) return aOrder - bOrder
+        return a.gameTitle.localeCompare(b.gameTitle)
+      })
+    }
+    if (sortOption === 'DATE_ADDED') {
+      return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    }
+    if (sortOption === 'RELEASE_YEAR') {
+      return sorted.sort((a, b) => {
+        if (!a.releaseYear && !b.releaseYear) return 0
+        if (!a.releaseYear) return 1
+        if (!b.releaseYear) return -1
+        return b.releaseYear.localeCompare(a.releaseYear)
+      })
+    }
+    if (sortOption === 'IGDB_SCORE') {
+      return sorted.sort((a, b) => {
+        if (!a.igdbRating && !b.igdbRating) return 0
+        if (!a.igdbRating) return 1
+        if (!b.igdbRating) return -1
+        return b.igdbRating - a.igdbRating
+      })
+    }
+    if (sortOption === 'YOUR_RATING') {
+      return sorted.sort((a, b) => {
+        if (!a.rating && !b.rating) return 0
+        if (!a.rating) return 1
+        if (!b.rating) return -1
+        return b.rating - a.rating
+      })
+    }
+    return filteredLogs
+  })()
+
   const deleteTarget = logs.find(l => l.id === confirmDeleteId)
 
   return (
     <Layout title="My Shelf">
       <div className={styles.sectionHeader}>
         <span className={styles.sectionTitle}>My shelf</span>
-        <div className={styles.viewToggle}>
-          <button
-            className={`${styles.toggleBtn}${viewMode === 'grid' ? ` ${styles.toggleActive}` : ''}`}
-            onClick={() => setViewMode('grid')}
-          >Grid</button>
-          <button
-            className={`${styles.toggleBtn}${viewMode === 'list' ? ` ${styles.toggleActive}` : ''}`}
-            onClick={() => setViewMode('list')}
-          >List</button>
+        <div className={styles.headerRight}>
+          <div className={styles.sortWrapper}>
+            <button
+              className={`${styles.toggleBtn} ${styles.sortBtn}${sortOption ? ` ${styles.toggleActive}` : ''}`}
+              onClick={() => setSortDropdownOpen(o => !o)}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="12" height="12">
+                <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="9" y2="18"/>
+              </svg>
+              {sortOption ? SORT_LABELS[sortOption] ?? (sortOption.charAt(0) + sortOption.slice(1).toLowerCase()) : 'Sort'}
+            </button>
+            {sortDropdownOpen && (
+              <div className={styles.sortDropdown}>
+                <div className={styles.sortGroup}>
+                  <div className={styles.sortGroupLabel}>By status</div>
+                  {STATUSES.map(s => (
+                    <button
+                      key={s}
+                      className={`${styles.sortOption}${sortOption === s ? ` ${styles.sortOptionActive}` : ''}`}
+                      onClick={() => { setSortOption(sortOption === s ? null : s); setSortDropdownOpen(false) }}
+                    >
+                      {s.charAt(0) + s.slice(1).toLowerCase()}
+                    </button>
+                  ))}
+                </div>
+                <div className={styles.sortDivider} />
+                <div className={styles.sortGroup}>
+                  <div className={styles.sortGroupLabel}>Sort by</div>
+                  {[
+                    { key: 'DATE_ADDED', label: 'Date added' },
+                    { key: 'RELEASE_YEAR', label: 'Release year' },
+                    { key: 'IGDB_SCORE', label: 'IGDB score' },
+                    { key: 'YOUR_RATING', label: 'Your rating' },
+                  ].map(({ key, label }) => (
+                    <button
+                      key={key}
+                      className={`${styles.sortOption}${sortOption === key ? ` ${styles.sortOptionActive}` : ''}`}
+                      onClick={() => { setSortOption(sortOption === key ? null : key); setSortDropdownOpen(false) }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {sortOption && (
+                  <button
+                    className={styles.sortOptionClear}
+                    onClick={() => { setSortOption(null); setSortDropdownOpen(false) }}
+                  >Clear</button>
+                )}
+              </div>
+            )}
+          </div>
+          <div className={styles.viewToggle}>
+            <button
+              className={`${styles.toggleBtn}${viewMode === 'grid' ? ` ${styles.toggleActive}` : ''}`}
+              onClick={() => setViewMode('grid')}
+            >Grid</button>
+            <button
+              className={`${styles.toggleBtn}${viewMode === 'list' ? ` ${styles.toggleActive}` : ''}`}
+              onClick={() => setViewMode('list')}
+            >List</button>
+          </div>
         </div>
       </div>
 
@@ -125,11 +236,11 @@ function Shelf() {
 
       {loading ? (
         <div className={styles.empty}>Loading...</div>
-      ) : filteredLogs.length === 0 ? (
+      ) : displayedLogs.length === 0 ? (
         <div className={styles.empty}>No games here yet.</div>
       ) : viewMode === 'grid' ? (
         <div className={styles.grid}>
-          {filteredLogs.map(log => (
+          {displayedLogs.map(log => (
             <div key={log.id} className={styles.gameCard}>
               <div className={styles.gameCoverWrapper} onClick={() => log.igdbId && navigate(`/games/${log.igdbId}`)}>
                 {log.coverUrl
@@ -163,7 +274,7 @@ function Shelf() {
         </div>
       ) : (
         <div className={styles.listSection}>
-          {filteredLogs.map(log => (
+          {displayedLogs.map(log => (
             <div key={log.id} className={styles.listRow}>
               <div className={styles.listThumb}>
                 {log.coverUrl && <img src={log.coverUrl} alt={log.gameTitle} className={styles.listThumbImg} />}

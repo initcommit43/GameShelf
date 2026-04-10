@@ -1,9 +1,5 @@
-.loading {
-  text-align: center;
-  padding: 80px 0;
-  font-size: 14px;
-  color: #adaaaa;
-}
+/* ── Loading state ── */
+.loading { composes: emptyState from '../shared.module.css'; }
 
 /* ── Top bar ── */
 .topBar {
@@ -19,29 +15,29 @@
   gap: 6px;
   background: transparent;
   border: none;
-  color: #adaaaa;
+  color: var(--text-muted);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   padding: 0;
-  transition: color 0.15s;
+  transition: color var(--t);
 }
 
-.backBtn:hover { color: #ffffff; }
+.backBtn:hover { color: var(--text); }
 
 .addBtn {
-  background: linear-gradient(135deg, #7aafff, #5ea2ff);
+  background: var(--gradient-accent);
   border: none;
-  border-radius: 100px;
+  border-radius: var(--r-pill);
   padding: 8px 16px;
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-display);
   font-size: 12px;
   font-weight: 800;
-  color: #002e5d;
+  color: var(--accent-text);
   cursor: pointer;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  transition: opacity 0.15s;
+  transition: opacity var(--t);
 }
 
 .addBtn:active { opacity: 0.8; }
@@ -49,7 +45,7 @@
 .onShelfBadge {
   font-size: 12px;
   font-weight: 600;
-  color: #4ade80;
+  color: var(--success);
   padding: 8px 0;
 }
 
@@ -63,10 +59,10 @@
 .coverWrapper {
   width: 110px;
   flex-shrink: 0;
-  border-radius: 10px;
+  border-radius: var(--r-lg);
   overflow: hidden;
-  background: #131313;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  background: var(--bg-mid);
+  box-shadow: inset 0 0 0 1px var(--border-white);
   aspect-ratio: 3 / 4;
 }
 
@@ -90,7 +86,7 @@
   padding: 8px;
   font-size: 11px;
   font-weight: 600;
-  color: #adaaaa;
+  color: var(--text-muted);
   text-align: center;
 }
 
@@ -103,10 +99,10 @@
 }
 
 .title {
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-display);
   font-size: 20px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text);
   letter-spacing: -0.02em;
   line-height: 1.2;
 }
@@ -122,17 +118,17 @@
 }
 
 .metaChip {
-  background: #201f1f;
-  border-radius: 6px;
+  background: var(--bg-hover);
+  border-radius: var(--r-sm);
   padding: 4px 10px;
   font-size: 12px;
   font-weight: 600;
-  color: #e4e2e1;
+  color: var(--text-body);
 }
 
 .metaChipSub {
   font-size: 10px;
-  color: #adaaaa;
+  color: var(--text-muted);
   margin-left: 1px;
 }
 
@@ -145,29 +141,27 @@
 .genreChip {
   background: transparent;
   border: 1px solid rgba(122, 175, 255, 0.25);
-  border-radius: 100px;
+  border-radius: var(--r-pill);
   padding: 3px 10px;
   font-size: 11px;
   font-weight: 600;
-  color: #7aafff;
+  color: var(--accent);
   letter-spacing: 0.02em;
 }
 
 .platformList {
   font-size: 11px;
-  color: #adaaaa;
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
 /* ── About section ── */
-.section {
-  margin-bottom: 24px;
-}
+.section { margin-bottom: 24px; }
 
 .sectionLabel {
   font-size: 10px;
   font-weight: 700;
-  color: #adaaaa;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-bottom: 10px;
@@ -179,198 +173,24 @@
   line-height: 1.7;
 }
 
-/* ── Add to shelf sheet (mirrors Search/Shelf pattern) ── */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 200;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-@media (min-width: 768px) {
-  .overlay { align-items: center; }
-}
-
-.sheet {
-  width: 100%;
-  max-width: 480px;
-  background: #1a1919;
-  border-radius: 20px 20px 0 0;
-  padding: 12px 20px 40px;
-}
-
-@media (min-width: 768px) {
-  .sheet { border-radius: 20px; padding: 28px; }
-}
-
-.sheetHandle {
-  width: 36px;
-  height: 4px;
-  background: #484847;
-  border-radius: 2px;
-  margin: 0 auto 20px;
-}
-
-@media (min-width: 768px) {
-  .sheetHandle { display: none; }
-}
-
-.sheetGame {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 24px;
-}
-
-.sheetThumb {
-  width: 52px;
-  height: 70px;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #131313;
-  flex-shrink: 0;
-}
-
-.sheetThumbImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.sheetGameTitle {
-  font-family: 'Manrope', sans-serif;
-  font-size: 16px;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.02em;
-}
-
-.sheetLabel {
-  font-size: 10px;
-  font-weight: 700;
-  color: #adaaaa;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 10px;
-}
-
-.statusRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
-.statusPill {
-  background: transparent;
-  border: 1px solid rgba(72, 72, 71, 0.35);
-  border-radius: 100px;
-  padding: 6px 14px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #adaaaa;
-  cursor: pointer;
-  letter-spacing: 0.04em;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-
-.statusPillActive {
-  background: #7aafff;
-  border-color: #7aafff;
-  color: #002e5d;
-}
-
-.ratingRow {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
-.ratingBtn {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: #131313;
-  border: 1px solid rgba(72, 72, 71, 0.25);
-  font-size: 13px;
-  font-weight: 600;
-  color: #adaaaa;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s, color 0.15s;
-}
-
-.ratingBtnActive {
-  background: #7aafff;
-  border-color: #7aafff;
-  color: #002e5d;
-}
-
-.confirmBtn {
-  width: 100%;
-  background: linear-gradient(135deg, #7aafff, #5ea2ff);
-  border: none;
-  border-radius: 100px;
-  padding: 15px;
-  font-family: 'Manrope', sans-serif;
-  font-size: 14px;
-  font-weight: 800;
-  color: #002e5d;
-  cursor: pointer;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-  transition: transform 0.15s, opacity 0.15s;
-}
-
-.confirmBtn:active { transform: scale(0.98); }
-.confirmBtn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.cancelBtn {
-  width: 100%;
-  background: transparent;
-  border: 1px solid rgba(72, 72, 71, 0.35);
-  border-radius: 100px;
-  padding: 14px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #adaaaa;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.cancelBtn:active { background: #201f1f; }
+/* ── Sheet / modal ── */
+.overlay        { composes: overlay        from '../shared.module.css'; }
+.sheet          { composes: sheet          from '../shared.module.css'; }
+.sheetHandle    { composes: sheetHandle    from '../shared.module.css'; }
+.sheetGame      { composes: sheetGame      from '../shared.module.css'; }
+.sheetThumb     { composes: sheetThumb     from '../shared.module.css'; }
+.sheetThumbImg  { composes: sheetThumbImg  from '../shared.module.css'; }
+.sheetGameTitle { composes: sheetGameTitle from '../shared.module.css'; }
+.sheetLabel     { composes: sheetLabel     from '../shared.module.css'; }
+.statusRow      { composes: statusRow      from '../shared.module.css'; }
+.statusPill     { composes: statusPill     from '../shared.module.css'; }
+.statusPillActive { composes: statusPillActive from '../shared.module.css'; }
+.ratingRow      { composes: ratingRow      from '../shared.module.css'; }
+.ratingBtn      { composes: ratingBtn      from '../shared.module.css'; }
+.ratingBtnActive { composes: ratingBtnActive from '../shared.module.css'; }
+.confirmBtn     { composes: confirmBtn     from '../shared.module.css'; }
+.cancelBtn      { composes: cancelBtn      from '../shared.module.css'; }
 
 /* ── Toasts ── */
-.toastSuccess,
-.toastError {
-  position: fixed;
-  bottom: 100px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 12px 20px;
-  border-radius: 100px;
-  font-size: 13px;
-  font-weight: 600;
-  z-index: 300;
-  white-space: nowrap;
-}
-
-.toastSuccess {
-  background: rgba(74, 222, 128, 0.15);
-  border: 1px solid rgba(74, 222, 128, 0.25);
-  color: #4ade80;
-}
-
-.toastError {
-  background: rgba(255, 113, 108, 0.15);
-  border: 1px solid rgba(255, 113, 108, 0.25);
-  color: #ff716c;
-}
+.toastSuccess { composes: toastSuccess from '../shared.module.css'; }
+.toastError   { composes: toastError   from '../shared.module.css'; }

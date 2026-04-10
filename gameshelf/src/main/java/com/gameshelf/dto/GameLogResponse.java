@@ -2,6 +2,7 @@ package com.gameshelf.dto;
 
 import com.gameshelf.model.GameStatus;
 import lombok.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -15,4 +16,7 @@ public class GameLogResponse {
     private String coverUrl;
     private GameStatus status;
     private Integer rating;
+    private LocalDateTime createdAt;
+    private String releaseYear;
+    private Double igdbRating;
 }

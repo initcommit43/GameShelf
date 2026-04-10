@@ -1,7 +1,5 @@
 /* Mobile: hidden — bottom nav handles navigation */
-.nav {
-  display: none;
-}
+.nav { display: none; }
 
 /* Desktop: top navigation bar */
 @media (min-width: 768px) {
@@ -16,7 +14,7 @@
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    z-index: 100;
+    z-index: var(--z-nav);
   }
 }
 
@@ -31,10 +29,10 @@
 }
 
 .logo {
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-display);
   font-size: 17px;
   font-weight: 800;
-  color: #7aafff;
+  color: var(--accent);
   letter-spacing: -0.02em;
   text-transform: uppercase;
   cursor: pointer;
@@ -51,26 +49,26 @@
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   background: transparent;
   border: none;
   cursor: pointer;
   color: rgba(173, 170, 170, 0.6);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.01em;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--t), color var(--t);
 }
 
 .item:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: #e4e2e1;
+  color: var(--text-body);
 }
 
 .itemActive {
-  background: rgba(122, 175, 255, 0.1);
-  color: #7aafff;
+  background: var(--accent-bg);
+  color: var(--accent);
 }
 
 .icon {
@@ -82,7 +80,4 @@
   flex-shrink: 0;
 }
 
-.icon svg {
-  width: 16px;
-  height: 16px;
-}
+.icon svg { width: 16px; height: 16px; }

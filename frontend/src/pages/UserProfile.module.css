@@ -25,7 +25,7 @@
   height: 88px;
   border-radius: 50%;
   padding: 3px;
-  background: linear-gradient(135deg, #7aafff, #5ea2ff);
+  background: var(--gradient-accent);
   margin-bottom: 14px;
 }
 
@@ -33,25 +33,25 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: #0e0e0e;
+  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .avatarLetter {
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-display);
   font-size: 32px;
   font-weight: 800;
-  color: #7aafff;
+  color: var(--accent);
   text-transform: uppercase;
 }
 
 .userName {
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-display);
   font-size: 24px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text);
   letter-spacing: -0.02em;
   text-transform: uppercase;
   margin-bottom: 4px;
@@ -60,7 +60,7 @@
 .userMeta {
   font-size: 11px;
   font-weight: 600;
-  color: #adaaaa;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -76,40 +76,33 @@
 }
 
 @media (min-width: 768px) {
-  .statsGrid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+  .statsGrid { grid-template-columns: repeat(4, 1fr); }
 }
 
 .statCard {
-  background: #131313;
-  border-radius: 16px;
+  background: var(--bg-mid);
+  border-radius: var(--r-xl);
   padding: 18px;
   aspect-ratio: 1;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  transition: transform 0.15s;
+  transition: transform var(--t);
 }
 
-.statCard:active {
-  transform: scale(0.97);
-}
+.statCard:active { transform: scale(0.97); }
 
-.statIcon {
-  font-size: 20px;
-  margin-bottom: auto;
-}
+.statIcon { font-size: 20px; margin-bottom: auto; }
 
-.statIconBlue   { color: #7aafff; }
-.statIconGreen  { color: #4ade80; }
-.statIconAmber  { color: #f59e0b; }
+.statIconBlue  { color: var(--accent); }
+.statIconGreen { color: var(--success); }
+.statIconAmber { color: var(--warning); }
 
 .statValue {
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-display);
   font-size: 28px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text);
   line-height: 1;
   margin-bottom: 4px;
 }
@@ -117,7 +110,7 @@
 .statLabel {
   font-size: 9px;
   font-weight: 700;
-  color: #adaaaa;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
@@ -133,10 +126,10 @@
 }
 
 .sectionTitle {
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-display);
   font-size: 16px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text);
   text-transform: uppercase;
   letter-spacing: -0.01em;
 }
@@ -155,28 +148,24 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  background: #201f1f;
+  background: var(--bg-hover);
   border-radius: 14px;
   padding: 12px;
-  transition: background 0.15s;
+  transition: background var(--t);
 }
 
-.activityRow:active {
-  background: #262626;
-}
+.activityRow:active { background: var(--bg-active); }
 
 @media (min-width: 768px) {
-  .activityRow:hover {
-    background: #262626;
-  }
+  .activityRow:hover { background: var(--bg-active); }
 }
 
 .activityThumb {
   width: 44px;
   height: 58px;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   overflow: hidden;
-  background: #131313;
+  background: var(--bg-mid);
   flex-shrink: 0;
 }
 
@@ -194,22 +183,19 @@
   align-items: center;
   justify-content: center;
   font-size: 9px;
-  color: #adaaaa;
+  color: var(--text-muted);
   text-align: center;
   padding: 4px;
   line-height: 1.2;
 }
 
-.activityInfo {
-  flex: 1;
-  min-width: 0;
-}
+.activityInfo { flex: 1; min-width: 0; }
 
 .activityTitle {
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-display);
   font-size: 13px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -231,21 +217,22 @@
   letter-spacing: 0.08em;
 }
 
-.statusPlaying   { color: #f59e0b; }
-.statusCompleted { color: #4ade80; }
-.statusDropped   { color: #ff716c; }
-.statusBacklog   { color: #adaaaa; }
-.statusWishlist  { color: #7aafff; }
+/* Status colors — composed from shared */
+.statusPlaying   { composes: statusPlaying   from '../shared.module.css'; }
+.statusCompleted { composes: statusCompleted from '../shared.module.css'; }
+.statusDropped   { composes: statusDropped   from '../shared.module.css'; }
+.statusBacklog   { composes: statusBacklog   from '../shared.module.css'; }
+.statusWishlist  { composes: statusWishlist  from '../shared.module.css'; }
 
 .activityDot {
   font-size: 10px;
-  color: #adaaaa;
+  color: var(--text-muted);
 }
 
 .activityRating {
   font-size: 9px;
   font-weight: 700;
-  color: #adaaaa;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -255,7 +242,7 @@
   text-align: center;
   padding: 40px 0;
   font-size: 13px;
-  color: #adaaaa;
+  color: var(--text-muted);
 }
 
 /* ── Actions ── */
@@ -270,31 +257,22 @@
 .logoutBtn {
   width: 100%;
   background: transparent;
-  border: 1px solid rgba(72, 72, 71, 0.35);
-  border-radius: 100px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
   padding: 14px;
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-display);
   font-size: 13px;
   font-weight: 700;
-  color: #adaaaa;
+  color: var(--text-muted);
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--t), color var(--t);
 }
 
-.logoutBtn:active {
-  background: #201f1f;
-  color: #ffffff;
-}
+.logoutBtn:active { background: var(--bg-hover); color: var(--text); }
 
 @media (min-width: 768px) {
-  .logoutBtn {
-    max-width: 240px;
-  }
-
-  .logoutBtn:hover {
-    background: #201f1f;
-    color: #ffffff;
-  }
+  .logoutBtn { max-width: 240px; }
+  .logoutBtn:hover { background: var(--bg-hover); color: var(--text); }
 }

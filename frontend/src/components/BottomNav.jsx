@@ -18,6 +18,16 @@ function BottomNav() {
       </button>
 
       <button
+        className={`${styles.tab} ${pathname === '/browse' ? styles.tabActive : ''}`}
+        onClick={() => navigate('/browse')}
+      >
+        <svg className={styles.tabIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+        </svg>
+        <span className={styles.tabLabel}>Browse</span>
+      </button>
+
+      <button
         className={`${styles.tab} ${pathname === '/shelf' ? styles.tabActive : ''}`}
         onClick={() => navigate('/shelf')}
       >

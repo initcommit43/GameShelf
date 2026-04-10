@@ -54,6 +54,12 @@ export const gameService = {
     return res.json()
   },
 
+  browse: async (sort = 'rating', offset = 0) => {
+    const res = await fetch(`${BASE_URL}/games/browse?sort=${sort}&offset=${offset}`, { headers: getHeaders() })
+    if (!res.ok) throw new Error('Failed to fetch games')
+    return res.json()
+  },
+
   getDetails: async (igdbId) => {
     const res = await fetch(`${BASE_URL}/games/${igdbId}`, { headers: getHeaders() })
     if (!res.ok) throw new Error('Failed to fetch game details')
@@ -70,11 +76,11 @@ export const logService = {
     return res.json()
   },
 
-  addLog: async ({ igdbId, title, coverUrl, status, rating }) => {
+  addLog: async ({ igdbId, title, coverUrl, releaseYear, igdbRating, status, rating }) => {
     const res = await fetch(`${BASE_URL}/logs`, {
       method: 'POST',
       headers: getHeaders(),
-      body: JSON.stringify({ igdbId, title, coverUrl, status, rating }),
+      body: JSON.stringify({ igdbId, title, coverUrl, releaseYear, igdbRating, status, rating }),
     })
     if (!res.ok) throw new Error(await parseError(res))
     return res.json()

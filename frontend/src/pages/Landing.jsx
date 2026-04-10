@@ -167,7 +167,7 @@ function Landing() {
                   Create a free account
                 </button>
               )}
-              <button className={styles.ctaSecondary} onClick={() => navigate('/search')}>
+              <button className={styles.ctaSecondary} onClick={() => navigate('/browse')}>
                 Browse popular titles
               </button>
             </div>

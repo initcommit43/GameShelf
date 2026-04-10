@@ -12,6 +12,8 @@ public class GameLogRequest {
     private Integer igdbId;
     private String title;
     private String coverUrl;
+    private String releaseYear;
+    private Double igdbRating;
     private GameStatus status;
     private Integer rating;
 }

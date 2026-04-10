@@ -26,6 +26,12 @@ public class Game {
     @Column(name = "cover_url")
     private String coverUrl;
 
+    @Column(name = "release_year")
+    private String releaseYear;
+
+    @Column(name = "igdb_rating")
+    private Double igdbRating;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

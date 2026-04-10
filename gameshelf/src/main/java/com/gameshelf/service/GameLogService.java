@@ -33,6 +33,8 @@ public class GameLogService {
                         .igdbId(request.getIgdbId())
                         .title(request.getTitle())
                         .coverUrl(request.getCoverUrl())
+                        .releaseYear(request.getReleaseYear())
+                        .igdbRating(request.getIgdbRating())
                         .build();
                 return gameRepository.save(newGame);
             });
@@ -104,7 +106,10 @@ public class GameLogService {
                 log.getGame().getTitle(),
                 log.getGame().getCoverUrl(),
                 log.getStatus(),
-                log.getRating()
+                log.getRating(),
+                log.getCreatedAt(),
+                log.getGame().getReleaseYear(),
+                log.getGame().getIgdbRating()
         );
     }
 }
