@@ -153,6 +153,20 @@
 .coverImg         { composes: coverFill  from '../shared.module.css'; }
 .coverPlaceholder { composes: coverEmpty from '../shared.module.css'; }
 
+/* ── IGDB score badge (top-right overlay on cover) ── */
+.igdbBadge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 3px 6px;
+  border-radius: var(--r-xs);
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(14, 14, 14, 0.82);
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+
 /* ── Status badge (overlay on cover) ── */
 .statusBadge {
   position: absolute;

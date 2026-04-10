@@ -5,6 +5,10 @@ import styles from './Landing.module.css'
 
 const STATUSES = ['PLAYING', 'COMPLETED', 'BACKLOG', 'DROPPED', 'WISHLIST']
 
+// Change these 4 IGDB game IDs to whatever covers you want in the editorial grid.
+// Find an ID by searching the game on the app and checking the URL on its detail page.
+const EDITORIAL_IGDB_IDS = [7351, 1942, 119171, 1020] // Doom, Witcher 3, Baldurs Gate 3, GTA 5
+
 const REVIEWS = [
   {
     user: 'Pixel_Architect', role: 'Expert Reviewer',
@@ -44,6 +48,7 @@ function Landing() {
   const [heroQuery, setHeroQuery] = useState('')
   const [trendingGames, setTrendingGames] = useState([])
   const [trendingLoading, setTrendingLoading] = useState(true)
+  const [editorialCovers, setEditorialCovers] = useState([])
 
   const [selected, setSelected] = useState(null)
   const [shelfStatus, setShelfStatus] = useState('')
@@ -56,6 +61,11 @@ function Landing() {
       .then(data => setTrendingGames(data.slice(0, 12)))
       .catch(() => setTrendingGames([]))
       .finally(() => setTrendingLoading(false))
+
+    // Fetch the 4 editorial covers independently from trending
+    Promise.all(EDITORIAL_IGDB_IDS.map(id => gameService.getDetails(id)))
+      .then(games => setEditorialCovers(games.filter(g => g?.coverUrl)))
+      .catch(() => {})
   }, [])
 
   const openSheet = (game) => {
@@ -236,11 +246,16 @@ function Landing() {
             <div className={styles.editorialVisual}>
               <div className={styles.editorialCard}>
                 <div className={styles.editorialIconGrid}>
-                  {['auto_awesome', 'data_thresholding', 'interests', 'rebase_edit'].map(icon => (
-                    <div key={icon} className={styles.editorialIconBox}>
-                      <span className="material-symbols-outlined" style={{ fontSize: 36, color: 'rgba(122,175,255,0.35)' }}>{icon}</span>
-                    </div>
-                  ))}
+                  {editorialCovers.length > 0
+                    ? editorialCovers.map(game => (
+                        <div key={game.igdbId} className={styles.editorialIconBox}>
+                          <img src={game.coverUrl} alt={game.title} className={styles.editorialIconBoxImg} />
+                        </div>
+                      ))
+                    : Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className={`${styles.editorialIconBox} ${styles.editorialIconBoxSkeleton}`} />
+                      ))
+                  }
                 </div>
               </div>
               <div className={styles.editorialOverlayCard}>

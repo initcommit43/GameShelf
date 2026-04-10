@@ -1,5 +1,6 @@
 package com.gameshelf.service;
 
+import com.gameshelf.dto.GameDetailResponse;
 import com.gameshelf.dto.GameLogRequest;
 import com.gameshelf.dto.GameLogResponse;
 import com.gameshelf.model.Game;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ public class GameLogService {
     private final GameLogRepository gameLogRepository;
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
+    private final GameService gameService;
 
     public GameLogResponse addLog(String username, GameLogRequest request) {
         User user = userRepository.findByUsername(username)
@@ -87,15 +91,36 @@ public class GameLogService {
         gameLogRepository.delete(log);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<GameLogResponse> getUserLogs(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return gameLogRepository.findByUserId(user.getId())
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        List<GameLog> logs = gameLogRepository.findByUserId(user.getId());
+
+        // One-time batch backfill: fetch missing releaseYear/igdbRating in a single IGDB call
+        List<Game> missing = logs.stream()
+                .map(GameLog::getGame)
+                .filter(g -> g.getIgdbId() != null && (g.getReleaseYear() == null || g.getIgdbRating() == null))
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (!missing.isEmpty()) {
+            try {
+                List<Integer> ids = missing.stream().map(Game::getIgdbId).collect(Collectors.toList());
+                Map<Integer, GameDetailResponse> details = gameService.getGameDetailsBatch(ids);
+                for (Game game : missing) {
+                    GameDetailResponse d = details.get(game.getIgdbId());
+                    if (d != null) {
+                        game.setReleaseYear(d.getReleaseYear());
+                        game.setIgdbRating(d.getRating());
+                        gameRepository.save(game);
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+
+        return logs.stream().map(this::toResponse).toList();
     }
 
     private GameLogResponse toResponse(GameLog log) {

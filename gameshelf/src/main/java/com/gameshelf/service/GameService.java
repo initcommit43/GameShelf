@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -59,8 +60,9 @@ public class GameService {
     }
 
     public List<GameResponse> getTrendingGames() {
-        // Step 1: fetch trending game IDs ordered by visit count
-        String popularityBody = "fields game_id; sort value desc; where popularity_type = 1; limit 12;";
+        // Fetch 40 candidates so the rating_count filter below has room to cut junk without
+        // emptying the list — after filtering we take the top 12.
+        String popularityBody = "fields game_id; sort value desc; where popularity_type = 1; limit 40;";
 
         IgdbPopularity[] popularityResults = igdbClient
                 .post()
@@ -80,8 +82,10 @@ public class GameService {
             ids.append(popularityResults[i].game_id);
         }
 
-        // Step 2: fetch game details for those IDs
-        String gamesBody = "fields id,name,cover.url; where id = (" + ids + ") & cover != null; limit 12;";
+        // rating_count > 50 for trending — these are currently popular games, not all-time greats,
+        // so the bar is intentionally lower. It still cuts one-off viral jokes with no real player base.
+        // limit matches the fetch size (40) so IGDB doesn't cut results before our Java sort+trim.
+        String gamesBody = "fields id,name,cover.url; where id = (" + ids + ") & cover != null & rating_count > 50; limit 40;";
 
         IgdbGame[] games = igdbClient
                 .post()
@@ -94,14 +98,18 @@ public class GameService {
 
         return Arrays.stream(games)
                 .sorted(Comparator.comparingInt(g -> rankMap.getOrDefault(g.id, Integer.MAX_VALUE)))
+                .limit(12)
                 .map(this::toGameResponse)
                 .toList();
     }
 
     public List<GameResponse> browseGames(String sort, int offset) {
         String validSort = List.of("rating", "hypes", "first_release_date").contains(sort) ? sort : "rating";
+        // rating_count > 500 keeps the score statistically meaningful while preserving notable
+        // indie games (Hades ~3k, Disco Elysium ~2k). Category is intentionally omitted —
+        // many legitimate IGDB entries have category unset, so a whitelist silently drops them.
         String body = String.format(
-                "fields id,name,cover.url,rating; where cover != null & rating != null & rating > 60; sort %s desc; limit 24; offset %d;",
+                "fields id,name,cover.url,rating; where cover != null & rating != null & rating > 75 & rating_count > 500; sort %s desc; limit 24; offset %d;",
                 validSort, offset);
 
         IgdbGame[] results = igdbClient
@@ -151,6 +159,24 @@ public class GameService {
 
         return new GameDetailResponse(igdbId, game.name, coverUrl, game.summary,
                 game.rating, genres, releaseYear, platforms);
+    }
+
+    public Map<Integer, GameDetailResponse> getGameDetailsBatch(List<Integer> igdbIds) {
+        if (igdbIds.isEmpty()) return Map.of();
+        String ids = igdbIds.stream().map(String::valueOf).collect(Collectors.joining(","));
+        String body = "fields id,rating,first_release_date; where id = (" + ids + "); limit " + igdbIds.size() + ";";
+
+        IgdbGame[] results = igdbClient.post().uri("/games").body(body).retrieve().body(IgdbGame[].class);
+        if (results == null) return Map.of();
+
+        Map<Integer, GameDetailResponse> map = new HashMap<>();
+        for (IgdbGame g : results) {
+            String releaseYear = g.first_release_date != null
+                    ? String.valueOf(Instant.ofEpochSecond(g.first_release_date).atZone(ZoneOffset.UTC).getYear())
+                    : null;
+            map.put(g.id, new GameDetailResponse(g.id, null, null, null, g.rating, List.of(), releaseYear, List.of()));
+        }
+        return map;
     }
 
     public GameResponse getOrSaveGame(Integer igdbId, String title, String coverUrl) {

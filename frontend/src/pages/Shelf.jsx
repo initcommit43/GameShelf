@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { logService } from '../services/api'
 import Layout from '../components/Layout'
 import styles from './Shelf.module.css'
@@ -10,7 +10,7 @@ const SORT_LABELS = {
   DATE_ADDED: 'Date added',
   RELEASE_YEAR: 'Release year',
   IGDB_SCORE: 'IGDB score',
-  YOUR_RATING: 'Your rating',
+  YOUR_RATING: 'Personal rating',
 }
 
 const STATUS_SORT_ORDER = {
@@ -32,19 +32,24 @@ const statusClassMap = {
 function Shelf() {
   const [logs, setLogs] = useState([])
   const [loading, setLoading] = useState(true)
-  const [activeFilter, setActiveFilter] = useState('ALL')
-  const [viewMode, setViewMode] = useState('grid')
-
   const [editingLog, setEditingLog] = useState(null)
   const [editStatus, setEditStatus] = useState('')
   const [editRating, setEditRating] = useState(null)
   const [submitting, setSubmitting] = useState(false)
-
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
-  const [sortOption, setSortOption] = useState(null)
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
 
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // Read filter/sort/view from URL — persists across refresh and supports back/forward
+  const activeFilter = searchParams.get('filter') ?? 'ALL'
+  const sortOption   = searchParams.get('sort')   ?? null
+  const viewMode     = searchParams.get('view')   ?? 'grid'
+
+  const setActiveFilter = (val) => setSearchParams(p => { const n = new URLSearchParams(p); val === 'ALL' ? n.delete('filter') : n.set('filter', val); return n })
+  const setSortOption   = (val) => setSearchParams(p => { const n = new URLSearchParams(p); val == null ? n.delete('sort') : n.set('sort', val); return n })
+  const setViewMode     = (val) => setSearchParams(p => { const n = new URLSearchParams(p); n.set('view', val); return n })
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -247,6 +252,9 @@ function Shelf() {
                   ? <img src={log.coverUrl} alt={log.gameTitle} className={styles.coverImg} />
                   : <div className={styles.coverPlaceholder}>{log.gameTitle}</div>
                 }
+                {sortOption === 'IGDB_SCORE' && log.igdbRating != null && (
+                  <div className={styles.igdbBadge}>★ {Math.round(log.igdbRating)}</div>
+                )}
                 <div className={`${styles.statusBadge} ${statusClassMap[log.status] ?? ''}`}>
                   {log.status.charAt(0) + log.status.slice(1).toLowerCase()}
                 </div>
@@ -286,7 +294,10 @@ function Shelf() {
                 </div>
               </div>
               <div className={styles.listRight}>
-                <span className={styles.listRating}>{log.rating ? `${log.rating}/10` : '—'}</span>
+                {sortOption === 'IGDB_SCORE' && log.igdbRating != null
+                  ? <span className={styles.listRating} style={{ color: 'var(--accent)' }}>★ {Math.round(log.igdbRating)}</span>
+                  : <span className={styles.listRating}>{log.rating ? `${log.rating}/10` : '—'}</span>
+                }
                 <div className={styles.actionRow}>
                   <button className={styles.actionBtn} onClick={() => openEdit(log)} title="Edit">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
