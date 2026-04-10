@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { logService } from '../services/api'
 import Layout from '../components/Layout'
 import styles from './Shelf.module.css'
@@ -39,17 +39,17 @@ function Shelf() {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
 
+  // Persist filter/sort/view in localStorage so they survive navigation and refresh.
+  // Cleared on logout (see UserProfile handleLogout).
+  const [activeFilter, setActiveFilterState] = useState(() => localStorage.getItem('shelf_filter') ?? 'ALL')
+  const [sortOption,   setSortOptionState]   = useState(() => localStorage.getItem('shelf_sort')   ?? null)
+  const [viewMode,     setViewModeState]     = useState(() => localStorage.getItem('shelf_view')   ?? 'grid')
+
+  const setActiveFilter = (val) => { setActiveFilterState(val); val === 'ALL' ? localStorage.removeItem('shelf_filter') : localStorage.setItem('shelf_filter', val) }
+  const setSortOption   = (val) => { setSortOptionState(val);   val == null   ? localStorage.removeItem('shelf_sort')   : localStorage.setItem('shelf_sort', val) }
+  const setViewMode     = (val) => { setViewModeState(val);     localStorage.setItem('shelf_view', val) }
+
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  // Read filter/sort/view from URL — persists across refresh and supports back/forward
-  const activeFilter = searchParams.get('filter') ?? 'ALL'
-  const sortOption   = searchParams.get('sort')   ?? null
-  const viewMode     = searchParams.get('view')   ?? 'grid'
-
-  const setActiveFilter = (val) => setSearchParams(p => { const n = new URLSearchParams(p); val === 'ALL' ? n.delete('filter') : n.set('filter', val); return n })
-  const setSortOption   = (val) => setSearchParams(p => { const n = new URLSearchParams(p); val == null ? n.delete('sort') : n.set('sort', val); return n })
-  const setViewMode     = (val) => setSearchParams(p => { const n = new URLSearchParams(p); n.set('view', val); return n })
 
   useEffect(() => {
     const token = localStorage.getItem('token')

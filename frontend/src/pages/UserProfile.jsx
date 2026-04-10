@@ -45,6 +45,9 @@ function UserProfile() {
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('username')
+    localStorage.removeItem('shelf_filter')
+    localStorage.removeItem('shelf_sort')
+    localStorage.removeItem('shelf_view')
     navigate('/login')
   }
 
