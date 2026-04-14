@@ -16,8 +16,8 @@ const SORT_LABELS = {
 const STATUS_SORT_ORDER = {
   PLAYING: 1,
   COMPLETED: 2,
-  WISHLIST: 3,
-  BACKLOG: 4,
+  BACKLOG: 3,
+  WISHLIST: 4,
   DROPPED: 5,
 }
 
@@ -44,10 +44,12 @@ function Shelf() {
   const [activeFilter, setActiveFilterState] = useState(() => localStorage.getItem('shelf_filter') ?? 'ALL')
   const [sortOption,   setSortOptionState]   = useState(() => localStorage.getItem('shelf_sort')   ?? null)
   const [viewMode,     setViewModeState]     = useState(() => localStorage.getItem('shelf_view')   ?? 'grid')
+  const [showIgdb,     setShowIgdbState]     = useState(() => localStorage.getItem('shelf_igdb') === 'true')
 
   const setActiveFilter = (val) => { setActiveFilterState(val); val === 'ALL' ? localStorage.removeItem('shelf_filter') : localStorage.setItem('shelf_filter', val) }
   const setSortOption   = (val) => { setSortOptionState(val);   val == null   ? localStorage.removeItem('shelf_sort')   : localStorage.setItem('shelf_sort', val) }
   const setViewMode     = (val) => { setViewModeState(val);     localStorage.setItem('shelf_view', val) }
+  const setShowIgdb     = (val) => { setShowIgdbState(val);     localStorage.setItem('shelf_igdb', val) }
 
   const navigate = useNavigate()
 
@@ -227,6 +229,19 @@ function Shelf() {
               onClick={() => setViewMode('list')}
             >List</button>
           </div>
+
+          <label className={styles.igdbToggle} title="Show IGDB rating">
+            <input
+              type="checkbox"
+              className={styles.igdbToggleInput}
+              checked={showIgdb}
+              onChange={(e) => setShowIgdb(e.target.checked)}
+            />
+            <span className={styles.igdbToggleTrack}>
+              <span className={styles.igdbToggleThumb} />
+            </span>
+            <span className={styles.igdbToggleLabel}>IGDB</span>
+          </label>
         </div>
       </div>
 
@@ -257,7 +272,7 @@ function Shelf() {
                   ? <img src={log.coverUrl} alt={log.gameTitle} className={styles.coverImg} />
                   : <div className={styles.coverPlaceholder}>{log.gameTitle}</div>
                 }
-                {sortOption === 'IGDB_SCORE' && log.igdbRating != null && (
+                {showIgdb && log.igdbRating != null && (
                   <div className={styles.igdbBadge}>★ {Math.round(log.igdbRating)}</div>
                 )}
                 <div className={`${styles.statusBadge} ${statusClassMap[log.status] ?? ''}`}>
@@ -299,7 +314,7 @@ function Shelf() {
                 </div>
               </div>
               <div className={styles.listRight}>
-                {sortOption === 'IGDB_SCORE' && log.igdbRating != null
+                {showIgdb && log.igdbRating != null
                   ? <span className={styles.listRating} style={{ color: 'var(--accent)' }}>★ {Math.round(log.igdbRating)}</span>
                   : <span className={styles.listRating}>{log.rating ? `${log.rating}/10` : '—'}</span>
                 }

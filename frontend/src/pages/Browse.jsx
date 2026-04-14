@@ -11,6 +11,7 @@ const SORT_OPTIONS = [
 ]
 
 const RECS_PAGE_SIZE = 20
+const STATUSES = ['PLAYING', 'COMPLETED', 'BACKLOG', 'DROPPED', 'WISHLIST']
 
 // IGDB genre IDs (most common)
 const GENRE_OPTIONS = [
@@ -68,6 +69,13 @@ function Browse() {
   const [minRating, setMinRating]     = useState(null)
   const [yearFrom, setYearFrom]       = useState(null)
   const [yearTo, setYearTo]           = useState(null)
+
+  // Quick-add sheet
+  const [selected, setSelected]       = useState(null)
+  const [status, setStatus]           = useState('')
+  const [rating, setRating]           = useState(null)
+  const [submitting, setSubmitting]   = useState(false)
+  const [successMsg, setSuccessMsg]   = useState('')
 
   // Shelf membership — used to badge already-shelved games
   const [shelfIds, setShelfIds]       = useState(new Set())
@@ -156,11 +164,49 @@ function Browse() {
     applyFilters({ [key]: next })
   }
 
+  const openSheet = (e, game) => {
+    e.stopPropagation()
+    setSelected(game)
+    setStatus('')
+    setRating(null)
+    setSuccessMsg('')
+  }
+
+  const closeSheet = () => {
+    setSelected(null)
+    setStatus('')
+    setRating(null)
+  }
+
+  const handleConfirm = async () => {
+    if (!status) return
+    setSubmitting(true)
+    try {
+      await logService.addLog({ igdbId: selected.igdbId, title: selected.title, coverUrl: selected.coverUrl, status, rating: rating ?? undefined })
+      setShelfIds(prev => new Set(prev).add(selected.igdbId))
+      closeSheet()
+      setSuccessMsg(`"${selected.title}" added to your shelf.`)
+      setTimeout(() => setSuccessMsg(''), 3000)
+    } catch {
+      closeSheet()
+      setSuccessMsg('Already on your shelf.')
+      setTimeout(() => setSuccessMsg(''), 3000)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   const visibleRecs = recs.slice(0, recsVisible)
   const hasMoreRecs = recsVisible < recs.length
 
   return (
     <Layout>
+      {successMsg && (
+        <div className={successMsg.startsWith('Already') ? styles.errorBanner : styles.successBanner}>
+          {successMsg}
+        </div>
+      )}
+
       <div className={styles.header}>
         <span className={styles.title}>Browse</span>
       </div>
@@ -314,7 +360,10 @@ function Browse() {
                       ? <img src={rec.coverUrl} alt={rec.title} className={styles.coverImg} />
                       : <div className={styles.coverPlaceholder}>{rec.title}</div>
                     }
-                    {shelfIds.has(rec.igdbId) && <div className={styles.shelvedBadge}>On shelf</div>}
+                    {shelfIds.has(rec.igdbId)
+                      ? <div className={styles.shelvedBadge}>On shelf</div>
+                      : <button className={styles.addOverlay} onClick={(e) => openSheet(e, rec)}>+</button>
+                    }
                   </div>
                   <div className={styles.cardTitle}>{rec.title}</div>
                   {rec.reasons?.[0] && (
@@ -355,7 +404,10 @@ function Browse() {
                     ? <img src={game.coverUrl} alt={game.title} className={styles.coverImg} />
                     : <div className={styles.coverPlaceholder}>{game.title}</div>
                   }
-                  {shelfIds.has(game.igdbId) && <div className={styles.shelvedBadge}>On shelf</div>}
+                  {shelfIds.has(game.igdbId)
+                    ? <div className={styles.shelvedBadge}>On shelf</div>
+                    : <button className={styles.addOverlay} onClick={(e) => openSheet(e, game)}>+</button>
+                  }
                 </div>
                 <div className={styles.cardTitle}>{game.title}</div>
               </div>
@@ -370,6 +422,55 @@ function Browse() {
             </div>
           )}
         </>
+      )}
+      {selected && (
+        <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && closeSheet()}>
+          <div className={styles.sheet}>
+            <div className={styles.sheetHandle} />
+
+            <div className={styles.sheetGame}>
+              <div className={styles.sheetThumb}>
+                {selected.coverUrl && <img src={selected.coverUrl} alt={selected.title} className={styles.sheetThumbImg} />}
+              </div>
+              <div className={styles.sheetGameTitle}>{selected.title}</div>
+            </div>
+
+            <div className={styles.sheetLabel}>Status</div>
+            <div className={styles.statusRow}>
+              {STATUSES.map(s => (
+                <button
+                  key={s}
+                  className={`${styles.statusPill}${status === s ? ` ${styles.statusPillActive}` : ''}`}
+                  onClick={() => setStatus(s)}
+                >
+                  {s.charAt(0) + s.slice(1).toLowerCase()}
+                </button>
+              ))}
+            </div>
+
+            <div className={styles.sheetLabel}>Rating (optional)</div>
+            <div className={styles.ratingRow}>
+              {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
+                <button
+                  key={n}
+                  className={`${styles.ratingBtn}${rating === n ? ` ${styles.ratingBtnActive}` : ''}`}
+                  onClick={() => setRating(rating === n ? null : n)}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+
+            <button
+              className={styles.confirmBtn}
+              onClick={handleConfirm}
+              disabled={!status || submitting}
+            >
+              {submitting ? 'Adding...' : 'Add to shelf'}
+            </button>
+            <button className={styles.cancelBtn} onClick={closeSheet}>Cancel</button>
+          </div>
+        </div>
       )}
     </Layout>
   )
