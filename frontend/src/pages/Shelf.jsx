@@ -121,7 +121,7 @@ function Shelf() {
     : logs.filter(log => log.status === activeFilter)
 
   const displayedLogs = (() => {
-    if (!sortOption) return filteredLogs
+    if (!sortOption) return [...filteredLogs].sort((a, b) => a.gameTitle.localeCompare(b.gameTitle))
     const sorted = [...filteredLogs]
     if (STATUSES.includes(sortOption)) {
       return sorted.sort((a, b) => {

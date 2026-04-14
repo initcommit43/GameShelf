@@ -5,7 +5,7 @@ import styles from './Landing.module.css'
 
 const STATUSES = ['PLAYING', 'COMPLETED', 'BACKLOG', 'DROPPED', 'WISHLIST']
 
-// Change these 4 IGDB game IDs to whatever covers you want in the editorial grid.
+
 // Find an ID by searching the game on the app and checking the URL on its detail page.
 const EDITORIAL_IGDB_IDS = [7351, 1942, 119171, 1020] // Doom, Witcher 3, Baldurs Gate 3, GTA 5
 
