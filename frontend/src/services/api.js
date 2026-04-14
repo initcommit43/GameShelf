@@ -54,8 +54,21 @@ export const gameService = {
     return res.json()
   },
 
-  browse: async (sort = 'rating', offset = 0) => {
-    const res = await fetch(`${BASE_URL}/games/browse?sort=${sort}&offset=${offset}`, { headers: getHeaders() })
+  getRecommendations: async () => {
+    const res = await fetch(`${BASE_URL}/games/recommendations`, { headers: getHeaders() })
+    if (res.status === 401) throw new Error('UNAUTHORIZED')
+    if (!res.ok) throw new Error('Failed to fetch recommendations')
+    return res.json()
+  },
+
+  browse: async (sort = 'rating', offset = 0, filters = {}) => {
+    const params = new URLSearchParams({ sort, offset })
+    if (filters.genreId    != null) params.set('genreId',    filters.genreId)
+    if (filters.platformId != null) params.set('platformId', filters.platformId)
+    if (filters.minRating  != null) params.set('minRating',  filters.minRating)
+    if (filters.yearFrom   != null) params.set('yearFrom',   filters.yearFrom)
+    if (filters.yearTo     != null) params.set('yearTo',     filters.yearTo)
+    const res = await fetch(`${BASE_URL}/games/browse?${params}`, { headers: getHeaders() })
     if (!res.ok) throw new Error('Failed to fetch games')
     return res.json()
   },

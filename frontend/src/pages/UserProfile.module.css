@@ -150,17 +150,16 @@
 .statCard {
   background: var(--bg-mid);
   border-radius: var(--r-xl);
-  padding: 18px;
-  aspect-ratio: 1;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  gap: 6px;
   transition: transform var(--t);
 }
 
 .statCard:active { transform: scale(0.97); }
 
-.statIcon { font-size: 20px; margin-bottom: auto; }
+.statIcon { font-size: 18px; }
 
 .statIconBlue  { color: var(--accent); }
 .statIconGreen { color: var(--success); }

@@ -3,6 +3,7 @@ package com.gameshelf.controller;
 import com.gameshelf.dto.GameLogRequest;
 import com.gameshelf.dto.GameLogResponse;
 import com.gameshelf.service.GameLogService;
+import com.gameshelf.service.RecommendationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.util.List;
 public class GameLogController {
 
     private final GameLogService gameLogService;
+    private final RecommendationService recommendationService;
 
     @GetMapping
     public ResponseEntity<List<GameLogResponse>> getUserLogs(Principal principal) {
@@ -25,7 +27,9 @@ public class GameLogController {
 
     @PostMapping
     public ResponseEntity<GameLogResponse> addLog(Principal principal, @Valid @RequestBody GameLogRequest request) {
-        return ResponseEntity.ok(gameLogService.addLog(principal.getName(), request));
+        GameLogResponse response = gameLogService.addLog(principal.getName(), request);
+        recommendationService.invalidateCache(principal.getName());
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
