@@ -21,6 +21,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final TokenBlocklistService tokenBlocklistService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -36,6 +37,12 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
+
+        if (tokenBlocklistService.isBlocked(token)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String username = jwtService.extractUsername(token);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

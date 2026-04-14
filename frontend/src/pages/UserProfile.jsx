@@ -42,7 +42,16 @@ function UserProfile() {
       .finally(() => setLoading(false))
   }, [])
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      try {
+        await fetch('http://localhost:8080/api/auth/logout', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        })
+      } catch { /* best-effort — clear client state regardless */ }
+    }
     localStorage.removeItem('token')
     localStorage.removeItem('username')
     localStorage.removeItem('shelf_filter')

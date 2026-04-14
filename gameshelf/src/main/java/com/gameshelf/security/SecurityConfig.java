@@ -27,10 +27,12 @@ public class SecurityConfig {
 
     private final UserRepository userRepository;
     private final JwtFilter jwtFilter;
+    private final RateLimitFilter rateLimitFilter;
 
-    public SecurityConfig(UserRepository userRepository, @Lazy JwtFilter jwtFilter) {
+    public SecurityConfig(UserRepository userRepository, @Lazy JwtFilter jwtFilter, RateLimitFilter rateLimitFilter) {
         this.userRepository = userRepository;
         this.jwtFilter = jwtFilter;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     @Bean
@@ -86,6 +88,7 @@ public class SecurityConfig {
                                 "Permissions-Policy", "camera=(), microphone=(), geolocation()"))
                 )
                 .authenticationProvider(authenticationProvider())
+                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

@@ -50,4 +50,14 @@ public class JwtService {
             return false;
         }
     }
+
+    public java.time.Instant extractExpiry(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getExpiration()
+                .toInstant();
+    }
 }
