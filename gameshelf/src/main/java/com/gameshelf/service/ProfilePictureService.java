@@ -1,5 +1,6 @@
 package com.gameshelf.service;
 
+import com.gameshelf.exception.NotFoundException;
 import com.gameshelf.model.User;
 import com.gameshelf.repository.UserRepository;
 import com.gameshelf.storage.StorageService;
@@ -46,15 +47,21 @@ public class ProfilePictureService {
             throw new IllegalArgumentException("File size must be 3 MB or less");
         }
 
+        // Read bytes once so magic-byte check and processing share the same buffer
+        byte[] raw = file.getBytes();
+        if (!hasValidMagicBytes(raw)) {
+            throw new IllegalArgumentException("File content does not match a supported image format");
+        }
+
         // ── 2. Process — center-crop → 256×256 → JPEG 85% ───────────────────────
-        byte[] processed = ImageProcessingUtil.processProfileImage(file.getBytes());
+        byte[] processed = ImageProcessingUtil.processProfileImage(raw);
 
         // ── 3. Build a unique filename so browsers never serve a stale cached version
         String filename = UUID.randomUUID() + ".jpg";
 
         // ── 4. Remove the previous avatar file (best-effort; storage impl ignores missing)
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         String oldUrl = user.getProfilePictureUrl();
         if (oldUrl != null && !oldUrl.isBlank()) {
@@ -71,12 +78,37 @@ public class ProfilePictureService {
         return publicUrl;
     }
 
+    // Checks the leading bytes of the file against known image magic numbers.
+    // JPEG: FF D8 FF
+    // PNG:  89 50 4E 47 0D 0A 1A 0A
+    // WebP: "RIFF" at 0–3 + "WEBP" at 8–11
+    private boolean hasValidMagicBytes(byte[] bytes) {
+        if (bytes == null || bytes.length < 12) return false;
+
+        // JPEG
+        if ((bytes[0] & 0xFF) == 0xFF &&
+            (bytes[1] & 0xFF) == 0xD8 &&
+            (bytes[2] & 0xFF) == 0xFF) return true;
+
+        // PNG
+        if ((bytes[0] & 0xFF) == 0x89 &&
+            bytes[1] == 'P' && bytes[2] == 'N' && bytes[3] == 'G' &&
+            bytes[4] == '\r' && bytes[5] == '\n' &&
+            (bytes[6] & 0xFF) == 0x1A && bytes[7] == '\n') return true;
+
+        // WebP
+        if (bytes[0] == 'R' && bytes[1] == 'I' && bytes[2] == 'F' && bytes[3] == 'F' &&
+            bytes[8] == 'W' && bytes[9] == 'E' && bytes[10] == 'B' && bytes[11] == 'P') return true;
+
+        return false;
+    }
+
     /**
      * Returns the current profile picture URL for the user, or null if none is set.
      */
     public String getProfilePictureUrl(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username))
+                .orElseThrow(() -> new NotFoundException("User not found"))
                 .getProfilePictureUrl();
     }
 }

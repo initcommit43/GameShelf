@@ -94,6 +94,7 @@ export const logService = {
     const res = await fetch(`${BASE_URL}/logs`, {
       headers: getHeaders(),
     })
+    if (res.status === 401) throw new Error('UNAUTHORIZED')
     if (!res.ok) throw new Error('Failed to fetch logs')
     return res.json()
   },

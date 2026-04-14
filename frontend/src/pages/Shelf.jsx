@@ -65,6 +65,11 @@ function Shelf() {
       const data = await logService.getLogs()
       setLogs(data)
     } catch (err) {
+      if (err.message === 'UNAUTHORIZED') {
+        localStorage.removeItem('token')
+        navigate('/login')
+        return
+      }
       console.error(err)
     } finally {
       setLoading(false)

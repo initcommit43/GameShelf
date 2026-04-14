@@ -3,6 +3,7 @@ package com.gameshelf.controller;
 import com.gameshelf.dto.GameLogRequest;
 import com.gameshelf.dto.GameLogResponse;
 import com.gameshelf.service.GameLogService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,12 +24,12 @@ public class GameLogController {
     }
 
     @PostMapping
-    public ResponseEntity<GameLogResponse> addLog(Principal principal, @RequestBody GameLogRequest request) {
+    public ResponseEntity<GameLogResponse> addLog(Principal principal, @Valid @RequestBody GameLogRequest request) {
         return ResponseEntity.ok(gameLogService.addLog(principal.getName(), request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<GameLogResponse> updateLog(Principal principal, @PathVariable Long id, @RequestBody GameLogRequest request) {
+    public ResponseEntity<GameLogResponse> updateLog(Principal principal, @PathVariable Long id, @Valid @RequestBody GameLogRequest request) {
         return ResponseEntity.ok(gameLogService.updateLog(principal.getName(), id, request));
     }
 

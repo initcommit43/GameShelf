@@ -43,7 +43,13 @@ public class GameService {
     }
 
     public List<GameResponse> searchGames(String query) {
-        String body = "search \"" + query + "\"; fields id,name,cover.url; limit 10;";
+        // Strip double-quotes to prevent breaking out of the IGDB search string,
+        // then cap length so oversized input can't be used for abuse.
+        String sanitized = query.replace("\"", "").trim();
+        if (sanitized.isEmpty()) return List.of();
+        if (sanitized.length() > 100) sanitized = sanitized.substring(0, 100);
+
+        String body = "search \"" + sanitized + "\"; fields id,name,cover.url; limit 10;";
 
         IgdbGame[] results = igdbClient
                 .post()

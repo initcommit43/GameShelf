@@ -3,6 +3,9 @@ package com.gameshelf.service;
 import com.gameshelf.dto.GameDetailResponse;
 import com.gameshelf.dto.GameLogRequest;
 import com.gameshelf.dto.GameLogResponse;
+import com.gameshelf.exception.ConflictException;
+import com.gameshelf.exception.ForbiddenException;
+import com.gameshelf.exception.NotFoundException;
 import com.gameshelf.model.Game;
 import com.gameshelf.model.GameLog;
 import com.gameshelf.model.User;
@@ -28,7 +31,7 @@ public class GameLogService {
 
     public GameLogResponse addLog(String username, GameLogRequest request) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         Game game;
         if (request.getIgdbId() != null) {
@@ -44,11 +47,11 @@ public class GameLogService {
             });
         } else {
             game = gameRepository.findById(request.getGameId())
-                    .orElseThrow(() -> new RuntimeException("Game not found"));
+                    .orElseThrow(() -> new NotFoundException("Game not found"));
         }
 
         if (gameLogRepository.existsByUserIdAndGameId(user.getId(), game.getId())) {
-            throw new RuntimeException("Game already logged");
+            throw new ConflictException("Game already logged");
         }
 
         GameLog log = GameLog.builder()
@@ -66,10 +69,10 @@ public class GameLogService {
     @Transactional
     public GameLogResponse updateLog(String username, Long logId, GameLogRequest request) {
         GameLog log = gameLogRepository.findById(logId)
-                .orElseThrow(() -> new RuntimeException("Log not found"));
+                .orElseThrow(() -> new NotFoundException("Log not found"));
 
         if (!log.getUser().getUsername().equals(username)) {
-            throw new RuntimeException("Unauthorized");
+            throw new ForbiddenException("Unauthorized");
         }
 
         log.setStatus(request.getStatus());
@@ -82,10 +85,10 @@ public class GameLogService {
     @Transactional
     public void deleteLog(String username, Long logId) {
         GameLog log = gameLogRepository.findById(logId)
-                .orElseThrow(() -> new RuntimeException("Log not found"));
+                .orElseThrow(() -> new NotFoundException("Log not found"));
 
         if (!log.getUser().getUsername().equals(username)) {
-            throw new RuntimeException("Unauthorized");
+            throw new ForbiddenException("Unauthorized");
         }
 
         gameLogRepository.delete(log);
@@ -94,7 +97,7 @@ public class GameLogService {
     @Transactional
     public List<GameLogResponse> getUserLogs(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         List<GameLog> logs = gameLogRepository.findByUserId(user.getId());
 

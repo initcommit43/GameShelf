@@ -40,19 +40,11 @@ public class ProfileController {
      * Returns the public URL of the stored avatar.
      */
     @PostMapping(value = "/picture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadProfilePicture(
+    public ResponseEntity<Map<String, String>> uploadProfilePicture(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("file") MultipartFile file) throws IOException {
 
-        try {
-            String url = profilePictureService.uploadProfilePicture(userDetails.getUsername(), file);
-            return ResponseEntity.ok(Map.of("profilePictureUrl", url));
-        } catch (IllegalArgumentException e) {
-            // Validation errors (wrong type, too large, corrupt) → 400
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-        } catch (IOException e) {
-            // Disk / processing I/O failure → 500
-            return ResponseEntity.internalServerError().body(Map.of("message", "Failed to process image"));
-        }
+        String url = profilePictureService.uploadProfilePicture(userDetails.getUsername(), file);
+        return ResponseEntity.ok(Map.of("profilePictureUrl", url));
     }
 }
