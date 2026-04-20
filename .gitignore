@@ -1,0 +1,11 @@
+# Secrets — never commit real credentials
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.iml
