@@ -42,13 +42,6 @@
 
 .addBtn:active { opacity: 0.8; }
 
-.onShelfBadge {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--success);
-  padding: 8px 0;
-}
-
 /* ── Hero ── */
 .hero {
   display: flex;
@@ -171,6 +164,200 @@
   font-size: 14px;
   color: #c4c2c1;
   line-height: 1.7;
+}
+
+/* ── Price section ── */
+.priceEmpty {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.priceSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeletonBlock {
+  display: block;
+  border-radius: var(--r-md);
+  background: var(--bg-hover);
+  animation: priceFade 1.4s ease-in-out infinite;
+}
+
+@keyframes priceFade {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.8; }
+}
+
+/* Best deal card */
+.bestDeal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border: 1px solid var(--border-white);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  gap: 12px;
+}
+
+.bestDealLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.bestDealLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.bestDealPrice {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--success);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.bestDealStore {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.buyBtnPrimary {
+  flex-shrink: 0;
+  background: var(--gradient-accent);
+  border: none;
+  border-radius: var(--r-pill);
+  padding: 10px 22px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent-text);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: opacity var(--t);
+}
+
+.buyBtnPrimary:hover { opacity: 0.85; }
+
+/* Steam reference row */
+.steamRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-mid);
+  border-radius: var(--r-md);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.steamIcon {
+  color: #c6d4df;
+  flex-shrink: 0;
+}
+
+.steamLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #c6d4df;
+  margin-right: 2px;
+}
+
+.steamPrice {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.discountBadge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--success);
+  background: rgba(74, 222, 128, 0.12);
+  border-radius: var(--r-pill);
+  padding: 2px 8px;
+}
+
+.steamLink {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity var(--t);
+}
+
+.steamLink:hover { opacity: 1; }
+
+/* Offers table */
+.offerTable {
+  display: flex;
+  flex-direction: column;
+}
+
+.offerRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: var(--r-md);
+  transition: background var(--t);
+}
+
+.offerRow:hover { background: var(--bg-hover); }
+
+.offerStore {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-body);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.offerPrice {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.offerDiscount {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--success);
+  white-space: nowrap;
+}
+
+.buyBtnSmall {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  border: 1px solid rgba(122, 175, 255, 0.25);
+  border-radius: var(--r-pill);
+  padding: 4px 12px;
+  white-space: nowrap;
+  transition: background var(--t), border-color var(--t);
+}
+
+.buyBtnSmall:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent);
 }
 
 /* ── Sheet / modal ── */

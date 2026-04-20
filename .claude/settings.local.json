@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.gg.deals)",
+      "WebFetch(domain:gg.deals)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:forum.gg.deals)",
+      "WebFetch(domain:www.postman.com)"
+    ]
+  }
+}

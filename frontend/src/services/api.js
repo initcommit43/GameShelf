@@ -78,6 +78,12 @@ export const gameService = {
     if (!res.ok) throw new Error('Failed to fetch game details')
     return res.json()
   },
+
+  getPrices: async (igdbId) => {
+    const res = await fetch(`${BASE_URL}/games/${igdbId}/prices`, { headers: getHeaders() })
+    if (!res.ok) throw new Error('Failed to fetch prices')
+    return res.json()
+  },
 }
 
 export const userService = {

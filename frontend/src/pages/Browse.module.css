@@ -108,7 +108,12 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--t);
 }
+
+.card:hover .shelvedBadge  { opacity: 1; }
+.card:active .shelvedBadge { opacity: 1; }
 
 /* ── For You button ── */
 .forYouBtn { border-color: var(--accent); color: var(--accent); }
@@ -285,8 +290,15 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background var(--t);
+  opacity: 0;
+  transition: opacity var(--t), background var(--t);
 }
+
+/* Show on hover (desktop) */
+.card:hover .addOverlay { opacity: 1; }
+
+/* Show on touch press (mobile) */
+.card:active .addOverlay { opacity: 1; }
 
 .addOverlay:active { background: var(--accent-dark); }
 

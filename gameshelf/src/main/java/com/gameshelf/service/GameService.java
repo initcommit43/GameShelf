@@ -6,6 +6,7 @@ import com.gameshelf.dto.IgdbEnrichment;
 import com.gameshelf.model.Game;
 import com.gameshelf.repository.GameRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -17,10 +18,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GameService {
 
     private final GameRepository gameRepository;
@@ -281,6 +285,59 @@ public class GameService {
                 ? "https:" + igdbGame.cover.url.replace("t_thumb", "t_cover_big")
                 : null;
         return new GameResponse(null, igdbGame.id, igdbGame.name, coverUrl);
+    }
+
+    private static final Pattern STEAM_APP_ID_PATTERN =
+            Pattern.compile("store\\.steampowered\\.com/app/(\\d+)");
+
+    /**
+     * Returns the Steam App ID for a given IGDB game.
+     * Tries two sources in order:
+     *   1. /external_games  (category 1 = Steam) — uid is the App ID directly
+     *   2. /websites        (category 13 = Steam storefront) — parse App ID from URL
+     * Returns null if neither source has a Steam entry.
+     */
+    public Integer getSteamAppId(Integer igdbId) {
+        // --- source 1: external_games ---
+        String extBody = "fields uid; where game = " + igdbId + " & category = 1; limit 1;";
+        IgdbExternalGame[] extResults = igdbClient
+                .post().uri("/external_games").body(extBody).retrieve()
+                .body(IgdbExternalGame[].class);
+        if (extResults != null && extResults.length > 0) {
+            try {
+                Integer appId = Integer.parseInt(extResults[0].uid);
+                log.info("[igdb] found Steam appId={} via external_games for igdbId={}", appId, igdbId);
+                return appId;
+            } catch (NumberFormatException ignored) {}
+        }
+
+        // --- source 2: all websites for this game — scan for a Steam URL (category is often null in IGDB) ---
+        String webBody = "fields url; where game = " + igdbId + "; limit 20;";
+        IgdbWebsite[] webResults = igdbClient
+                .post().uri("/websites").body(webBody).retrieve()
+                .body(IgdbWebsite[].class);
+        if (webResults != null) {
+            for (IgdbWebsite site : webResults) {
+                if (site.url == null) continue;
+                Matcher m = STEAM_APP_ID_PATTERN.matcher(site.url);
+                if (m.find()) {
+                    Integer appId = Integer.parseInt(m.group(1));
+                    log.info("[igdb] found Steam appId={} via websites for igdbId={}", appId, igdbId);
+                    return appId;
+                }
+            }
+        }
+
+        log.info("[igdb] no Steam record found for igdbId={}", igdbId);
+        return null;
+    }
+
+    private static class IgdbExternalGame {
+        public String uid;
+    }
+
+    private static class IgdbWebsite {
+        public String url;
     }
 
     private static class IgdbGame {

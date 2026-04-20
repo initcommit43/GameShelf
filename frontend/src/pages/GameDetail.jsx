@@ -18,6 +18,8 @@ function GameDetail() {
   const [rating, setRating] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [toast, setToast] = useState(null)
+  const [prices, setPrices] = useState(null)
+  const [priceState, setPriceState] = useState('loading') // 'loading' | 'ok' | 'empty' | 'error'
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -30,6 +32,18 @@ function GameDetail() {
       setIsOnShelf(logs.some(l => l.igdbId === parseInt(igdbId)))
     }).catch(() => setGame(null))
       .finally(() => setLoading(false))
+  }, [igdbId])
+
+  // Prices are fetched independently so the hero renders immediately
+  useEffect(() => {
+    setPriceState('loading')
+    gameService.getPrices(parseInt(igdbId))
+      .then(data => {
+        setPrices(data)
+        const hasContent = data?.bestPrice || data?.offers?.length > 0
+        setPriceState(hasContent ? 'ok' : 'empty')
+      })
+      .catch(() => setPriceState('error'))
   }, [igdbId])
 
   const openSheet = () => {
@@ -79,7 +93,6 @@ function GameDetail() {
             {!isOnShelf && (
               <button className={styles.addBtn} onClick={openSheet}>+ Add to shelf</button>
             )}
-            {isOnShelf && <span className={styles.onShelfBadge}>On your shelf</span>}
           </div>
 
           <div className={styles.hero}>
@@ -118,6 +131,95 @@ function GameDetail() {
               <p className={styles.summary}>{game.summary}</p>
             </div>
           )}
+
+          <div className={styles.section}>
+            <div className={styles.sectionLabel}>Buy</div>
+
+            {priceState === 'loading' && (
+              <div className={styles.priceSkeleton}>
+                <span className={styles.skeletonBlock} style={{ height: 72, marginBottom: 10 }} />
+                <span className={styles.skeletonBlock} style={{ height: 44 }} />
+                <span className={styles.skeletonBlock} style={{ height: 44 }} />
+              </div>
+            )}
+
+            {priceState === 'error' && (
+              <p className={styles.priceEmpty}>Price data unavailable.</p>
+            )}
+
+            {priceState === 'empty' && (
+              <p className={styles.priceEmpty}>No deals found for this game.</p>
+            )}
+
+            {priceState === 'ok' && prices && (
+              <>
+                {/* Best Deal card */}
+                {prices.bestPrice && (
+                  <div className={styles.bestDeal}>
+                    <div className={styles.bestDealLeft}>
+                      <span className={styles.bestDealLabel}>Best deal</span>
+                      <span className={styles.bestDealPrice}>{prices.bestPrice.price}</span>
+                      <span className={styles.bestDealStore}>{prices.bestPrice.store}</span>
+                    </div>
+                    <a
+                      href={prices.bestPrice.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.buyBtnPrimary}
+                    >
+                      Buy
+                    </a>
+                  </div>
+                )}
+
+                {/* Steam reference price */}
+                {prices.steamPrice && (
+                  <div className={styles.steamRow}>
+                    <svg className={styles.steamIcon} viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.52 3.73 10.18 8.84 11.54L12 24l3.16-.46C20.27 22.18 24 17.52 24 12 24 5.37 18.63 0 12 0zm0 4.5a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15z"/>
+                    </svg>
+                    <span className={styles.steamLabel}>Steam</span>
+                    <span className={styles.steamPrice}>{prices.steamPrice.price}</span>
+                    {prices.steamPrice.discount > 0 && (
+                      <span className={styles.discountBadge}>−{prices.steamPrice.discount}%</span>
+                    )}
+                    <a
+                      href={prices.steamPrice.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.steamLink}
+                    >
+                      Steam store ↗
+                    </a>
+                  </div>
+                )}
+
+                {/* All offers */}
+                {prices.offers?.length > 0 && (
+                  <div className={styles.offerTable}>
+                    {prices.offers.map((offer, i) => (
+                      <div key={i} className={styles.offerRow}>
+                        <span className={styles.offerStore}>{offer.storeName}</span>
+                        <span className={styles.offerPrice}>{offer.price}</span>
+                        {offer.discount > 0
+                          ? <span className={styles.offerDiscount}>−{offer.discount}%</span>
+                          : <span />
+                        }
+                        <a
+                          href={offer.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.buyBtnSmall}
+                        >
+                          Buy
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </>
       )}
 

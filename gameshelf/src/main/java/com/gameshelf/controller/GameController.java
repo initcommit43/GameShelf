@@ -1,9 +1,11 @@
 package com.gameshelf.controller;
 
 import com.gameshelf.dto.GameDetailResponse;
+import com.gameshelf.dto.GamePriceResponse;
 import com.gameshelf.dto.GameResponse;
 import com.gameshelf.dto.RecommendationResponse;
 import com.gameshelf.service.GameService;
+import com.gameshelf.service.PriceService;
 import com.gameshelf.service.RecommendationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ public class GameController {
 
     private final GameService gameService;
     private final RecommendationService recommendationService;
+    private final PriceService priceService;
 
     @GetMapping("/search")
     public ResponseEntity<List<GameResponse>> searchGames(@RequestParam String query) {
@@ -52,5 +55,13 @@ public class GameController {
         GameDetailResponse response = gameService.getGameDetails(igdbId);
         if (response == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{igdbId}/prices")
+    public ResponseEntity<GamePriceResponse> getGamePrices(@PathVariable Integer igdbId) {
+        GameDetailResponse game = gameService.getGameDetails(igdbId);
+        if (game == null) return ResponseEntity.notFound().build();
+        Integer steamAppId = gameService.getSteamAppId(igdbId);
+        return ResponseEntity.ok(priceService.getPrices(igdbId, game.getTitle(), steamAppId));
     }
 }
