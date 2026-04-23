@@ -11,4 +11,5 @@ public class GameResponse {
     private Integer igdbId;
     private String title;
     private String coverUrl;
+    private Double igdbRating;
 }

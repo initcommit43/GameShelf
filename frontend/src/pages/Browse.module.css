@@ -18,9 +18,18 @@
   display: flex;
   gap: 8px;
   margin-bottom: 20px;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
 
-.sortBtn      { composes: pill       from '../shared.module.css'; }
+.sortBtn {
+  composes: pill from '../shared.module.css';
+  flex-shrink: 0;
+}
 .sortBtnActive { composes: pillActive from '../shared.module.css'; }
 
 /* ── Inline feedback banners ── */
@@ -115,6 +124,80 @@
 .card:hover .shelvedBadge  { opacity: 1; }
 .card:active .shelvedBadge { opacity: 1; }
 
+/* ── IGDB toggle switch ── */
+.igdbToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  margin-left: auto;
+  user-select: none;
+}
+
+.igdbToggleInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.igdbToggleTrack {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  background: var(--bg-mid);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  transition: background var(--t), border-color var(--t);
+  flex-shrink: 0;
+}
+
+.igdbToggleInput:checked + .igdbToggleTrack {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.igdbToggleThumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform var(--t);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.igdbToggleInput:checked + .igdbToggleTrack .igdbToggleThumb {
+  transform: translateX(14px);
+}
+
+.igdbToggleLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── IGDB score badge (top-left overlay on cover) ── */
+.igdbBadge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--r-xs);
+  padding: 2px 5px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
 /* ── For You button ── */
 .forYouBtn { border-color: var(--accent); color: var(--accent); }
 .forYouBtn:hover:not(.forYouBtnActive) { background: rgba(139, 92, 246, 0.08); }
@@ -142,7 +225,7 @@
 }
 
 /* ── Filter button ── */
-.filterBtn { margin-left: auto; }
+.filterBtn { margin-left: auto; flex-shrink: 0; }
 .filterBtnActive { background: var(--bg-hover); color: var(--text); }
 
 /* ── Filter panel ── */

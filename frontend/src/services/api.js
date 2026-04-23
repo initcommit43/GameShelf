@@ -159,6 +159,16 @@ export const reviewService = {
   },
 }
 
+export const newsService = {
+  getNews: async (page = 0, size = 20, source = null) => {
+    const params = new URLSearchParams({ page, size })
+    if (source) params.set('source', source)
+    const res = guardAuth(await fetch(`${BASE_URL}/news?${params}`, { headers: getHeaders() }))
+    if (!res.ok) throw new Error('Failed to fetch news')
+    return res.json()
+  },
+}
+
 export const logService = {
   getLogs: async () => {
     const res = guardAuth(await fetch(`${BASE_URL}/logs`, { headers: getHeaders() }))

@@ -7,6 +7,7 @@ import Search from './pages/Search'
 import UserProfile from './pages/UserProfile'
 import GameDetail from './pages/GameDetail'
 import Browse from './pages/Browse'
+import News from './pages/News'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
       <Route path="/search" element={<Search />} />
       <Route path="/profile" element={<UserProfile />} />
       <Route path="/browse" element={<Browse />} />
+      <Route path="/news" element={<News />} />
       <Route path="/games/:igdbId" element={<GameDetail />} />
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { gameService, logService } from '../services/api'
 import Layout from '../components/Layout'
@@ -55,6 +55,9 @@ function Browse() {
   const navigate = useNavigate()
 
   // Browse state
+  const [showIgdb, setShowIgdbState]  = useState(() => localStorage.getItem('browse_igdb') === 'true')
+  const setShowIgdb = (val) => { setShowIgdbState(val); localStorage.setItem('browse_igdb', String(val)) }
+
   const [sort, setSort]               = useState('rating')
   const [games, setGames]             = useState([])
   const [loading, setLoading]         = useState(true)
@@ -69,6 +72,19 @@ function Browse() {
   const [minRating, setMinRating]     = useState(null)
   const [yearFrom, setYearFrom]       = useState(null)
   const [yearTo, setYearTo]           = useState(null)
+
+  const sortBarRef = useRef(null)
+  useEffect(() => {
+    const el = sortBarRef.current
+    if (!el) return
+    const onWheel = (e) => {
+      if (e.deltaY === 0) return
+      e.preventDefault()
+      el.scrollLeft += e.deltaY
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [])
 
   // Quick-add sheet
   const [selected, setSelected]       = useState(null)
@@ -209,12 +225,29 @@ function Browse() {
 
       <div className={styles.header}>
         <span className={styles.title}>Browse</span>
+        <label className={styles.igdbToggle} title="Show IGDB rating">
+          <input
+            type="checkbox"
+            className={styles.igdbToggleInput}
+            checked={showIgdb}
+            onChange={(e) => setShowIgdb(e.target.checked)}
+          />
+          <span className={styles.igdbToggleTrack}>
+            <span className={styles.igdbToggleThumb} />
+          </span>
+          <span className={styles.igdbToggleLabel}>IGDB</span>
+        </label>
       </div>
 
-      <div className={styles.sortBar}>
+      <div
+        ref={sortBarRef}
+        className={styles.sortBar}
+        style={{ overflowX: 'auto', flexWrap: 'nowrap', WebkitOverflowScrolling: 'touch' }}
+      >
         {SORT_OPTIONS.map(opt => (
           <button
             key={opt.value}
+            style={{ flexShrink: 0 }}
             className={`${styles.sortBtn}${category === 'browse' && sort === opt.value ? ` ${styles.sortBtnActive}` : ''}`}
             onClick={() => handleSort(opt.value)}
           >
@@ -222,6 +255,7 @@ function Browse() {
           </button>
         ))}
         <button
+          style={{ flexShrink: 0 }}
           className={`${styles.sortBtn} ${styles.forYouBtn}${category === 'for-you' ? ` ${styles.forYouBtnActive}` : ''}`}
           onClick={handleForYou}
         >
@@ -230,6 +264,7 @@ function Browse() {
 
         {category !== 'for-you' && (
           <button
+            style={{ flexShrink: 0, marginLeft: 'auto' }}
             className={`${styles.sortBtn} ${styles.filterBtn}${filtersOpen || hasActiveFilters ? ` ${styles.filterBtnActive}` : ''}`}
             onClick={() => setFiltersOpen(v => !v)}
           >
@@ -404,6 +439,9 @@ function Browse() {
                     ? <img src={game.coverUrl} alt={game.title} className={styles.coverImg} />
                     : <div className={styles.coverPlaceholder}>{game.title}</div>
                   }
+                  {showIgdb && game.igdbRating != null && (
+                    <div className={styles.igdbBadge}>★ {Math.round(game.igdbRating)}</div>
+                  )}
                   {shelfIds.has(game.igdbId)
                     ? <div className={styles.shelvedBadge}>On shelf</div>
                     : <button className={styles.addOverlay} onClick={(e) => openSheet(e, game)}>+</button>

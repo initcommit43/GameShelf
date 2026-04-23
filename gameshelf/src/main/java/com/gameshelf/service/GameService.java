@@ -279,14 +279,14 @@ public class GameService {
             return gameRepository.save(newGame);
         });
 
-        return new GameResponse(game.getId(), game.getIgdbId(), game.getTitle(), game.getCoverUrl());
+        return new GameResponse(game.getId(), game.getIgdbId(), game.getTitle(), game.getCoverUrl(), game.getIgdbRating());
     }
 
     private GameResponse toGameResponse(IgdbGame igdbGame) {
         String coverUrl = igdbGame.cover != null
                 ? "https:" + igdbGame.cover.url.replace("t_thumb", "t_cover_big")
                 : null;
-        return new GameResponse(null, igdbGame.id, igdbGame.name, coverUrl);
+        return new GameResponse(null, igdbGame.id, igdbGame.name, coverUrl, igdbGame.rating);
     }
 
     private static final Pattern STEAM_APP_ID_PATTERN =

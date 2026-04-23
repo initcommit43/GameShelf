@@ -84,6 +84,13 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- RSS/Atom feed parsing -->
+		<dependency>
+			<groupId>com.rometools</groupId>
+			<artifactId>rome</artifactId>
+			<version>2.1.0</version>
+		</dependency>
+
 		<!-- WebP image reading support via Java ImageIO SPI -->
 		<dependency>
 			<groupId>com.twelvemonkeys.imageio</groupId>

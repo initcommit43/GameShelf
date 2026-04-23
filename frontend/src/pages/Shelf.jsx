@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { logService } from '../services/api'
 import Layout from '../components/Layout'
@@ -41,6 +41,21 @@ function Shelf() {
 
   // Persist filter/sort/view in localStorage so they survive navigation and refresh.
   // Cleared on logout (see UserProfile handleLogout).
+  const filterBarRef = useRef(null)
+  useEffect(() => {
+    const el = filterBarRef.current
+    if (!el) return
+    const onWheel = (e) => {
+      if (e.deltaY === 0) return
+      e.preventDefault()
+      el.scrollLeft += e.deltaY
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [])
+
+  const [searchQuery, setSearchQuery] = useState('')
+
   const [activeFilter, setActiveFilterState] = useState(() => localStorage.getItem('shelf_filter') ?? 'ALL')
   const [sortOption,   setSortOptionState]   = useState(() => localStorage.getItem('shelf_sort')   ?? null)
   const [viewMode,     setViewModeState]     = useState(() => localStorage.getItem('shelf_view')   ?? 'grid')
@@ -116,9 +131,10 @@ function Shelf() {
 
   const filters = ['ALL', 'PLAYING', 'COMPLETED', 'BACKLOG', 'DROPPED', 'WISHLIST']
 
-  const filteredLogs = activeFilter === 'ALL'
-    ? logs
-    : logs.filter(log => log.status === activeFilter)
+  const q = searchQuery.trim().toLowerCase()
+  const filteredLogs = logs
+    .filter(log => activeFilter === 'ALL' || log.status === activeFilter)
+    .filter(log => !q || log.gameTitle.toLowerCase().includes(q))
 
   const displayedLogs = (() => {
     if (!sortOption) return [...filteredLogs].sort((a, b) => a.gameTitle.localeCompare(b.gameTitle))
@@ -245,17 +261,35 @@ function Shelf() {
         </div>
       </div>
 
-      <div className={styles.filterWrapper}>
-        <div className={styles.filterScroll}>
-          {filters.map(f => (
-            <button
-              key={f}
-              className={`${styles.filterTab}${activeFilter === f ? ` ${styles.filterActive}` : ''}`}
-              onClick={() => setActiveFilter(f)}
-            >
-              {f.charAt(0) + f.slice(1).toLowerCase()}
-            </button>
-          ))}
+      <div className={styles.filterRow}>
+        <div ref={filterBarRef} className={styles.filterWrapper}>
+          <div className={styles.filterScroll}>
+            {filters.map(f => (
+              <button
+                key={f}
+                className={`${styles.filterTab}${activeFilter === f ? ` ${styles.filterActive}` : ''}`}
+                onClick={() => setActiveFilter(f)}
+              >
+                {f.charAt(0) + f.slice(1).toLowerCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.searchBar}>
+          <svg className={styles.searchIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            className={styles.searchInput}
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button className={styles.searchClear} onClick={() => setSearchQuery('')}>✕</button>
+          )}
         </div>
       </div>
 

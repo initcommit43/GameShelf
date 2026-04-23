@@ -174,22 +174,82 @@
 
 .toggleActive { background: var(--bg-hover); color: var(--text); }
 
-/* ── Filters ── */
-.filterWrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+/* ── Filter row (pills + search) ── */
+.filterRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   margin-bottom: 8px;
 }
 
-.filterWrapper::-webkit-scrollbar { display: none; }
+/* ── Filters ── */
+.filterWrapper {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+/* ── Search bar ── */
+.searchBar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 10px;
+  width: 12px;
+  height: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 130px;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-pill);
+  padding: 6px 26px 6px 28px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--t), width var(--t);
+  letter-spacing: 0.02em;
+}
+
+.searchInput::placeholder { color: var(--text-muted); }
+.searchInput:focus {
+  border-color: var(--accent);
+  width: 160px;
+}
+
+.searchClear {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 10px;
+  cursor: pointer;
+  padding: 2px;
+  line-height: 1;
+  transition: color var(--t);
+}
+.searchClear:hover { color: var(--text); }
 
 .filterScroll {
   display: flex;
   gap: 8px;
   width: max-content;
-  padding-bottom: 16px;
+  padding-bottom: 10px;
 }
 
 .filterTab   { composes: pill       from '../shared.module.css'; }

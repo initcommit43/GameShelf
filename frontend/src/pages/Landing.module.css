@@ -9,7 +9,7 @@
 }
 
 .main {
-  padding-top: 80px; /* nav height */
+  padding-top: 64px;
 }
 
 /* ─────────────────────────────────────────
@@ -20,11 +20,11 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 80px;
-  background: rgba(19, 19, 19, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 8px 32px rgba(122, 175, 255, 0.05);
+  height: 64px;
+  background: rgba(11, 11, 11, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   z-index: 50;
 }
 
@@ -54,12 +54,9 @@
 }
 
 .navLinks {
-  display: none;
+  display: flex;
+  align-items: center;
   gap: 24px;
-}
-
-@media (min-width: 768px) {
-  .navLinks { display: flex; align-items: center; }
 }
 
 .navLink {
@@ -118,6 +115,14 @@
 
 .navRegisterBtn:hover { filter: brightness(1.08); }
 .navRegisterBtn:active { transform: scale(0.97); }
+
+@media (max-width: 767px) {
+  .navInner  { padding: 0 16px; }
+  .navLeft   { gap: 16px; }
+  .navLogo   { font-size: 18px; }
+  .navLinks  { gap: 16px; }
+  .navRight  { display: none; }
+}
 
 /* ─────────────────────────────────────────
    HERO
@@ -1160,6 +1165,10 @@
   padding: 64px 32px 48px;
   font-size: 13px;
   color: #adaaaa;
+}
+
+@media (max-width: 767px) {
+  .footer { padding-bottom: 88px; }
 }
 
 .footerInner {

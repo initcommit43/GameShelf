@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { gameService, logService } from '../services/api'
+import BottomNav from '../components/BottomNav'
 import styles from './Landing.module.css'
 
 const STATUSES = ['PLAYING', 'COMPLETED', 'BACKLOG', 'DROPPED', 'WISHLIST']
@@ -109,8 +110,7 @@ function Landing() {
             <span className={styles.navLogo}>GameShelf</span>
             <div className={styles.navLinks}>
               <a className={styles.navLinkActive}>Explore</a>
-              <a className={styles.navLink}>Community</a>
-              <a className={styles.navLink}>News</a>
+              <a className={styles.navLink} onClick={() => navigate('/news')} style={{ cursor: 'pointer' }}>News</a>
             </div>
           </div>
           <div className={styles.navRight}>
@@ -507,6 +507,7 @@ function Landing() {
         </div>
       </footer>
 
+      <BottomNav />
     </div>
   )
 }
