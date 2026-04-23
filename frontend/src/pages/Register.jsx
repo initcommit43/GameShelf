@@ -26,7 +26,7 @@ function Register() {
       localStorage.setItem('username', data.username)
       navigate('/shelf')
     } catch (err) {
-      setError('Registration failed. Username or email may already be taken.')
+      setError(err.message || 'Registration failed. Please try again.')
     } finally {
       setLoading(false)
     }

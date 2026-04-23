@@ -1,25 +1,95 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { gameService, logService } from '../services/api'
+import { gameService, logService, reviewService } from '../services/api'
 import Layout from '../components/Layout'
 import styles from './GameDetail.module.css'
 
 const STATUSES = ['PLAYING', 'COMPLETED', 'BACKLOG', 'DROPPED', 'WISHLIST']
+const SORT_OPTIONS = [
+  { value: 'newest',         label: 'Newest' },
+  { value: 'highest_rating', label: 'Best' },
+  { value: 'lowest_rating',  label: 'Worst' },
+]
+
+function timeAgo(isoStr) {
+  if (!isoStr) return ''
+  const d = new Date(isoStr)
+  const days = Math.floor((Date.now() - d.getTime()) / 86400000)
+  if (days < 1) return 'Today'
+  if (days === 1) return 'Yesterday'
+  if (days < 30) return `${days}d ago`
+  const mo = Math.floor(days / 30)
+  if (mo < 12) return `${mo}mo ago`
+  return `${Math.floor(mo / 12)}y ago`
+}
+
+function ratingColor(n) {
+  if (n >= 8) return styles.ratingHigh
+  if (n >= 5) return styles.ratingMid
+  return styles.ratingLow
+}
+
+function ReviewCard({ review, onEdit, onDelete }) {
+  const [revealed, setRevealed] = useState(false)
+  const hasText = review.reviewText && review.reviewText.trim().length > 0
+
+  return (
+    <div className={styles.reviewCard}>
+      <div className={styles.reviewHeader}>
+        <span className={styles.reviewUsername}>{review.username}</span>
+        <span className={`${styles.reviewRatingBadge} ${ratingColor(review.rating)}`}>
+          {review.rating}/10
+        </span>
+        <span className={styles.reviewTime}>{timeAgo(review.createdAt)}</span>
+        {review.spoiler && <span className={styles.spoilerTag}>spoiler</span>}
+      </div>
+
+      {hasText && (
+        review.spoiler && !revealed ? (
+          <button className={styles.spoilerReveal} onClick={() => setRevealed(true)}>
+            Tap to reveal spoiler
+          </button>
+        ) : (
+          <p className={styles.reviewBody}>{review.reviewText}</p>
+        )
+      )}
+
+      {review.mine && (
+        <div className={styles.reviewCardActions}>
+          <button className={styles.reviewCardEdit} onClick={onEdit}>Edit</button>
+          <button className={styles.reviewCardDelete} onClick={onDelete}>Delete</button>
+        </div>
+      )}
+    </div>
+  )
+}
 
 function GameDetail() {
   const { igdbId } = useParams()
   const navigate = useNavigate()
 
-  const [game, setGame] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [game, setGame]           = useState(null)
+  const [loading, setLoading]     = useState(true)
   const [isOnShelf, setIsOnShelf] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [status, setStatus] = useState('')
-  const [rating, setRating] = useState(null)
+  const [status, setStatus]       = useState('')
+  const [rating, setRating]       = useState(null)
   const [submitting, setSubmitting] = useState(false)
-  const [toast, setToast] = useState(null)
-  const [prices, setPrices] = useState(null)
-  const [priceState, setPriceState] = useState('loading') // 'loading' | 'ok' | 'empty' | 'error'
+  const [toast, setToast]         = useState(null)
+  const [prices, setPrices]       = useState(null)
+  const [priceState, setPriceState] = useState('loading')
+
+  // Reviews
+  const [reviews, setReviews]             = useState([])
+  const [reviewsLoading, setReviewsLoading] = useState(true)
+  const [reviewSort, setReviewSort]       = useState('newest')
+  const [reviewRating, setReviewRating]   = useState(null)
+  const [reviewText, setReviewText]       = useState('')
+  const [reviewSpoiler, setReviewSpoiler] = useState(false)
+  const [reviewSubmitting, setReviewSubmitting] = useState(false)
+  const [myReviewId, setMyReviewId]       = useState(null)
+  const reviewsInitRef = useRef(false)
+  const reviewFormRef  = useRef(null)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -34,24 +104,37 @@ function GameDetail() {
       .finally(() => setLoading(false))
   }, [igdbId])
 
-  // Prices are fetched independently so the hero renders immediately
   useEffect(() => {
     setPriceState('loading')
     gameService.getPrices(parseInt(igdbId))
       .then(data => {
         setPrices(data)
-        const hasContent = data?.bestPrice || data?.offers?.length > 0
-        setPriceState(hasContent ? 'ok' : 'empty')
+        setPriceState(data?.bestPrice || data?.offers?.length > 0 ? 'ok' : 'empty')
       })
       .catch(() => setPriceState('error'))
   }, [igdbId])
 
-  const openSheet = () => {
-    setStatus('')
-    setRating(null)
-    setSheetOpen(true)
-  }
+  useEffect(() => {
+    setReviewsLoading(true)
+    reviewService.getGameReviews(parseInt(igdbId), reviewSort)
+      .then(data => {
+        setReviews(data)
+        if (!reviewsInitRef.current) {
+          reviewsInitRef.current = true
+          const mine = data.find(r => r.mine)
+          if (mine) {
+            setReviewRating(mine.rating)
+            setReviewText(mine.reviewText || '')
+            setReviewSpoiler(mine.spoiler)
+            setMyReviewId(mine.id)
+          }
+        }
+      })
+      .catch(console.error)
+      .finally(() => setReviewsLoading(false))
+  }, [igdbId, reviewSort])
 
+  const openSheet = () => { setStatus(''); setRating(null); setSheetOpen(true) }
   const closeSheet = () => setSheetOpen(false)
 
   const showToast = (msg, error = false) => {
@@ -72,6 +155,45 @@ function GameDetail() {
       showToast(err.message || 'Already on your shelf.', true)
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const handleSubmitReview = async () => {
+    if (!reviewRating) return
+    setReviewSubmitting(true)
+    try {
+      const res = await reviewService.createOrUpdateReview(parseInt(igdbId), {
+        rating: reviewRating,
+        reviewText: reviewText.trim() || null,
+        spoiler: reviewSpoiler,
+      })
+      setReviews(prev => {
+        const idx = prev.findIndex(r => r.mine)
+        const next = [...prev]
+        if (idx >= 0) { next[idx] = res } else { next.unshift(res) }
+        return next
+      })
+      setMyReviewId(res.id)
+      showToast(myReviewId ? 'Review updated.' : 'Review submitted.')
+    } catch (err) {
+      showToast(err.message || 'Failed to submit review.', true)
+    } finally {
+      setReviewSubmitting(false)
+    }
+  }
+
+  const handleDeleteReview = async () => {
+    if (!myReviewId) return
+    try {
+      await reviewService.deleteReview(myReviewId)
+      setReviews(prev => prev.filter(r => !r.mine))
+      setMyReviewId(null)
+      setReviewRating(null)
+      setReviewText('')
+      setReviewSpoiler(false)
+      showToast('Review deleted.')
+    } catch (err) {
+      showToast(err.message || 'Failed to delete review.', true)
     }
   }
 
@@ -118,9 +240,7 @@ function GameDetail() {
                 </div>
               )}
               {game.platforms?.length > 0 && (
-                <div className={styles.platformList}>
-                  {game.platforms.join(' · ')}
-                </div>
+                <div className={styles.platformList}>{game.platforms.join(' · ')}</div>
               )}
             </div>
           </div>
@@ -134,7 +254,6 @@ function GameDetail() {
 
           <div className={styles.section}>
             <div className={styles.sectionLabel}>Buy</div>
-
             {priceState === 'loading' && (
               <div className={styles.priceSkeleton}>
                 <span className={styles.skeletonBlock} style={{ height: 72, marginBottom: 10 }} />
@@ -142,18 +261,10 @@ function GameDetail() {
                 <span className={styles.skeletonBlock} style={{ height: 44 }} />
               </div>
             )}
-
-            {priceState === 'error' && (
-              <p className={styles.priceEmpty}>Price data unavailable.</p>
-            )}
-
-            {priceState === 'empty' && (
-              <p className={styles.priceEmpty}>No deals found for this game.</p>
-            )}
-
+            {priceState === 'error' && <p className={styles.priceEmpty}>Price data unavailable.</p>}
+            {priceState === 'empty' && <p className={styles.priceEmpty}>No deals found for this game.</p>}
             {priceState === 'ok' && prices && (
               <>
-                {/* Best Deal card */}
                 {prices.bestPrice && (
                   <div className={styles.bestDeal}>
                     <div className={styles.bestDealLeft}>
@@ -161,18 +272,9 @@ function GameDetail() {
                       <span className={styles.bestDealPrice}>{prices.bestPrice.price}</span>
                       <span className={styles.bestDealStore}>{prices.bestPrice.store}</span>
                     </div>
-                    <a
-                      href={prices.bestPrice.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.buyBtnPrimary}
-                    >
-                      Buy
-                    </a>
+                    <a href={prices.bestPrice.url} target="_blank" rel="noopener noreferrer" className={styles.buyBtnPrimary}>Buy</a>
                   </div>
                 )}
-
-                {/* Steam reference price */}
                 {prices.steamPrice && (
                   <div className={styles.steamRow}>
                     <svg className={styles.steamIcon} viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
@@ -183,18 +285,9 @@ function GameDetail() {
                     {prices.steamPrice.discount > 0 && (
                       <span className={styles.discountBadge}>−{prices.steamPrice.discount}%</span>
                     )}
-                    <a
-                      href={prices.steamPrice.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.steamLink}
-                    >
-                      Steam store ↗
-                    </a>
+                    <a href={prices.steamPrice.url} target="_blank" rel="noopener noreferrer" className={styles.steamLink}>Steam store ↗</a>
                   </div>
                 )}
-
-                {/* All offers */}
                 {prices.offers?.length > 0 && (
                   <div className={styles.offerTable}>
                     {prices.offers.map((offer, i) => (
@@ -205,19 +298,110 @@ function GameDetail() {
                           ? <span className={styles.offerDiscount}>−{offer.discount}%</span>
                           : <span />
                         }
-                        <a
-                          href={offer.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={styles.buyBtnSmall}
-                        >
-                          Buy
-                        </a>
+                        <a href={offer.url} target="_blank" rel="noopener noreferrer" className={styles.buyBtnSmall}>Buy</a>
                       </div>
                     ))}
                   </div>
                 )}
               </>
+            )}
+          </div>
+
+          {/* ── Reviews ── */}
+          <div className={styles.section}>
+            <div className={styles.sectionLabel}>Reviews</div>
+
+            {isOnShelf && (
+              <div className={styles.reviewForm} ref={reviewFormRef}>
+                <div className={styles.reviewFormTitle}>
+                  {myReviewId ? 'Your Review' : 'Write a Review'}
+                </div>
+                <div className={styles.ratingRow}>
+                  {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
+                    <button
+                      key={n}
+                      className={`${styles.ratingBtn}${reviewRating === n ? ` ${styles.ratingBtnActive}` : ''}`}
+                      onClick={() => setReviewRating(reviewRating === n ? null : n)}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  className={styles.reviewTextarea}
+                  placeholder="Share your thoughts… (optional)"
+                  value={reviewText}
+                  onChange={e => setReviewText(e.target.value)}
+                  maxLength={1000}
+                  rows={3}
+                />
+                <label className={styles.spoilerLabel}>
+                  <input
+                    type="checkbox"
+                    checked={reviewSpoiler}
+                    onChange={e => setReviewSpoiler(e.target.checked)}
+                    className={styles.spoilerCheckbox}
+                  />
+                  <span>Contains spoilers</span>
+                </label>
+                <div className={styles.reviewFormActions}>
+                  <button
+                    className={styles.confirmBtn}
+                    onClick={handleSubmitReview}
+                    disabled={!reviewRating || reviewSubmitting}
+                  >
+                    {reviewSubmitting ? 'Saving…' : myReviewId ? 'Update Review' : 'Submit Review'}
+                  </button>
+                  {myReviewId && (
+                    <button className={styles.reviewDeleteBtn} onClick={handleDeleteReview}>
+                      Delete
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {!reviewsLoading && reviews.length > 1 && (
+              <div className={styles.reviewSortRow}>
+                {SORT_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    className={`${styles.sortPill}${reviewSort === opt.value ? ` ${styles.sortPillActive}` : ''}`}
+                    onClick={() => setReviewSort(opt.value)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {reviewsLoading ? (
+              <div className={styles.reviewSkeletons}>
+                {[0, 1].map(i => (
+                  <div key={i} className={styles.reviewSkeleton}>
+                    <div className={styles.skeletonLine} style={{ width: '40%', height: 12, marginBottom: 8 }} />
+                    <div className={styles.skeletonLine} style={{ width: '90%', height: 10 }} />
+                    <div className={styles.skeletonLine} style={{ width: '70%', height: 10, marginTop: 6 }} />
+                  </div>
+                ))}
+              </div>
+            ) : reviews.length === 0 ? (
+              <div className={styles.reviewsEmpty}>
+                {isOnShelf
+                  ? 'No reviews yet — be the first to review this game.'
+                  : 'No reviews yet.'}
+              </div>
+            ) : (
+              <div className={styles.reviewsList}>
+                {reviews.map(r => (
+                  <ReviewCard
+                    key={r.id}
+                    review={r}
+                    onEdit={r.mine ? () => reviewFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) : undefined}
+                    onDelete={r.mine ? handleDeleteReview : undefined}
+                  />
+                ))}
+              </div>
             )}
           </div>
         </>
@@ -266,9 +450,7 @@ function GameDetail() {
       )}
 
       {toast && (
-        <div className={toast.error ? styles.toastError : styles.toastSuccess}>
-          {toast.msg}
-        </div>
+        <div className={toast.error ? styles.toastError : styles.toastSuccess}>{toast.msg}</div>
       )}
     </Layout>
   )

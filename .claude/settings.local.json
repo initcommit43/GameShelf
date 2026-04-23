@@ -6,7 +6,8 @@
       "WebSearch",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:forum.gg.deals)",
-      "WebFetch(domain:www.postman.com)"
+      "WebFetch(domain:www.postman.com)",
+      "Bash(git push *)"
     ]
   }
 }

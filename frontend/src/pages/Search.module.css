@@ -82,8 +82,12 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background var(--t);
+  opacity: 0;
+  transition: opacity var(--t), background var(--t);
 }
+
+.gameCoverWrapper:hover .addOverlay  { opacity: 1; }
+.gameCoverWrapper:active .addOverlay { opacity: 1; }
 
 .addOverlay:active { background: var(--accent-dark); }
 

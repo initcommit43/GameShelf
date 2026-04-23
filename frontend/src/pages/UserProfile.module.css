@@ -312,6 +312,127 @@
   color: var(--text-muted);
 }
 
+/* ── Wide stat card (genre) ── */
+.statCardWide {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 768px) {
+  .statCardWide { grid-column: auto; }
+}
+
+/* ── Scroll row section ── */
+.rowSection {
+  margin-bottom: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.scrollTrack {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+}
+
+.scrollTrack::-webkit-scrollbar { display: none; }
+
+/* ── Scroll card ── */
+.scrollCard {
+  flex: 0 0 auto;
+  width: 90px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.scrollCoverWrapper {
+  position: relative;
+  width: 90px;
+  height: 120px;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--bg-mid);
+  margin-bottom: 6px;
+  transition: opacity var(--t), transform var(--t);
+}
+
+.scrollCard:hover .scrollCoverWrapper { opacity: 0.85; transform: scale(0.97); }
+.scrollCard:active .scrollCoverWrapper { opacity: 0.75; transform: scale(0.95); }
+
+.scrollCoverImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.scrollCoverEmpty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 6px;
+  line-height: 1.3;
+}
+
+.scrollRatingBadge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.75);
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 2px 4px;
+  letter-spacing: 0.04em;
+}
+
+.scrollTitle {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+/* ── Skeletons ── */
+@keyframes shimmer {
+  0%   { background-position: -300px 0; }
+  100% { background-position:  300px 0; }
+}
+
+.skeletonCard {
+  flex: 0 0 auto;
+  width: 90px;
+}
+
+.skeletonCover {
+  width: 90px;
+  height: 120px;
+  border-radius: var(--r-md);
+  margin-bottom: 6px;
+  background: linear-gradient(90deg, var(--bg-mid) 25%, var(--bg-hover) 50%, var(--bg-mid) 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+.skeletonTitle {
+  height: 10px;
+  border-radius: 4px;
+  width: 70%;
+  background: linear-gradient(90deg, var(--bg-mid) 25%, var(--bg-hover) 50%, var(--bg-mid) 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s infinite;
+}
+
 /* ── Actions ── */
 .actions {
   display: flex;

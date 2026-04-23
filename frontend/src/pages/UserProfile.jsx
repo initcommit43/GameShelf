@@ -1,19 +1,57 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { logService, userService } from '../services/api'
+import { useNavigate, Link } from 'react-router-dom'
+import { userService } from '../services/api'
 import Layout from '../components/Layout'
 import styles from './UserProfile.module.css'
 
-const statusClassMap = {
-  PLAYING: styles.statusPlaying,
-  COMPLETED: styles.statusCompleted,
-  BACKLOG: styles.statusBacklog,
-  DROPPED: styles.statusDropped,
-  WISHLIST: styles.statusWishlist,
+function GameScrollRow({ title, games, loading }) {
+  if (loading) {
+    return (
+      <section className={styles.rowSection}>
+        <div className={styles.sectionHeader}>
+          <span className={styles.sectionTitle}>{title}</span>
+        </div>
+        <div className={styles.scrollTrack}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className={styles.skeletonCard}>
+              <div className={styles.skeletonCover} />
+              <div className={styles.skeletonTitle} />
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  if (!games || games.length === 0) return null
+
+  return (
+    <section className={styles.rowSection}>
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionTitle}>{title}</span>
+      </div>
+      <div className={styles.scrollTrack}>
+        {games.map(g => (
+          <Link key={g.logId} to={`/games/${g.igdbId}`} className={styles.scrollCard}>
+            <div className={styles.scrollCoverWrapper}>
+              {g.coverUrl
+                ? <img src={g.coverUrl} alt={g.title} className={styles.scrollCoverImg} />
+                : <div className={styles.scrollCoverEmpty}>{g.title}</div>
+              }
+              {g.rating && (
+                <div className={styles.scrollRatingBadge}>{g.rating}</div>
+              )}
+            </div>
+            <div className={styles.scrollTitle}>{g.title}</div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  )
 }
 
 function UserProfile() {
-  const [logs, setLogs] = useState([])
+  const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [avatarUrl, setAvatarUrl] = useState(null)
   const [uploadError, setUploadError] = useState('')
@@ -29,14 +67,10 @@ function UserProfile() {
       return
     }
 
-    // Load logs and profile in parallel
-    Promise.all([
-      logService.getLogs(),
-      userService.getProfile(),
-    ])
-      .then(([logsData, profileData]) => {
-        setLogs(logsData)
-        if (profileData.profilePictureUrl) setAvatarUrl(profileData.profilePictureUrl)
+    userService.getFullProfile()
+      .then(data => {
+        setProfile(data)
+        if (data.profilePictureUrl) setAvatarUrl(data.profilePictureUrl)
       })
       .catch(err => console.error(err))
       .finally(() => setLoading(false))
@@ -50,7 +84,7 @@ function UserProfile() {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },
         })
-      } catch { /* best-effort — clear client state regardless */ }
+      } catch { /* best-effort */ }
     }
     localStorage.removeItem('token')
     localStorage.removeItem('username')
@@ -60,12 +94,10 @@ function UserProfile() {
     navigate('/login')
   }
 
-  // Triggered when the user picks a file from the OS dialog
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Client-side pre-validation for immediate feedback
     const allowed = ['image/jpeg', 'image/png', 'image/webp']
     if (!allowed.includes(file.type)) {
       setUploadError('Only JPG, PNG, and WebP images are accepted.')
@@ -76,7 +108,6 @@ function UserProfile() {
       return
     }
 
-    // Show an instant local preview while the upload is in flight
     const localPreview = URL.createObjectURL(file)
     setAvatarUrl(localPreview)
     setUploadError('')
@@ -84,7 +115,6 @@ function UserProfile() {
 
     try {
       const data = await userService.uploadProfilePicture(file)
-      // Replace the temporary blob URL with the permanent server URL
       URL.revokeObjectURL(localPreview)
       setAvatarUrl(data.profilePictureUrl)
     } catch (err) {
@@ -93,27 +123,17 @@ function UserProfile() {
       setUploadError(err.message || 'Upload failed. Please try again.')
     } finally {
       setUploading(false)
-      // Reset so the same file can be picked again if needed
       e.target.value = ''
     }
   }
 
-  const total = logs.length
-  const completed = logs.filter(l => l.status === 'COMPLETED').length
-  const playing = logs.filter(l => l.status === 'PLAYING').length
-  const rated = logs.filter(l => l.rating)
-  const avgRating = rated.length > 0
-    ? (rated.reduce((sum, l) => sum + l.rating, 0) / rated.length).toFixed(1)
-    : '—'
-
-  const recent = [...logs].sort((a, b) => b.id - a.id).slice(0, 5)
+  const displayName = profile?.username ?? username
 
   return (
     <Layout title="Profile">
       <div className={styles.heroGlow} />
 
       <section className={styles.avatarSection}>
-        {/* Hidden native file input — triggered by clicking the avatar ring */}
         <input
           ref={fileInputRef}
           type="file"
@@ -122,7 +142,6 @@ function UserProfile() {
           onChange={handleFileChange}
         />
 
-        {/* Clicking the avatar opens the file picker */}
         <button
           className={styles.avatarBtn}
           onClick={() => fileInputRef.current?.click()}
@@ -134,12 +153,11 @@ function UserProfile() {
               {avatarUrl ? (
                 <img src={avatarUrl} alt="Profile" className={styles.avatarImg} />
               ) : (
-                <span className={styles.avatarLetter}>{username[0]}</span>
+                <span className={styles.avatarLetter}>{displayName[0]}</span>
               )}
             </div>
           </div>
 
-          {/* Upload overlay — shows a camera icon on hover / during upload */}
           <div className={`${styles.avatarOverlay} ${uploading ? styles.avatarOverlayActive : ''}`}>
             {uploading ? (
               <span className={styles.avatarSpinner} />
@@ -149,8 +167,13 @@ function UserProfile() {
           </div>
         </button>
 
-        <div className={styles.userName}>{username}</div>
-        <div className={styles.userMeta}>{total} games logged</div>
+        <div className={styles.userName}>{displayName}</div>
+        {profile?.joinedAt && (
+          <div className={styles.userMeta}>Member since {profile.joinedAt}</div>
+        )}
+        {!profile && !loading && (
+          <div className={styles.userMeta}>{username}</div>
+        )}
 
         {uploadError && (
           <p className={styles.uploadError}>{uploadError}</p>
@@ -160,64 +183,48 @@ function UserProfile() {
       <section className={styles.statsGrid}>
         <div className={styles.statCard}>
           <span className={`${styles.statIcon} ${styles.statIconBlue}`}>▤</span>
-          <div className={styles.statValue}>{loading ? '—' : total}</div>
+          <div className={styles.statValue}>{loading ? '—' : (profile?.totalGames ?? 0)}</div>
           <div className={styles.statLabel}>Total Games</div>
         </div>
         <div className={styles.statCard}>
           <span className={`${styles.statIcon} ${styles.statIconGreen}`}>✓</span>
-          <div className={styles.statValue}>{loading ? '—' : completed}</div>
+          <div className={styles.statValue}>{loading ? '—' : (profile?.completedGames ?? 0)}</div>
           <div className={styles.statLabel}>Completed</div>
         </div>
         <div className={styles.statCard}>
           <span className={`${styles.statIcon} ${styles.statIconAmber}`}>▶</span>
-          <div className={styles.statValue}>{loading ? '—' : playing}</div>
+          <div className={styles.statValue}>{loading ? '—' : (profile?.playingGames ?? 0)}</div>
           <div className={styles.statLabel}>Playing</div>
         </div>
         <div className={styles.statCard}>
           <span className={`${styles.statIcon} ${styles.statIconBlue}`}>★</span>
-          <div className={styles.statValue}>{loading ? '—' : avgRating}</div>
+          <div className={styles.statValue}>{loading ? '—' : (profile?.averageRating ?? '—')}</div>
           <div className={styles.statLabel}>Avg Rating</div>
         </div>
-      </section>
-
-      <section>
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionTitle}>Recent Activity</span>
-        </div>
-
-        {loading ? (
-          <div className={styles.emptyActivity}>Loading...</div>
-        ) : recent.length === 0 ? (
-          <div className={styles.emptyActivity}>No activity yet. Start adding games!</div>
-        ) : (
-          <div className={styles.activityList}>
-            {recent.map(log => (
-              <div key={log.id} className={styles.activityRow}>
-                <div className={styles.activityThumb}>
-                  {log.coverUrl
-                    ? <img src={log.coverUrl} alt={log.gameTitle} className={styles.activityThumbImg} />
-                    : <div className={styles.activityThumbPlaceholder}>{log.gameTitle}</div>
-                  }
-                </div>
-                <div className={styles.activityInfo}>
-                  <div className={styles.activityTitle}>{log.gameTitle}</div>
-                  <div className={styles.activityMeta}>
-                    <span className={`${styles.activityStatus} ${statusClassMap[log.status] ?? ''}`}>
-                      {log.status.charAt(0) + log.status.slice(1).toLowerCase()}
-                    </span>
-                    {log.rating && (
-                      <>
-                        <span className={styles.activityDot}>·</span>
-                        <span className={styles.activityRating}>{log.rating}/10</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+        {(loading || profile?.mostPlayedGenre) && (
+          <div className={`${styles.statCard} ${styles.statCardWide}`}>
+            <span className={`${styles.statIcon} ${styles.statIconAmber}`}>♟</span>
+            <div className={styles.statValue}>{loading ? '—' : profile?.mostPlayedGenre}</div>
+            <div className={styles.statLabel}>Fav Genre</div>
           </div>
         )}
       </section>
+
+      <GameScrollRow
+        title="Currently Playing"
+        games={profile?.currentlyPlaying}
+        loading={loading}
+      />
+      <GameScrollRow
+        title="Recently Added"
+        games={profile?.recentlyPlayed}
+        loading={loading}
+      />
+      <GameScrollRow
+        title="Top Rated"
+        games={profile?.topRated}
+        loading={loading}
+      />
 
       <section className={styles.actions}>
         <button className={styles.logoutBtn} onClick={handleLogout}>Sign out</button>

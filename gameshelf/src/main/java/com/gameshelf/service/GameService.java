@@ -48,26 +48,28 @@ public class GameService {
     }
 
     public List<GameResponse> searchGames(String query) {
-        // Strip double-quotes to prevent breaking out of the IGDB search string,
-        // then cap length so oversized input can't be used for abuse.
         String sanitized = query.replace("\"", "").trim();
         if (sanitized.isEmpty()) return List.of();
         if (sanitized.length() > 100) sanitized = sanitized.substring(0, 100);
 
         String body = "search \"" + sanitized + "\"; fields id,name,cover.url; limit 10;";
+        log.info("[igdb] search query: {}", sanitized);
 
-        IgdbGame[] results = igdbClient
-                .post()
-                .uri("/games")
-                .body(body)
-                .retrieve()
-                .body(IgdbGame[].class);
+        try {
+            IgdbGame[] results = igdbClient
+                    .post()
+                    .uri("/games")
+                    .body(body)
+                    .retrieve()
+                    .body(IgdbGame[].class);
 
-        if (results == null) return List.of();
-
-        return Arrays.stream(results)
-                .map(this::toGameResponse)
-                .toList();
+            log.info("[igdb] search returned {} results", results == null ? 0 : results.length);
+            if (results == null) return List.of();
+            return Arrays.stream(results).map(this::toGameResponse).toList();
+        } catch (Exception e) {
+            log.error("[igdb] search failed: {}", e.getMessage());
+            throw e;
+        }
     }
 
     public List<GameResponse> getTrendingGames() {

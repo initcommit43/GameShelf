@@ -1,6 +1,8 @@
 package com.gameshelf.controller;
 
+import com.gameshelf.dto.UserProfileResponse;
 import com.gameshelf.service.ProfilePictureService;
+import com.gameshelf.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import java.util.Map;
 public class ProfileController {
 
     private final ProfilePictureService profilePictureService;
+    private final UserService userService;
 
     /**
      * GET /api/profile/me
@@ -32,6 +35,16 @@ public class ProfileController {
                 "username", userDetails.getUsername(),
                 "profilePictureUrl", pictureUrl != null ? pictureUrl : ""
         ));
+    }
+
+    /**
+     * GET /api/profile/full
+     * Returns full profile data: stats + three game lists.
+     */
+    @GetMapping("/full")
+    public ResponseEntity<UserProfileResponse> getFullProfile(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(userService.getProfile(userDetails.getUsername()));
     }
 
     /**
