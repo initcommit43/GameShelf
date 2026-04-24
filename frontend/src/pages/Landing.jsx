@@ -63,14 +63,15 @@ function Landing() {
       .catch(() => setTrendingGames([]))
       .finally(() => setTrendingLoading(false))
 
-    // Fetch the 4 editorial covers independently from trending
-    Promise.all(EDITORIAL_IGDB_IDS.map(id => gameService.getDetails(id)))
-      .then(games => setEditorialCovers(games.filter(g => g?.coverUrl)))
-      .catch(() => {})
-
+    if (isLoggedIn) {
+      Promise.all(EDITORIAL_IGDB_IDS.map(id => gameService.getDetails(id)))
+        .then(games => setEditorialCovers(games.filter(g => g?.coverUrl)))
+        .catch(() => {})
+    }
   }, [])
 
   const handleFooterGame = async (title) => {
+    if (!isLoggedIn) { navigate('/login'); return }
     try {
       const results = await gameService.search(title)
       if (results.length > 0) navigate(`/games/${results[0].igdbId}`)
@@ -198,7 +199,7 @@ function Landing() {
             <div>
               <h2 className={styles.sectionTitle}>Recently Trending</h2>
             </div>
-            <a className={styles.viewAll}>
+            <a className={styles.viewAll} onClick={() => navigate('/browse')} style={{ cursor: 'pointer' }}>
               View All <span className="material-symbols-outlined" style={{ fontSize: 16, verticalAlign: 'middle' }}>arrow_forward</span>
             </a>
           </div>
@@ -412,7 +413,7 @@ function Landing() {
               <p className={styles.newsBody}>
                 We're introducing real-time activity feeds, dynamic game hubs, and a completely rebuilt mobile experience. Discover how our new "Midnight" engine powers a faster, more beautiful shelf.
               </p>
-              <button className={styles.newsBtn}>Read the full changelog</button>
+              <button className={styles.newsBtn} onClick={() => navigate('/news')}>Read the full changelog</button>
             </div>
             <div className={styles.newsImageWrap}>
               <img className={styles.newsImage} src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMXo2QuY0UwrnLeEaY6lx9YmtPNJv5XBoyjJPuzk9fJmWhSOEORDqeurJ4WU03Ms7g9vu3HT2ULQswtyGfdN_r90P_vutlAuRUBbChU_3xzV7WeGKr4Eow7arOH_eD9nVG-iz3HgpvH8-wfNxyqdPdOCAPlw5DqDhli2ovsV_2UjoPs-JQW7bJ7PA5nS1aTWBDcg-ajaZ1MZGG8TwubsXm1rwbGAkWYBnJLHWfJUQK2v0ZBI_lr7LrNkvk48b71mg0obhKZ6qUCss" alt="" />
@@ -520,7 +521,7 @@ function Landing() {
                 <a key={l} className={styles.footerLink}>{l}</a>
               ))}
             </div>
-            <p>© 2024 GameShelf</p>
+            <p>© 2026 GameShelf</p>
           </div>
         </div>
       </footer>

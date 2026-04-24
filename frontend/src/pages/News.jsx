@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { newsService } from '../services/api'
+import BottomNav from '../components/BottomNav'
 import styles from './News.module.css'
 
 const SOURCES = ['IGN', 'PC Gamer', 'Eurogamer', 'Polygon', 'GameSpot']
@@ -160,6 +161,7 @@ function News() {
           </>
         )}
       </div>
+      <BottomNav />
     </div>
   )
 }

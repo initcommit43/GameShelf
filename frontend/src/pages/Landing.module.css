@@ -1105,15 +1105,13 @@
    ADD TO SHELF MODAL
 ───────────────────────────────────────── */
 
-/* Fixed toasts (landing-specific: bottom: 24px, no bottom nav) */
-.successBanner {
+/* Fixed toasts */
+.successBanner,
+.errorBanner {
   position: fixed;
-  bottom: 24px;
+  bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(74, 222, 128, 0.12);
-  border: 1px solid rgba(74, 222, 128, 0.2);
-  color: #4ade80;
   border-radius: 10px;
   padding: 12px 24px;
   font-size: 13px;
@@ -1122,20 +1120,20 @@
   white-space: nowrap;
 }
 
+@media (min-width: 768px) {
+  .successBanner, .errorBanner { bottom: 24px; }
+}
+
+.successBanner {
+  background: rgba(74, 222, 128, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+}
+
 .errorBanner {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
   background: rgba(255, 113, 108, 0.12);
   border: 1px solid rgba(255, 113, 108, 0.2);
   color: #ff716c;
-  border-radius: 10px;
-  padding: 12px 24px;
-  font-size: 13px;
-  font-weight: 600;
-  z-index: var(--z-toast);
-  white-space: nowrap;
 }
 
 /* Sheet — composed from shared */

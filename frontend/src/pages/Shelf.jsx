@@ -38,9 +38,19 @@ function Shelf() {
   const [submitting, setSubmitting] = useState(false)
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
+  const sortDropdownRef = useRef(null)
 
   // Persist filter/sort/view in localStorage so they survive navigation and refresh.
   // Cleared on logout (see UserProfile handleLogout).
+  useEffect(() => {
+    if (!sortDropdownOpen) return
+    const handler = (e) => {
+      if (!sortDropdownRef.current?.contains(e.target)) setSortDropdownOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [sortDropdownOpen])
+
   const filterBarRef = useRef(null)
   useEffect(() => {
     const el = filterBarRef.current
@@ -184,7 +194,7 @@ function Shelf() {
       <div className={styles.sectionHeader}>
         <span className={styles.sectionTitle}>My shelf</span>
         <div className={styles.headerRight}>
-          <div className={styles.sortWrapper}>
+          <div className={styles.sortWrapper} ref={sortDropdownRef}>
             <button
               className={`${styles.toggleBtn} ${styles.sortBtn}${sortOption ? ` ${styles.toggleActive}` : ''}`}
               onClick={() => setSortDropdownOpen(o => !o)}
