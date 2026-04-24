@@ -256,7 +256,7 @@ function Browse() {
         ))}
         <button
           style={{ flexShrink: 0 }}
-          className={`${styles.sortBtn} ${styles.forYouBtn}${category === 'for-you' ? ` ${styles.forYouBtnActive}` : ''}`}
+          className={`${styles.sortBtn}${category === 'for-you' ? ` ${styles.sortBtnActive}` : ''}`}
           onClick={handleForYou}
         >
           ✦ For You
@@ -369,7 +369,6 @@ function Browse() {
               <div key={i} className={styles.card}>
                 <div className={`${styles.cover} ${styles.coverSkeleton}`} />
                 <div className={styles.skeletonTitle} />
-                <div className={styles.skeletonReason} />
               </div>
             ))}
           </div>
@@ -401,9 +400,6 @@ function Browse() {
                     }
                   </div>
                   <div className={styles.cardTitle}>{rec.title}</div>
-                  {rec.reasons?.[0] && (
-                    <div className={styles.reasonPill}>{rec.reasons[0]}</div>
-                  )}
                 </div>
               ))}
             </div>

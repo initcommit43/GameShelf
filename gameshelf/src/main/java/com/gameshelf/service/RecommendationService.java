@@ -1,7 +1,10 @@
 package com.gameshelf.service;
 
+import com.gameshelf.dto.GameResponse;
 import com.gameshelf.dto.IgdbEnrichment;
 import com.gameshelf.dto.RecommendationResponse;
+import com.gameshelf.model.GameLog;
+import com.gameshelf.model.GameStatus;
 import com.gameshelf.model.User;
 import com.gameshelf.repository.GameLogRepository;
 import com.gameshelf.repository.UserRepository;
@@ -11,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -19,18 +24,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RecommendationService {
 
-    private static final int CACHE_TTL_HOURS  = 6;
-    private static final int TOP_N_GENRES     = 3;
-    private static final int TOP_N_THEMES     = 3;
-    private static final int TOP_N_KEYWORDS   = 5;
-    private static final int MIN_KEYWORD_FREQ = 2;
-    private static final int MAX_RESULTS      = 40;
-
-    // Points awarded per matching attribute
-    private static final int PTS_GENRE   = 3;
-    private static final int PTS_THEME   = 2;
-    private static final int PTS_KEYWORD = 1;
-    private static final int PTS_SIMILAR = 4;
+    private static final int    CACHE_TTL_HOURS = 6;
+    private static final int    TOP_N_GENRES    = 3;
+    private static final int    MIN_SHELF       = 5;
+    private static final int    MAX_RESULTS     = 40;
+    private static final int    MAX_PER_GENRE   = 3;
+    private static final long   RECENCY_DAYS    = 30;
+    private static final double PTS_GENRE       = 3.0;
+    private static final double PTS_THEME       = 2.0;
+    private static final double PTS_KEYWORD     = 1.0;
 
     private final GameLogRepository gameLogRepository;
     private final UserRepository    userRepository;
@@ -38,7 +40,6 @@ public class RecommendationService {
 
     private final ConcurrentHashMap<String, CachedRecs> cache = new ConcurrentHashMap<>();
 
-    // Called by GameLogController after a game is added so recommendations refresh
     public void invalidateCache(String username) {
         cache.remove(username);
     }
@@ -53,169 +54,226 @@ public class RecommendationService {
         return recs;
     }
 
-    // ── Core algorithm ──────────────────────────────────────────────────────────
+    // ── Core pipeline ────────────────────────────────────────────────────────────
 
     private List<RecommendationResponse> compute(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        // 1. Collect IGDB IDs from the user's shelf
-        List<Integer> shelfIgdbIds = gameLogRepository.findByUserIdWithGame(user.getId()).stream()
-                .map(log -> log.getGame().getIgdbId())
-                .filter(Objects::nonNull)
-                .distinct()
-                .toList();
+        List<GameLog> logs = gameLogRepository.findByUserIdWithGame(user.getId());
 
+        if (logs.size() < MIN_SHELF) {
+            return fallbackTopRated();
+        }
+
+        // 1. Influence per shelf game
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now(ZoneOffset.UTC).minusDays(RECENCY_DAYS);
+        Map<Integer, Double> influenceByIgdbId = new LinkedHashMap<>();
+        Map<Integer, String> titleByIgdbId     = new LinkedHashMap<>();
+
+        for (GameLog log : logs) {
+            if (log.getGame().getIgdbId() == null) continue;
+            int igdbId = log.getGame().getIgdbId();
+            titleByIgdbId.put(igdbId, log.getGame().getTitle());
+
+            int base = 0;
+            if (log.getStatus() == GameStatus.COMPLETED)    base += 5;
+            else if (log.getStatus() == GameStatus.DROPPED) base -= 5;
+
+            if (log.getRating() != null) {
+                if (log.getRating() >= 8)      base += 4;
+                else if (log.getRating() >= 5) base += 1;
+            }
+
+            double recency = (log.getCreatedAt() != null && log.getCreatedAt().isAfter(thirtyDaysAgo))
+                    ? 1.0 : 0.4;
+            influenceByIgdbId.merge(igdbId, base * recency, Double::sum);
+        }
+
+        List<Integer> shelfIgdbIds = new ArrayList<>(influenceByIgdbId.keySet());
         if (shelfIgdbIds.isEmpty()) return List.of();
 
-        // 2. Enrich shelf games: fetch genres, themes, keywords, similar_games
+        // 2. Enrich shelf games and build weighted preference profile
         List<IgdbEnrichment> shelfGames = gameService.enrichGames(shelfIgdbIds);
         if (shelfGames.isEmpty()) return List.of();
 
-        // 3. Build preference profile from shelf
-        UserProfile profile = buildProfile(shelfGames);
+        WeightedProfile profile = buildWeightedProfile(shelfGames, influenceByIgdbId);
         if (profile.topGenreIds().isEmpty()) return List.of();
 
         Set<Integer> shelfSet = new HashSet<>(shelfIgdbIds);
 
-        // 4. Fetch candidates from two sources in parallel (logical, not thread-based)
-        //    a) Top-genre candidates — high-rated games in the user's primary genre
-        List<IgdbEnrichment> genreCandidates =
-                gameService.fetchCandidatesByGenre(profile.topGenreIds().get(0));
-
-        //    b) Similar-game candidates — direct IGDB "similar_games" references
+        // 3. Candidate pool: top genres + similar games
+        Map<Integer, IgdbEnrichment> pool = new LinkedHashMap<>();
+        for (int genreId : profile.topGenreIds()) {
+            for (IgdbEnrichment g : gameService.fetchCandidatesByGenre(genreId)) {
+                pool.putIfAbsent(g.getIgdbId(), g);
+            }
+        }
         List<Integer> similarToFetch = profile.allSimilarIds().stream()
                 .filter(id -> !shelfSet.contains(id))
                 .limit(50)
                 .toList();
-        List<IgdbEnrichment> similarCandidates = gameService.enrichGames(similarToFetch);
-
-        // 5. Merge, deduplicate, exclude shelf games
-        Map<Integer, IgdbEnrichment> pool = new LinkedHashMap<>();
-        for (IgdbEnrichment g : genreCandidates)  pool.put(g.getIgdbId(), g);
-        for (IgdbEnrichment g : similarCandidates) pool.putIfAbsent(g.getIgdbId(), g);
+        for (IgdbEnrichment g : gameService.enrichGames(similarToFetch)) {
+            pool.putIfAbsent(g.getIgdbId(), g);
+        }
         pool.keySet().removeAll(shelfSet);
 
-        // 6. Score every candidate
-        List<ScoredGame> scored = pool.values().stream()
+        // 4. Score → sort → diversity filter
+        List<ScoredGame> sorted = pool.values().stream()
                 .map(g -> score(g, profile))
                 .filter(sg -> sg.score() > 0)
-                .sorted(Comparator.comparingInt(ScoredGame::score).reversed())
-                .limit(MAX_RESULTS)
+                .sorted(Comparator.comparingDouble(ScoredGame::score).reversed())
                 .toList();
 
-        if (scored.isEmpty()) return List.of();
+        List<ScoredGame> diverse = diversityFilter(sorted);
+        if (diverse.isEmpty()) return List.of();
 
-        int maxScore = scored.get(0).score();
+        double maxScore = diverse.get(0).score();
 
-        return scored.stream()
-                .map(sg -> toResponse(sg, maxScore))
+        return diverse.stream()
+                .limit(MAX_RESULTS)
+                .map(sg -> toResponse(sg, maxScore, shelfGames, influenceByIgdbId, titleByIgdbId, profile))
+                .toList();
+    }
+
+    // ── Fallback (shelf < MIN_SHELF) ─────────────────────────────────────────────
+
+    private List<RecommendationResponse> fallbackTopRated() {
+        List<GameResponse> topGames = gameService.browseGames("rating", 0, null, null, null, null, null);
+        String reason = "Add more games to personalize your recommendations";
+        return topGames.stream()
+                .map(g -> RecommendationResponse.builder()
+                        .igdbId(g.getIgdbId())
+                        .title(g.getTitle())
+                        .coverUrl(g.getCoverUrl())
+                        .score(0)
+                        .confidencePct(0)
+                        .reasons(List.of(reason))
+                        .build())
                 .toList();
     }
 
     // ── Profile building ─────────────────────────────────────────────────────────
 
-    private UserProfile buildProfile(List<IgdbEnrichment> shelfGames) {
-        Map<Integer, Integer> genreFreq   = new HashMap<>();
-        Map<Integer, String>  genreNames  = new HashMap<>();
-        Map<Integer, Integer> themeFreq   = new HashMap<>();
-        Map<Integer, String>  themeNames  = new HashMap<>();
-        Map<Integer, Integer> keywordFreq = new HashMap<>();
-        Set<Integer>          similarIds  = new LinkedHashSet<>();
+    private WeightedProfile buildWeightedProfile(List<IgdbEnrichment> shelfGames,
+                                                  Map<Integer, Double> influenceByIgdbId) {
+        Map<Integer, Double> genreWeights   = new HashMap<>();
+        Map<Integer, String> genreNames     = new HashMap<>();
+        Map<Integer, Double> themeWeights   = new HashMap<>();
+        Map<Integer, String> themeNames     = new HashMap<>();
+        Map<Integer, Double> keywordWeights = new HashMap<>();
+        Set<Integer>         similarIds     = new LinkedHashSet<>();
 
         for (IgdbEnrichment g : shelfGames) {
+            double influence = influenceByIgdbId.getOrDefault(g.getIgdbId(), 0.0);
             for (IgdbEnrichment.Tag t : g.getGenres()) {
-                genreFreq.merge(t.getId(), 1, Integer::sum);
+                genreWeights.merge(t.getId(), influence, Double::sum);
                 genreNames.put(t.getId(), t.getName());
             }
             for (IgdbEnrichment.Tag t : g.getThemes()) {
-                themeFreq.merge(t.getId(), 1, Integer::sum);
+                themeWeights.merge(t.getId(), influence, Double::sum);
                 themeNames.put(t.getId(), t.getName());
             }
             for (IgdbEnrichment.Tag t : g.getKeywords()) {
-                keywordFreq.merge(t.getId(), 1, Integer::sum);
+                keywordWeights.merge(t.getId(), influence, Double::sum);
             }
-            similarIds.addAll(g.getSimilarGames());
+            if (influence > 0) similarIds.addAll(g.getSimilarGames());
         }
 
-        List<Integer> topGenres = topN(genreFreq, TOP_N_GENRES);
-        List<Integer> topThemes = topN(themeFreq, TOP_N_THEMES);
-        List<Integer> topKeywords = keywordFreq.entrySet().stream()
-                .filter(e -> e.getValue() >= MIN_KEYWORD_FREQ)
-                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                .limit(TOP_N_KEYWORDS)
-                .map(Map.Entry::getKey)
-                .toList();
+        List<Integer> topGenres = topNByWeight(genreWeights, TOP_N_GENRES);
+        String topGenreName = topGenres.isEmpty() ? null : genreNames.get(topGenres.get(0));
 
-        return new UserProfile(topGenres, topThemes, topKeywords,
-                genreNames, themeNames, new ArrayList<>(similarIds));
+        return new WeightedProfile(topGenres, genreWeights, themeWeights, keywordWeights,
+                genreNames, themeNames, topGenreName, new ArrayList<>(similarIds));
     }
 
     // ── Scoring ──────────────────────────────────────────────────────────────────
 
-    private ScoredGame score(IgdbEnrichment game, UserProfile profile) {
-        int score = 0;
+    private ScoredGame score(IgdbEnrichment game, WeightedProfile profile) {
+        double score = 0;
         List<String> matchedGenres = new ArrayList<>();
         List<String> matchedThemes = new ArrayList<>();
-        boolean isSimilar = profile.allSimilarIds().contains(game.getIgdbId());
 
         for (IgdbEnrichment.Tag t : game.getGenres()) {
-            if (profile.topGenreIds().contains(t.getId())) {
-                score += PTS_GENRE;
-                matchedGenres.add(t.getName());
-            }
+            double w = profile.genreWeights().getOrDefault(t.getId(), 0.0);
+            if (w > 0) { score += w * PTS_GENRE; matchedGenres.add(t.getName()); }
         }
         for (IgdbEnrichment.Tag t : game.getThemes()) {
-            if (profile.topThemeIds().contains(t.getId())) {
-                score += PTS_THEME;
-                matchedThemes.add(t.getName());
-            }
+            double w = profile.themeWeights().getOrDefault(t.getId(), 0.0);
+            if (w > 0) { score += w * PTS_THEME; matchedThemes.add(t.getName()); }
         }
         for (IgdbEnrichment.Tag t : game.getKeywords()) {
-            if (profile.topKeywordIds().contains(t.getId())) {
-                score += PTS_KEYWORD;
-            }
+            double w = profile.keywordWeights().getOrDefault(t.getId(), 0.0);
+            if (w > 0) score += w * PTS_KEYWORD;
         }
-        if (isSimilar) score += PTS_SIMILAR;
 
-        return new ScoredGame(game, score, matchedGenres, matchedThemes, isSimilar);
+        return new ScoredGame(game, score, matchedGenres, matchedThemes);
+    }
+
+    // ── Diversity filter (max MAX_PER_GENRE per genre in final results) ──────────
+
+    private List<ScoredGame> diversityFilter(List<ScoredGame> sorted) {
+        Map<Integer, Integer> genreCount = new HashMap<>();
+        List<ScoredGame> result = new ArrayList<>();
+
+        for (ScoredGame sg : sorted) {
+            List<IgdbEnrichment.Tag> genres = sg.game().getGenres();
+            boolean allowed = genres.isEmpty()
+                    || genres.stream().anyMatch(t -> genreCount.getOrDefault(t.getId(), 0) < MAX_PER_GENRE);
+            if (!allowed) continue;
+            result.add(sg);
+            for (IgdbEnrichment.Tag t : genres) genreCount.merge(t.getId(), 1, Integer::sum);
+        }
+        return result;
     }
 
     // ── Response mapping ─────────────────────────────────────────────────────────
 
-    private RecommendationResponse toResponse(ScoredGame sg, int maxScore) {
+    private RecommendationResponse toResponse(ScoredGame sg, double maxScore,
+                                               List<IgdbEnrichment> shelfGames,
+                                               Map<Integer, Double> influenceByIgdbId,
+                                               Map<Integer, String> titleByIgdbId,
+                                               WeightedProfile profile) {
         int confidence = maxScore > 0 ? (int) Math.round(sg.score() * 100.0 / maxScore) : 0;
+
+        Set<Integer> candidateGenreIds = sg.game().getGenres().stream()
+                .map(IgdbEnrichment.Tag::getId)
+                .collect(Collectors.toSet());
+
+        // Find the most-influential shelf game that shares a genre → "Because you liked X"
+        String reason = null;
+        double bestInfluence = 0;
+        for (IgdbEnrichment shelf : shelfGames) {
+            double inf = influenceByIgdbId.getOrDefault(shelf.getIgdbId(), 0.0);
+            if (inf <= bestInfluence) continue;
+            boolean sharesGenre = shelf.getGenres().stream()
+                    .anyMatch(t -> candidateGenreIds.contains(t.getId()));
+            if (sharesGenre) {
+                bestInfluence = inf;
+                reason = "Because you liked " + titleByIgdbId.getOrDefault(shelf.getIgdbId(), shelf.getTitle());
+            }
+        }
+        if (reason == null && profile.topGenreName() != null) {
+            reason = "Matches your taste in " + profile.topGenreName();
+        }
+
         return RecommendationResponse.builder()
                 .igdbId(sg.game().getIgdbId())
                 .title(sg.game().getTitle())
                 .coverUrl(sg.game().getCoverUrl())
                 .summary(sg.game().getSummary())
-                .score(sg.score())
+                .score((int) Math.round(sg.score()))
                 .confidencePct(confidence)
-                .reasons(buildReasons(sg))
+                .reasons(reason != null ? List.of(reason) : List.of())
                 .build();
     }
 
-    private List<String> buildReasons(ScoredGame sg) {
-        List<String> reasons = new ArrayList<>();
-        if (!sg.matchedGenres().isEmpty())
-            reasons.add("Because you enjoy " + joinNames(sg.matchedGenres()) + " games");
-        if (!sg.matchedThemes().isEmpty())
-            reasons.add("Matches your taste for " + joinNames(sg.matchedThemes()));
-        if (sg.isSimilar())
-            reasons.add("Similar to games on your shelf");
-        return reasons;
-    }
+    // ── Helpers ──────────────────────────────────────────────────────────────────
 
-    private String joinNames(List<String> names) {
-        if (names.size() == 1) return names.get(0);
-        if (names.size() == 2) return names.get(0) + " & " + names.get(1);
-        return names.get(0) + ", " + names.get(1) + " & more";
-    }
-
-    private List<Integer> topN(Map<Integer, Integer> freq, int n) {
-        return freq.entrySet().stream()
-                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
+    private List<Integer> topNByWeight(Map<Integer, Double> weights, int n) {
+        return weights.entrySet().stream()
+                .filter(e -> e.getValue() > 0)
+                .sorted(Map.Entry.<Integer, Double>comparingByValue().reversed())
                 .limit(n)
                 .map(Map.Entry::getKey)
                 .toList();
@@ -223,20 +281,21 @@ public class RecommendationService {
 
     // ── Internal records ─────────────────────────────────────────────────────────
 
-    private record UserProfile(
+    private record WeightedProfile(
             List<Integer> topGenreIds,
-            List<Integer> topThemeIds,
-            List<Integer> topKeywordIds,
+            Map<Integer, Double> genreWeights,
+            Map<Integer, Double> themeWeights,
+            Map<Integer, Double> keywordWeights,
             Map<Integer, String> genreNames,
             Map<Integer, String> themeNames,
+            String topGenreName,
             List<Integer> allSimilarIds) {}
 
     private record ScoredGame(
             IgdbEnrichment game,
-            int score,
+            double score,
             List<String> matchedGenres,
-            List<String> matchedThemes,
-            boolean isSimilar) {}
+            List<String> matchedThemes) {}
 
     private record CachedRecs(
             List<RecommendationResponse> recs,

@@ -67,7 +67,15 @@ function Landing() {
     Promise.all(EDITORIAL_IGDB_IDS.map(id => gameService.getDetails(id)))
       .then(games => setEditorialCovers(games.filter(g => g?.coverUrl)))
       .catch(() => {})
+
   }, [])
+
+  const handleFooterGame = async (title) => {
+    try {
+      const results = await gameService.search(title)
+      if (results.length > 0) navigate(`/games/${results[0].igdbId}`)
+    } catch {}
+  }
 
   const openSheet = (game) => {
     if (!isLoggedIn) { navigate('/login'); return }
@@ -484,14 +492,24 @@ function Landing() {
             </div>
             {[
               { heading: 'Popular Lists', links: ['Top 100 All Time', 'Hidden Gems', '2024 GOTY', 'Indie Darling'] },
-              { heading: 'Coming Soon', links: ['Project Omega', 'Neon Skies', 'Vanguard II', 'Eco-Shift'] },
-              { heading: 'Anticipated', links: ['Hollow Knight: Silksong', 'GTA VI', 'Death Stranding 2', 'Metroid Prime 4'] },
-              { heading: 'Sleeper Hits', links: ['Signal Void', 'Dust & Neon', 'Pacific Drive', 'Chants of Sennaar'] },
+              { heading: 'Coming Soon',   links: ['Project Omega', 'Neon Skies', 'Vanguard II', 'Eco-Shift'] },
+              { heading: 'Anticipated',   links: ['Hollow Knight: Silksong', 'GTA VI', 'Death Stranding 2', 'Metroid Prime 4'] },
+              { heading: 'Sleeper Hits',  links: ['Signal Void', 'Dust & Neon', 'Pacific Drive', 'Chants of Sennaar'] },
             ].map(col => (
               <div key={col.heading}>
                 <h4 className={styles.footerColHead}>{col.heading}</h4>
                 <ul className={styles.footerLinks}>
-                  {col.links.map(link => <li key={link}><a className={styles.footerLink}>{link}</a></li>)}
+                  {col.links.map(link => (
+                    <li key={link}>
+                      <a
+                        className={styles.footerLink}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => handleFooterGame(link)}
+                      >
+                        {link}
+                      </a>
+                    </li>
+                  ))}
                 </ul>
               </div>
             ))}

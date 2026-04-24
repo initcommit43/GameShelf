@@ -198,10 +198,6 @@
   pointer-events: none;
 }
 
-/* ── For You button ── */
-.forYouBtn { border-color: var(--accent); color: var(--accent); }
-.forYouBtn:hover:not(.forYouBtnActive) { background: rgba(139, 92, 246, 0.08); }
-.forYouBtnActive { background: rgba(139, 92, 246, 0.15) !important; border-color: var(--accent); color: var(--accent); }
 
 .reasonPill {
   margin-top: 5px;
