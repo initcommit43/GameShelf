@@ -1,16 +1,11 @@
-# Environment variable reference for Docker / CI / production deployments.
-#
-# For local development with Spring Boot, use local.properties instead —
-# see local.properties.example for the template.
-#
-# In production, export these as real environment variables (or set them in
-# your Docker Compose / Kubernetes manifest) and set SPRING_PROFILES_ACTIVE=prod.
-
-SPRING_PROFILES_ACTIVE=prod
+# Copy this file to local.properties and fill in real values.
+# Spring Boot (dev profile) imports local.properties automatically via application-dev.properties.
+# Never commit local.properties — it is gitignored.
 
 # ── Database ──────────────────────────────────────────────────────────────────
-DB_URL=jdbc:postgresql://db:5432/gameshelf
-DB_USERNAME=gameshelf
+# Local dev defaults; DB_URL and DB_USERNAME can be omitted to use the built-in defaults.
+DB_URL=jdbc:postgresql://localhost:5432/gameshelf
+DB_USERNAME=postgres
 DB_PASSWORD=
 
 # ── Auth ──────────────────────────────────────────────────────────────────────
@@ -20,14 +15,14 @@ JWT_SECRET=
 
 # ── IGDB (game data) ──────────────────────────────────────────────────────────
 # Register at https://dev.twitch.tv to obtain an IGDB client.
-# Tokens expire after ~60 days — see local.properties.example for regeneration steps.
+# Tokens expire after ~60 days. Regenerate with:
+#   POST https://id.twitch.tv/oauth2/token?client_id=YOUR_ID&client_secret=YOUR_SECRET&grant_type=client_credentials
 IGDB_CLIENT_ID=
 IGDB_ACCESS_TOKEN=
 
 # ── GG.deals (store price offers, optional) ───────────────────────────────────
-# From https://gg.deals/affiliate/ — leave blank to disable.
+# From https://gg.deals/affiliate/ — leave blank to disable store offers.
 GGDEALS_API_KEY=
 
-# ── Upload URL ────────────────────────────────────────────────────────────────
-# The public base URL the backend uses to build avatar URLs.
-UPLOAD_BASE_URL=https://yourdomain.com
+# ── Upload URL (leave as-is for local dev) ────────────────────────────────────
+UPLOAD_BASE_URL=http://localhost:8080

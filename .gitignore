@@ -1,5 +1,6 @@
 # Secrets — never commit real credentials
 .env
+local.properties
 
 # OS
 .DS_Store
