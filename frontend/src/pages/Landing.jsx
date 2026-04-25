@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { gameService, logService, statsService } from '../services/api'
+import { gameService, logService, statsService, newsService } from '../services/api'
 import BottomNav from '../components/BottomNav'
 import AddToShelfSheet from '../components/AddToShelfSheet/AddToShelfSheet'
 import styles from './Landing.module.css'
@@ -8,6 +8,16 @@ import styles from './Landing.module.css'
 
 // Find an ID by searching the game on the app and checking the URL on its detail page.
 const EDITORIAL_IGDB_IDS = [7351, 1942, 119171, 1020] // Doom, Witcher 3, Baldurs Gate 3, GTA 5
+
+function formatRelativeDate(iso) {
+  if (!iso) return ''
+  const diffMs = Date.now() - new Date(iso).getTime()
+  const diffH = Math.floor(diffMs / 3_600_000)
+  const diffD = Math.floor(diffMs / 86_400_000)
+  if (diffH < 1) return 'Just now'
+  if (diffH < 24) return `${diffH}h ago`
+  return `${diffD} day${diffD !== 1 ? 's' : ''} ago`
+}
 
 function formatCount(n) {
   if (n == null) return '—'
@@ -27,6 +37,7 @@ function Landing() {
   const [selected, setSelected] = useState(null)
   const [successMsg, setSuccessMsg] = useState('')
   const [stats, setStats] = useState(null)
+  const [newsArticles, setNewsArticles] = useState([])
 
   useEffect(() => {
     gameService.getTrending()
@@ -35,6 +46,10 @@ function Landing() {
       .finally(() => setTrendingLoading(false))
 
     statsService.getStats().then(setStats).catch(() => {})
+
+    newsService.getNews(0, 3)
+      .then(data => setNewsArticles(data.content || []))
+      .catch(() => {})
 
     if (isLoggedIn) {
       Promise.all(EDITORIAL_IGDB_IDS.map(id => gameService.getDetails(id)))
@@ -240,6 +255,50 @@ function Landing() {
           </div>
         </section>
 
+        {/* ── Latest News ── */}
+        {newsArticles.length > 0 && (
+          <section className={styles.section}>
+            <div className={styles.sectionHead}>
+              <h2 className={styles.sectionTitle}>Latest News</h2>
+              <a className={styles.viewAll} onClick={() => navigate('/news')} style={{ cursor: 'pointer' }}>
+                View All <span className="material-symbols-outlined" style={{ fontSize: 16, verticalAlign: 'middle' }}>arrow_forward</span>
+              </a>
+            </div>
+            <div className={styles.newsGrid}>
+              {newsArticles.map(article => (
+                <a
+                  key={article.id}
+                  href={article.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.newsCard}
+                >
+                  {article.imageUrl && (
+                    <div className={styles.newsCardImage}>
+                      <img
+                        src={article.imageUrl}
+                        alt=""
+                        className={styles.newsCardImg}
+                        onError={e => { e.currentTarget.parentElement.style.display = 'none' }}
+                      />
+                    </div>
+                  )}
+                  <div className={styles.newsCardBody}>
+                    <div className={styles.newsCardMeta}>
+                      <span className={styles.newsCardSource}>{article.source}</span>
+                      <span className={styles.newsCardDot}>·</span>
+                      <span className={styles.newsCardDate}>{formatRelativeDate(article.publishedAt)}</span>
+                    </div>
+                    <h3 className={styles.newsCardTitle}>{article.title}</h3>
+                    {article.description && (
+                      <p className={styles.newsCardDesc}>{article.description}</p>
+                    )}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
 
       </main>
 

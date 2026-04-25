@@ -703,6 +703,106 @@
 .cancelBtn      { composes: cancelBtn      from '../shared.module.css'; }
 
 /* ─────────────────────────────────────────
+   LATEST NEWS
+───────────────────────────────────────── */
+.newsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.newsCard {
+  display: flex;
+  gap: 20px;
+  background: #131313;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, background 0.15s;
+  overflow: hidden;
+}
+
+.newsCard:hover {
+  border-color: rgba(122, 175, 255, 0.25);
+  background: #171717;
+}
+
+.newsCardImage {
+  flex-shrink: 0;
+  width: 120px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #1a1919;
+}
+
+@media (max-width: 480px) {
+  .newsCardImage { display: none; }
+}
+
+.newsCardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.newsCardBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.newsCardMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.newsCardSource {
+  color: #7aafff;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.newsCardDot {
+  color: #adaaaa;
+}
+
+.newsCardDate {
+  color: #adaaaa;
+}
+
+.newsCardTitle {
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.newsCardDesc {
+  font-size: 13px;
+  color: #adaaaa;
+  line-height: 1.55;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* ─────────────────────────────────────────
    FOOTER
 ───────────────────────────────────────── */
 .footer {
