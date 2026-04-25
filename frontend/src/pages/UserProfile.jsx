@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { userService } from '../services/api'
+import { userService, BASE_URL } from '../services/api'
 import Layout from '../components/Layout'
 import styles from './UserProfile.module.css'
 
@@ -80,7 +80,7 @@ function UserProfile() {
     const token = localStorage.getItem('token')
     if (token) {
       try {
-        await fetch('http://localhost:8080/api/auth/logout', {
+        await fetch(`${BASE_URL}/auth/logout`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },
         })

@@ -14,11 +14,10 @@ DB_PASSWORD=
 JWT_SECRET=
 
 # ── IGDB (game data) ──────────────────────────────────────────────────────────
-# Register at https://dev.twitch.tv to obtain an IGDB client.
-# Tokens expire after ~60 days. Regenerate with:
-#   POST https://id.twitch.tv/oauth2/token?client_id=YOUR_ID&client_secret=YOUR_SECRET&grant_type=client_credentials
+# Register at https://dev.twitch.tv — register an app under the IGDB category.
+# The app fetches and auto-refreshes the OAuth access token using these credentials.
 IGDB_CLIENT_ID=
-IGDB_ACCESS_TOKEN=
+IGDB_CLIENT_SECRET=
 
 # ── GG.deals (store price offers, optional) ───────────────────────────────────
 # From https://gg.deals/affiliate/ — leave blank to disable store offers.
@@ -26,3 +25,7 @@ GGDEALS_API_KEY=
 
 # ── Upload URL (leave as-is for local dev) ────────────────────────────────────
 UPLOAD_BASE_URL=http://localhost:8080
+
+# ── CORS ──────────────────────────────────────────────────────────────────────
+# Origin the browser frontend is served from. Default is used if omitted.
+CORS_ALLOWED_ORIGIN=http://localhost:5173

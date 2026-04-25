@@ -28,12 +28,10 @@ import java.util.stream.Collectors;
 public class GameService {
 
     private final GameRepository gameRepository;
+    private final IgdbTokenService igdbTokenService;
 
     @Value("${igdb.client-id}")
     private String clientId;
-
-    @Value("${igdb.access-token}")
-    private String accessToken;
 
     private RestClient igdbClient;
 
@@ -42,8 +40,11 @@ public class GameService {
         igdbClient = RestClient.builder()
                 .baseUrl("https://api.igdb.com/v4")
                 .defaultHeader("Client-ID", clientId)
-                .defaultHeader("Authorization", "Bearer " + accessToken)
                 .defaultHeader("Content-Type", "text/plain")
+                .requestInterceptor((req, body, exec) -> {
+                    req.getHeaders().setBearerAuth(igdbTokenService.getAccessToken());
+                    return exec.execute(req, body);
+                })
                 .build();
     }
 
