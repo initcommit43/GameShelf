@@ -29,6 +29,7 @@ public class GameLogService {
     private final UserRepository userRepository;
     private final GameService gameService;
 
+    @Transactional
     public GameLogResponse addLog(String username, GameLogRequest request) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found"));
