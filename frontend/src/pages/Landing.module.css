@@ -373,12 +373,38 @@
 
 .gameCover {
   aspect-ratio: 3 / 4;
+  position: relative;
   border-radius: 8px;
   overflow: hidden;
   background: #131313;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
   margin-bottom: 12px;
 }
+
+.addOverlay {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(122, 175, 255, 0.9);
+  border: none;
+  color: #002e5d;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.gameCard:hover .addOverlay  { opacity: 1; }
+.gameCard:active .addOverlay { opacity: 1; }
+.addOverlay:active { background: rgba(90, 145, 220, 0.9); }
 
 .gameCoverImg {
   width: 100%;

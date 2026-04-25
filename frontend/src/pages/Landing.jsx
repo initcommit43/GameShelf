@@ -43,7 +43,8 @@ function Landing() {
     }
   }, [])
 
-  const openSheet = (game) => {
+  const openSheet = (e, game) => {
+    e.stopPropagation()
     if (!isLoggedIn) { navigate('/login'); return }
     setSelected(game)
     setSuccessMsg('')
@@ -169,12 +170,13 @@ function Landing() {
               <p className={styles.trendingEmpty}>Could not load trending games.</p>
             ) : (
               trendingGames.map(game => (
-                <div key={game.igdbId} className={styles.gameCard} onClick={() => openSheet(game)}>
+                <div key={game.igdbId} className={styles.gameCard} onClick={() => navigate(`/games/${game.igdbId}`)}>
                   <div className={styles.gameCover}>
                     {game.coverUrl
                       ? <img src={game.coverUrl} alt={game.title} className={styles.gameCoverImg} />
                       : <div className={styles.gameCoverPlaceholder}>{game.title}</div>
                     }
+                    <button className={styles.addOverlay} onClick={(e) => openSheet(e, game)}>+</button>
                   </div>
                   <h3 className={styles.gameCardTitle}>{game.title}</h3>
                 </div>

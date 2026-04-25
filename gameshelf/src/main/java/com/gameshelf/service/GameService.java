@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -32,6 +33,17 @@ public class GameService {
 
     @Value("${igdb.client-id}")
     private String clientId;
+
+    private static final Set<Integer> MOBILE_PLATFORM_IDS  = Set.of(34, 39);
+    private static final Set<Integer> MAJOR_CONSOLE_IDS = Set.of(
+            48,  // PlayStation 4
+            167, // PlayStation 5
+            49,  // Xbox One
+            169, // Xbox Series X|S
+            130, // Nintendo Switch
+            8,   // PlayStation 3
+            9    // Xbox 360
+    );
 
     private RestClient igdbClient;
 
@@ -74,9 +86,8 @@ public class GameService {
     }
 
     public List<GameResponse> getTrendingGames() {
-        // Fetch 40 candidates so the rating_count filter below has room to cut junk without
-        // emptying the list — after filtering we take the top 12.
-        String popularityBody = "fields game_id; sort value desc; where popularity_type = 1; limit 40;";
+        // Fetch 80 candidates — after rating_count and mobile filters we still need 12.
+        String popularityBody = "fields game_id; sort value desc; where popularity_type = 1; limit 80;";
 
         IgdbPopularity[] popularityResults = igdbClient
                 .post()
@@ -96,10 +107,7 @@ public class GameService {
             ids.append(popularityResults[i].game_id);
         }
 
-        // rating_count > 50 for trending — these are currently popular games, not all-time greats,
-        // so the bar is intentionally lower. It still cuts one-off viral jokes with no real player base.
-        // limit matches the fetch size (40) so IGDB doesn't cut results before our Java sort+trim.
-        String gamesBody = "fields id,name,cover.url; where id = (" + ids + ") & cover != null & rating_count > 50; limit 40;";
+        String gamesBody = "fields id,name,cover.url,platforms.id; where id = (" + ids + ") & cover != null & rating_count > 50; limit 80;";
 
         IgdbGame[] games = igdbClient
                 .post()
@@ -112,6 +120,7 @@ public class GameService {
 
         return Arrays.stream(games)
                 .sorted(Comparator.comparingInt(g -> rankMap.getOrDefault(g.id, Integer.MAX_VALUE)))
+                .filter(g -> !isMobileFirst(g))
                 .limit(12)
                 .map(this::toGameResponse)
                 .toList();
@@ -335,6 +344,21 @@ public class GameService {
         return null;
     }
 
+    // Returns true for mobile-first games: has Android/iOS AND no major console platform.
+    // Keeps cross-platform titles (Minecraft, Fortnite) that have console versions.
+    // Excludes mobile-only and mobile-first games (Subway Surfers, Geometry Dash, Cookie Clicker).
+    private boolean isMobileFirst(IgdbGame game) {
+        if (game.platforms == null || game.platforms.length == 0) return false;
+        List<Integer> knownIds = Arrays.stream(game.platforms)
+                .map(p -> p.id)
+                .filter(id -> id != null)
+                .toList();
+        if (knownIds.isEmpty()) return false;
+        boolean hasMobile = knownIds.stream().anyMatch(MOBILE_PLATFORM_IDS::contains);
+        if (!hasMobile) return false;
+        return knownIds.stream().noneMatch(MAJOR_CONSOLE_IDS::contains);
+    }
+
     private static class IgdbExternalGame {
         public String uid;
     }
@@ -368,6 +392,7 @@ public class GameService {
     }
 
     private static class IgdbPlatform {
+        public Integer id;
         public String name;
     }
 
