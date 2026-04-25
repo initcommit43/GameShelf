@@ -3,6 +3,7 @@ package com.gameshelf.service;
 import com.gameshelf.dto.GameDetailResponse;
 import com.gameshelf.dto.GameLogRequest;
 import com.gameshelf.dto.GameLogResponse;
+import com.gameshelf.dto.ShelfCheckResponse;
 import com.gameshelf.exception.ConflictException;
 import com.gameshelf.exception.ForbiddenException;
 import com.gameshelf.exception.NotFoundException;
@@ -28,6 +29,15 @@ public class GameLogService {
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
     private final GameService gameService;
+
+    @Transactional(readOnly = true)
+    public ShelfCheckResponse checkLog(String username, Integer igdbId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        return gameLogRepository.findByUserIdAndIgdbId(user.getId(), igdbId)
+                .map(log -> new ShelfCheckResponse(true, log.getStatus(), log.getRating()))
+                .orElse(new ShelfCheckResponse(false, null, null));
+    }
 
     @Transactional
     public GameLogResponse addLog(String username, GameLogRequest request) {

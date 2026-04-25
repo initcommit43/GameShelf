@@ -92,10 +92,10 @@ function GameDetail() {
     if (!token) { navigate('/login'); return }
     Promise.all([
       gameService.getDetails(parseInt(igdbId)),
-      logService.getLogs(),
-    ]).then(([gameData, logs]) => {
+      logService.checkLog(parseInt(igdbId)),
+    ]).then(([gameData, check]) => {
       setGame(gameData)
-      setIsOnShelf(logs.some(l => l.igdbId === parseInt(igdbId)))
+      setIsOnShelf(check.onShelf)
     }).catch(() => setGame(null))
       .finally(() => setLoading(false))
   }, [igdbId])

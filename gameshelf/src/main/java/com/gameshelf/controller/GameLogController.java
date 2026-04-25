@@ -2,6 +2,7 @@ package com.gameshelf.controller;
 
 import com.gameshelf.dto.GameLogRequest;
 import com.gameshelf.dto.GameLogResponse;
+import com.gameshelf.dto.ShelfCheckResponse;
 import com.gameshelf.service.GameLogService;
 import com.gameshelf.service.RecommendationService;
 import jakarta.validation.Valid;
@@ -23,6 +24,11 @@ public class GameLogController {
     @GetMapping
     public ResponseEntity<List<GameLogResponse>> getUserLogs(Principal principal) {
         return ResponseEntity.ok(gameLogService.getUserLogs(principal.getName()));
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<ShelfCheckResponse> checkLog(Principal principal, @RequestParam Integer igdbId) {
+        return ResponseEntity.ok(gameLogService.checkLog(principal.getName(), igdbId));
     }
 
     @PostMapping

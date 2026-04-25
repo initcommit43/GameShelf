@@ -170,6 +170,12 @@ export const newsService = {
 }
 
 export const logService = {
+  checkLog: async (igdbId) => {
+    const res = guardAuth(await fetch(`${BASE_URL}/logs/check?igdbId=${igdbId}`, { headers: getHeaders() }))
+    if (!res.ok) throw new Error('Failed to check shelf status')
+    return res.json()
+  },
+
   getLogs: async () => {
     const res = guardAuth(await fetch(`${BASE_URL}/logs`, { headers: getHeaders() }))
     if (!res.ok) throw new Error('Failed to fetch logs')
