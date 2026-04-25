@@ -23,9 +23,6 @@ IGDB_CLIENT_SECRET=
 # From https://gg.deals/affiliate/ — leave blank to disable store offers.
 GGDEALS_API_KEY=
 
-# ── Upload URL (leave as-is for local dev) ────────────────────────────────────
-UPLOAD_BASE_URL=http://localhost:8080
-
 # ── CORS ──────────────────────────────────────────────────────────────────────
 # Origin the browser frontend is served from. Default is used if omitted.
 CORS_ALLOWED_ORIGIN=http://localhost:5173

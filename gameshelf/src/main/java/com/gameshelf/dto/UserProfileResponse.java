@@ -8,7 +8,6 @@ import java.util.List;
 @AllArgsConstructor
 public class UserProfileResponse {
     private String username;
-    private String profilePictureUrl;
     private String joinedAt;
     private int totalGames;
     private int completedGames;

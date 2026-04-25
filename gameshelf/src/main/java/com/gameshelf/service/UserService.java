@@ -73,7 +73,6 @@ public class UserService {
 
         return new UserProfileResponse(
                 user.getUsername(),
-                user.getProfilePictureUrl() != null ? user.getProfilePictureUrl() : "",
                 joinedAt,
                 total, completed, playing,
                 avgRating,

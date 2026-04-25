@@ -73,7 +73,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/games/trending").permitAll()
                         .requestMatchers("/api/news").permitAll()
                         .requestMatchers("/api/stats").permitAll()
-                        .requestMatchers("/uploads/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers

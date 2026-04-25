@@ -267,7 +267,7 @@ function Landing() {
               <div className={styles.bentoTrackText}>
                 <h3 className={styles.bentoTitle}>Track your personal game collection</h3>
                 <p className={styles.bentoBody}>Effortlessly manage your backlog and completed journeys with our intuitive tagging system.</p>
-                <button className={styles.bentoLink} onClick={() => navigate('/register')}>
+                <button className={styles.bentoLink} onClick={() => navigate(localStorage.getItem('token') ? '/explore' : '/register')}>
                   Start Tracking <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: 'middle' }}>trending_flat</span>
                 </button>
               </div>

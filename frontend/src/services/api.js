@@ -109,18 +109,6 @@ export const userService = {
     return res.json()
   },
 
-  uploadProfilePicture: async (file) => {
-    const token = localStorage.getItem('token')
-    const formData = new FormData()
-    formData.append('file', file)
-    const res = guardAuth(await fetch(`${BASE_URL}/profile/picture`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
-    }))
-    if (!res.ok) throw new Error(await parseError(res))
-    return res.json()
-  },
 }
 
 export const reviewService = {
