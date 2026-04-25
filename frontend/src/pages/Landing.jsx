@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { gameService, logService } from '../services/api'
 import BottomNav from '../components/BottomNav'
+import AddToShelfSheet from '../components/AddToShelfSheet/AddToShelfSheet'
 import styles from './Landing.module.css'
-
-const STATUSES = ['PLAYING', 'COMPLETED', 'BACKLOG', 'DROPPED', 'WISHLIST']
 
 
 // Find an ID by searching the game on the app and checking the URL on its detail page.
@@ -52,9 +51,6 @@ function Landing() {
   const [editorialCovers, setEditorialCovers] = useState([])
 
   const [selected, setSelected] = useState(null)
-  const [shelfStatus, setShelfStatus] = useState('')
-  const [shelfRating, setShelfRating] = useState(null)
-  const [submitting, setSubmitting] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
 
   useEffect(() => {
@@ -81,31 +77,19 @@ function Landing() {
   const openSheet = (game) => {
     if (!isLoggedIn) { navigate('/login'); return }
     setSelected(game)
-    setShelfStatus('')
-    setShelfRating(null)
     setSuccessMsg('')
   }
 
-  const closeSheet = () => {
-    setSelected(null)
-    setShelfStatus('')
-    setShelfRating(null)
-  }
-
-  const handleAddToShelf = async () => {
-    if (!shelfStatus) return
-    setSubmitting(true)
+  const handleAddToShelf = async (status, rating) => {
     try {
-      await logService.addLog({ igdbId: selected.igdbId, title: selected.title, coverUrl: selected.coverUrl, status: shelfStatus, rating: shelfRating ?? undefined })
-      closeSheet()
+      await logService.addLog({ igdbId: selected.igdbId, title: selected.title, coverUrl: selected.coverUrl, status, rating: rating ?? undefined })
+      setSelected(null)
       setSuccessMsg(`"${selected.title}" added to your shelf.`)
       setTimeout(() => setSuccessMsg(''), 3000)
     } catch {
-      closeSheet()
+      setSelected(null)
       setSuccessMsg('Already on your shelf.')
       setTimeout(() => setSuccessMsg(''), 3000)
-    } finally {
-      setSubmitting(false)
     }
   }
 
@@ -431,52 +415,12 @@ function Landing() {
         </div>
       )}
 
-      {/* ── Add to shelf modal ── */}
-      {selected && (
-        <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && closeSheet()}>
-          <div className={styles.sheet}>
-            <div className={styles.sheetHandle} />
-
-            <div className={styles.sheetGame}>
-              <div className={styles.sheetThumb}>
-                {selected.coverUrl && <img src={selected.coverUrl} alt={selected.title} className={styles.sheetThumbImg} />}
-              </div>
-              <div className={styles.sheetGameTitle}>{selected.title}</div>
-            </div>
-
-            <div className={styles.sheetLabel}>Status</div>
-            <div className={styles.statusRow}>
-              {STATUSES.map(s => (
-                <button
-                  key={s}
-                  className={`${styles.statusPill}${shelfStatus === s ? ` ${styles.statusPillActive}` : ''}`}
-                  onClick={() => setShelfStatus(s)}
-                >
-                  {s.charAt(0) + s.slice(1).toLowerCase()}
-                </button>
-              ))}
-            </div>
-
-            <div className={styles.sheetLabel}>Rating (optional)</div>
-            <div className={styles.ratingRow}>
-              {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
-                <button
-                  key={n}
-                  className={`${styles.ratingBtn}${shelfRating === n ? ` ${styles.ratingBtnActive}` : ''}`}
-                  onClick={() => setShelfRating(shelfRating === n ? null : n)}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
-
-            <button className={styles.confirmBtn} onClick={handleAddToShelf} disabled={!shelfStatus || submitting}>
-              {submitting ? 'Adding...' : 'Add to shelf'}
-            </button>
-            <button className={styles.cancelBtn} onClick={closeSheet}>Cancel</button>
-          </div>
-        </div>
-      )}
+      <AddToShelfSheet
+        game={selected}
+        isOpen={!!selected}
+        onClose={() => setSelected(null)}
+        onConfirm={handleAddToShelf}
+      />
 
       {/* ── Footer ── */}
       <footer className={styles.footer}>

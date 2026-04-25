@@ -1,0 +1,16 @@
+.overlay        { composes: overlay        from '../../shared.module.css'; }
+.sheet          { composes: sheet          from '../../shared.module.css'; }
+.sheetHandle    { composes: sheetHandle    from '../../shared.module.css'; }
+.sheetGame      { composes: sheetGame      from '../../shared.module.css'; }
+.sheetThumb     { composes: sheetThumb     from '../../shared.module.css'; }
+.sheetThumbImg  { composes: sheetThumbImg  from '../../shared.module.css'; }
+.sheetGameTitle { composes: sheetGameTitle from '../../shared.module.css'; }
+.sheetLabel     { composes: sheetLabel     from '../../shared.module.css'; }
+.statusRow      { composes: statusRow      from '../../shared.module.css'; }
+.statusPill     { composes: statusPill     from '../../shared.module.css'; }
+.statusPillActive { composes: statusPillActive from '../../shared.module.css'; }
+.ratingRow      { composes: ratingRow      from '../../shared.module.css'; }
+.ratingBtn      { composes: ratingBtn      from '../../shared.module.css'; }
+.ratingBtnActive { composes: ratingBtnActive from '../../shared.module.css'; }
+.confirmBtn     { composes: confirmBtn     from '../../shared.module.css'; }
+.cancelBtn      { composes: cancelBtn      from '../../shared.module.css'; }

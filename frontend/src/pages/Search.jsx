@@ -2,9 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { gameService, logService } from '../services/api'
 import Layout from '../components/Layout'
+import AddToShelfSheet from '../components/AddToShelfSheet/AddToShelfSheet'
 import styles from './Search.module.css'
-
-const STATUSES = ['PLAYING', 'COMPLETED', 'BACKLOG', 'DROPPED', 'WISHLIST']
 
 function Search() {
   const [searchParams] = useSearchParams()
@@ -12,9 +11,6 @@ function Search() {
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [selected, setSelected] = useState(null)
-  const [status, setStatus] = useState('')
-  const [rating, setRating] = useState(null)
-  const [submitting, setSubmitting] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
   const debounceRef = useRef(null)
   const navigate = useNavigate()
@@ -46,30 +42,18 @@ function Search() {
 
   const openSheet = (game) => {
     setSelected(game)
-    setStatus('')
-    setRating(null)
     setSuccessMsg('')
   }
 
-  const closeSheet = () => {
-    setSelected(null)
-    setStatus('')
-    setRating(null)
-  }
-
-  const handleConfirm = async () => {
-    if (!status) return
-    setSubmitting(true)
+  const handleConfirm = async (status, rating) => {
     try {
       await logService.addLog({ igdbId: selected.igdbId, title: selected.title, coverUrl: selected.coverUrl, status, rating: rating ?? undefined })
-      closeSheet()
+      setSelected(null)
       setSuccessMsg(`"${selected.title}" added to your shelf.`)
       setTimeout(() => setSuccessMsg(''), 3000)
-    } catch (err) {
+    } catch {
       setSuccessMsg('Already on your shelf.')
       setTimeout(() => setSuccessMsg(''), 3000)
-    } finally {
-      setSubmitting(false)
     }
   }
 
@@ -120,55 +104,12 @@ function Search() {
         </div>
       )}
 
-      {selected && (
-        <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && closeSheet()}>
-          <div className={styles.sheet}>
-            <div className={styles.sheetHandle} />
-
-            <div className={styles.sheetGame}>
-              <div className={styles.sheetThumb}>
-                {selected.coverUrl && <img src={selected.coverUrl} alt={selected.title} className={styles.sheetThumbImg} />}
-              </div>
-              <div className={styles.sheetGameTitle}>{selected.title}</div>
-            </div>
-
-            <div className={styles.sheetLabel}>Status</div>
-            <div className={styles.statusRow}>
-              {STATUSES.map(s => (
-                <button
-                  key={s}
-                  className={`${styles.statusPill}${status === s ? ` ${styles.statusPillActive}` : ''}`}
-                  onClick={() => setStatus(s)}
-                >
-                  {s.charAt(0) + s.slice(1).toLowerCase()}
-                </button>
-              ))}
-            </div>
-
-            <div className={styles.sheetLabel}>Rating (optional)</div>
-            <div className={styles.ratingRow}>
-              {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
-                <button
-                  key={n}
-                  className={`${styles.ratingBtn}${rating === n ? ` ${styles.ratingBtnActive}` : ''}`}
-                  onClick={() => setRating(rating === n ? null : n)}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
-
-            <button
-              className={styles.confirmBtn}
-              onClick={handleConfirm}
-              disabled={!status || submitting}
-            >
-              {submitting ? 'Adding...' : 'Add to shelf'}
-            </button>
-            <button className={styles.cancelBtn} onClick={closeSheet}>Cancel</button>
-          </div>
-        </div>
-      )}
+      <AddToShelfSheet
+        game={selected}
+        isOpen={!!selected}
+        onClose={() => setSelected(null)}
+        onConfirm={handleConfirm}
+      />
     </Layout>
   )
 }

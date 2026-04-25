@@ -2,9 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { gameService, logService, reviewService } from '../services/api'
 import Layout from '../components/Layout'
+import AddToShelfSheet from '../components/AddToShelfSheet/AddToShelfSheet'
 import styles from './GameDetail.module.css'
-
-const STATUSES = ['PLAYING', 'COMPLETED', 'BACKLOG', 'DROPPED', 'WISHLIST']
 const SORT_OPTIONS = [
   { value: 'newest',         label: 'Newest' },
   { value: 'highest_rating', label: 'Best' },
@@ -72,9 +71,6 @@ function GameDetail() {
   const [loading, setLoading]     = useState(true)
   const [isOnShelf, setIsOnShelf] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [status, setStatus]       = useState('')
-  const [rating, setRating]       = useState(null)
-  const [submitting, setSubmitting] = useState(false)
   const [toast, setToast]         = useState(null)
   const [prices, setPrices]       = useState(null)
   const [priceState, setPriceState] = useState('loading')
@@ -134,7 +130,7 @@ function GameDetail() {
       .finally(() => setReviewsLoading(false))
   }, [igdbId, reviewSort])
 
-  const openSheet = () => { setStatus(''); setRating(null); setSheetOpen(true) }
+  const openSheet = () => setSheetOpen(true)
   const closeSheet = () => setSheetOpen(false)
 
   const showToast = (msg, error = false) => {
@@ -142,19 +138,15 @@ function GameDetail() {
     setTimeout(() => setToast(null), 3000)
   }
 
-  const handleAdd = async () => {
-    if (!status) return
-    setSubmitting(true)
+  const handleAdd = async (status, rating) => {
     try {
       await logService.addLog({ igdbId: game.igdbId, title: game.title, coverUrl: game.coverUrl, releaseYear: game.releaseYear, igdbRating: game.rating, status, rating: rating ?? undefined })
-      closeSheet()
+      setSheetOpen(false)
       setIsOnShelf(true)
       showToast(`"${game.title}" added to your shelf.`)
     } catch (err) {
-      closeSheet()
+      setSheetOpen(false)
       showToast(err.message || 'Already on your shelf.', true)
-    } finally {
-      setSubmitting(false)
     }
   }
 
@@ -407,47 +399,12 @@ function GameDetail() {
         </>
       )}
 
-      {sheetOpen && (
-        <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && closeSheet()}>
-          <div className={styles.sheet}>
-            <div className={styles.sheetHandle} />
-            <div className={styles.sheetGame}>
-              <div className={styles.sheetThumb}>
-                {game?.coverUrl && <img src={game.coverUrl} alt={game.title} className={styles.sheetThumbImg} />}
-              </div>
-              <div className={styles.sheetGameTitle}>{game?.title}</div>
-            </div>
-            <div className={styles.sheetLabel}>Status</div>
-            <div className={styles.statusRow}>
-              {STATUSES.map(s => (
-                <button
-                  key={s}
-                  className={`${styles.statusPill}${status === s ? ` ${styles.statusPillActive}` : ''}`}
-                  onClick={() => setStatus(s)}
-                >
-                  {s.charAt(0) + s.slice(1).toLowerCase()}
-                </button>
-              ))}
-            </div>
-            <div className={styles.sheetLabel}>Rating (optional)</div>
-            <div className={styles.ratingRow}>
-              {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
-                <button
-                  key={n}
-                  className={`${styles.ratingBtn}${rating === n ? ` ${styles.ratingBtnActive}` : ''}`}
-                  onClick={() => setRating(rating === n ? null : n)}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
-            <button className={styles.confirmBtn} onClick={handleAdd} disabled={!status || submitting}>
-              {submitting ? 'Adding...' : 'Add to shelf'}
-            </button>
-            <button className={styles.cancelBtn} onClick={closeSheet}>Cancel</button>
-          </div>
-        </div>
-      )}
+      <AddToShelfSheet
+        game={game}
+        isOpen={sheetOpen}
+        onClose={closeSheet}
+        onConfirm={handleAdd}
+      />
 
       {toast && (
         <div className={toast.error ? styles.toastError : styles.toastSuccess}>{toast.msg}</div>
