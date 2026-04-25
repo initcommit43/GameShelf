@@ -9,12 +9,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import com.github.ben-manes.caffeine.cache.Cache;
-import com.github.ben-manes.caffeine.cache.Caffeine;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
@@ -29,10 +28,9 @@ public class PriceService {
     private RestClient steamClient;
     private RestClient ggDealsClient; // null when API key not configured
 
-    private final Cache<Integer, GamePriceResponse> cache = Caffeine.newBuilder()
-            .maximumSize(1_000)
-            .expireAfterWrite(6, TimeUnit.HOURS)
-            .build();
+    private static final long CACHE_TTL_MS = 6 * 60 * 60 * 1_000L;
+
+    private final ConcurrentHashMap<Integer, CachedEntry> cache = new ConcurrentHashMap<>();
 
     @jakarta.annotation.PostConstruct
     public void init() {
@@ -55,11 +53,11 @@ public class PriceService {
     // ── Public API ──────────────────────────────────────────────────────────────
 
     public GamePriceResponse getPrices(Integer igdbId, String gameName, Integer steamAppId) {
-        GamePriceResponse cached = cache.getIfPresent(igdbId);
-        if (cached != null) return cached;
+        CachedEntry hit = cache.get(igdbId);
+        if (hit != null && !hit.isExpired()) return hit.response();
 
         GamePriceResponse response = buildResponse(gameName, steamAppId);
-        cache.put(igdbId, response);
+        cache.put(igdbId, new CachedEntry(response));
         return response;
     }
 
@@ -228,4 +226,8 @@ public class PriceService {
         catch (Exception e) { return Double.MAX_VALUE; }
     }
 
+    private record CachedEntry(GamePriceResponse response, long fetchedAt) {
+        CachedEntry(GamePriceResponse r) { this(r, Instant.now().toEpochMilli()); }
+        boolean isExpired() { return Instant.now().toEpochMilli() - fetchedAt > CACHE_TTL_MS; }
+    }
 }

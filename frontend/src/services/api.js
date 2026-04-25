@@ -169,6 +169,14 @@ export const newsService = {
   },
 }
 
+export const statsService = {
+  getStats: async () => {
+    const res = await fetch(`${BASE_URL}/stats`)
+    if (!res.ok) throw new Error('Failed to fetch stats')
+    return res.json()
+  },
+}
+
 export const logService = {
   checkLog: async (igdbId) => {
     const res = guardAuth(await fetch(`${BASE_URL}/logs/check?igdbId=${igdbId}`, { headers: getHeaders() }))

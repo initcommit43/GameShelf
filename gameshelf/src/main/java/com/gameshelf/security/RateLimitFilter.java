@@ -10,11 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.github.ben-manes.caffeine.cache.Cache;
-import com.github.ben-manes.caffeine.cache.Caffeine;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Rate-limits /api/auth/** to 10 requests per minute per IP.
@@ -26,10 +24,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private static final int CAPACITY = 10;
     private static final Duration REFILL_PERIOD = Duration.ofMinutes(1);
 
-    private final Cache<String, Bucket> buckets = Caffeine.newBuilder()
-            .maximumSize(10_000)
-            .expireAfterWrite(2, TimeUnit.MINUTES)
-            .build();
+    private final ConcurrentHashMap<String, Bucket> buckets = new ConcurrentHashMap<>();
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -43,7 +38,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String ip = request.getRemoteAddr();
-        Bucket bucket = buckets.get(ip, this::newBucket);
+        Bucket bucket = buckets.computeIfAbsent(ip, this::newBucket);
 
         if (bucket.tryConsume(1)) {
             filterChain.doFilter(request, response);

@@ -13,12 +13,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.github.ben-manes.caffeine.cache.Cache;
-import com.github.ben-manes.caffeine.cache.Caffeine;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,22 +38,19 @@ public class RecommendationService {
     private final UserRepository    userRepository;
     private final GameService       gameService;
 
-    private final Cache<String, List<RecommendationResponse>> cache = Caffeine.newBuilder()
-            .maximumSize(500)
-            .expireAfterWrite(CACHE_TTL_HOURS, TimeUnit.HOURS)
-            .build();
+    private final ConcurrentHashMap<String, CachedRecs> cache = new ConcurrentHashMap<>();
 
     public void invalidateCache(String username) {
-        cache.invalidate(username);
+        cache.remove(username);
     }
 
     @Transactional(readOnly = true)
     public List<RecommendationResponse> getRecommendations(String username) {
-        List<RecommendationResponse> cached = cache.getIfPresent(username);
-        if (cached != null) return cached;
+        CachedRecs hit = cache.get(username);
+        if (hit != null && Instant.now().isBefore(hit.expiresAt())) return hit.recs();
 
         List<RecommendationResponse> recs = compute(username);
-        cache.put(username, recs);
+        cache.put(username, new CachedRecs(recs, Instant.now().plusSeconds(CACHE_TTL_HOURS * 3600L)));
         return recs;
     }
 
@@ -301,4 +297,7 @@ public class RecommendationService {
             List<String> matchedGenres,
             List<String> matchedThemes) {}
 
+    private record CachedRecs(
+            List<RecommendationResponse> recs,
+            Instant expiresAt) {}
 }

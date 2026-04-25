@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { gameService, logService } from '../services/api'
+import { gameService, logService, statsService } from '../services/api'
 import BottomNav from '../components/BottomNav'
 import AddToShelfSheet from '../components/AddToShelfSheet/AddToShelfSheet'
 import styles from './Landing.module.css'
@@ -9,26 +9,12 @@ import styles from './Landing.module.css'
 // Find an ID by searching the game on the app and checking the URL on its detail page.
 const EDITORIAL_IGDB_IDS = [7351, 1942, 119171, 1020] // Doom, Witcher 3, Baldurs Gate 3, GTA 5
 
-const REVIEWS = [
-  {
-    user: 'Pixel_Architect', role: 'Expert Reviewer',
-    text: '"The world design in Star Drift is unparalleled. I spent three hours just wandering the ship\'s lower decks looking at the lighting. A true technical marvel."',
-    game: 'Star Drift: Void', stars: 5,
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAgxAaeOKpj7tScSjrb6QJkQ62StrsBzkJFGdcpQW4EH9LSwziSwZvYcbA8-3NA2BqGkRJugMMnGpzM5t0dlwFrXaqPjsyguQzEBiyB8NYSwjTq3bQhiDMM93Ztbiagbquvjdm5ciIKl-B4LkVr7fTS2n37xLFEzuS4fMgZ4iKZMCksObpYq7evNleQaQHLAo2hwEOSe8_N_EAmDJ2Fc-Y4qYfsYscNT551CndlWOIKLqHfFZVZJzZhH4jyfJ6fQVhMgVkBLu01fkg',
-  },
-  {
-    user: 'RetroRunner', role: 'Speedrunner',
-    text: '"Abyssal Echoes might be too difficult for some, but for those who stick with it, the payoff is immense. The final boss is a test of pure skill."',
-    game: 'Abyssal Echoes', stars: 4,
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCH3YPKUFWnDHvAjh5ueHaQmiEyPASSMOH4HQdBarcqko4V-XpC5xMOc2xCF1GWkQ3J5faSFTsIu8EIGaE3BS31AQTRSEJ75jlVDyZDmhPYm2sYV7NFu1xX6jf0kMZnividoVWJ5c9h63OkVQ7_KwB4BvEXkSFZ80mJ1gf_DyLktXU0UFkG2kWPUh5TQiZFZu5ZekuXD7z3eEOxhFN0LPlJxta_FpOT9Tdg_OzjGHQyVIiKHpRpxHXYsDYuSP7n990-Wwf7zpZK1gg',
-  },
-  {
-    user: 'LumiPlay', role: 'Journalist',
-    text: '"I haven\'t felt this connected to a puzzle game since The Witness. Aetheria is beautiful, haunting, and incredibly smart."',
-    game: 'Aetheria', stars: 5,
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCFiqGpwDF_tNWPaw7w7sq_b0Yb9RBmhlLDTA1wmt4b20AnUUTSWzPH31wjxFFnZFkRhkLczp9dnThvNxswnziwVKjV6tXEn-0EQFfHO5HeKbKcx-MNAFnKuzOzel4T9ZtOSqURYgxpd5KudEgVFtqJFCN-ndKQtsSNRU2hPflneDps5XNHC6piSn9KN0V7KSWAnSe0FlqfsonDc4b_gxe9LLZsqxwD4iW1nGlvyVESPPaIih8MRDkmF8UVDsAU-xqB4v7_krvaDWA',
-  },
-]
+function formatCount(n) {
+  if (n == null) return '—'
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M'
+  if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'K'
+  return String(n)
+}
 
 function StarRating({ count, total = 5 }) {
   return (
@@ -52,12 +38,15 @@ function Landing() {
 
   const [selected, setSelected] = useState(null)
   const [successMsg, setSuccessMsg] = useState('')
+  const [stats, setStats] = useState(null)
 
   useEffect(() => {
     gameService.getTrending()
       .then(data => setTrendingGames(data.slice(0, 12)))
       .catch(() => setTrendingGames([]))
       .finally(() => setTrendingLoading(false))
+
+    statsService.getStats().then(setStats).catch(() => {})
 
     if (isLoggedIn) {
       Promise.all(EDITORIAL_IGDB_IDS.map(id => gameService.getDetails(id)))
@@ -152,15 +141,15 @@ function Landing() {
 
             <div className={styles.heroStats}>
               <div className={styles.heroStat}>
-                <span className={styles.heroStatValue}>2.4M</span>
-                <span className={styles.heroStatLabel}>Total Games</span>
+                <span className={styles.heroStatValue}>{formatCount(stats?.totalUsers)}</span>
+                <span className={styles.heroStatLabel}>Members</span>
               </div>
               <div className={styles.heroStat}>
-                <span className={styles.heroStatValue}>15M</span>
-                <span className={styles.heroStatLabel}>Ratings</span>
+                <span className={styles.heroStatValue}>{formatCount(stats?.totalShelfEntries)}</span>
+                <span className={styles.heroStatLabel}>Shelf Entries</span>
               </div>
               <div className={styles.heroStat}>
-                <span className={styles.heroStatValue}>840K</span>
+                <span className={styles.heroStatValue}>{formatCount(stats?.totalReviews)}</span>
                 <span className={styles.heroStatLabel}>Reviews</span>
               </div>
             </div>
@@ -354,37 +343,6 @@ function Landing() {
               </span>
             </div>
 
-          </div>
-        </section>
-
-        {/* ── Popular Reviews ── */}
-        <section className={styles.section}>
-          <div className={styles.reviewsHead}>
-            <h2 className={styles.sectionTitle}>Popular Reviews</h2>
-            <div className={styles.reviewsNav}>
-              <button className={styles.reviewsNavBtn}><span className="material-symbols-outlined">chevron_left</span></button>
-              <button className={styles.reviewsNavBtn}><span className="material-symbols-outlined">chevron_right</span></button>
-            </div>
-          </div>
-          <div className={styles.reviewsGrid}>
-            {REVIEWS.map(review => (
-              <div key={review.user} className={styles.reviewCard}>
-                <div>
-                  <div className={styles.reviewerRow}>
-                    <img className={styles.reviewerAvatar} src={review.avatar} alt={review.user} />
-                    <div>
-                      <p className={styles.reviewerName}>{review.user}</p>
-                      <p className={styles.reviewerRole}>{review.role}</p>
-                    </div>
-                  </div>
-                  <p className={styles.reviewText}>{review.text}</p>
-                </div>
-                <div className={styles.reviewFooter}>
-                  <p className={styles.reviewGame}>{review.game}</p>
-                  <StarRating count={review.stars} />
-                </div>
-              </div>
-            ))}
           </div>
         </section>
 

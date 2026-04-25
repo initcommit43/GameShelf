@@ -30,8 +30,7 @@ public class ReviewController {
             Principal principal,
             @PathVariable Integer igdbId,
             @RequestParam(defaultValue = "newest") String sort) {
-        String currentUser = principal != null ? principal.getName() : null;
-        return ResponseEntity.ok(reviewService.getGameReviews(igdbId, sort, currentUser));
+        return ResponseEntity.ok(reviewService.getGameReviews(igdbId, sort, principal.getName()));
     }
 
     @DeleteMapping("/api/reviews/{id}")
@@ -44,7 +43,6 @@ public class ReviewController {
     public ResponseEntity<List<ReviewResponse>> getUserReviews(
             Principal principal,
             @PathVariable Long userId) {
-        String currentUser = principal != null ? principal.getName() : null;
-        return ResponseEntity.ok(reviewService.getUserReviews(userId, currentUser));
+        return ResponseEntity.ok(reviewService.getUserReviews(userId, principal.getName()));
     }
 }
