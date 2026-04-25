@@ -20,30 +20,13 @@
   z-index: 1;
 }
 
-/* Hidden file input — we trigger it programmatically via the avatar button */
-.fileInputHidden {
-  display: none;
-}
-
-/* Wrapper button resets all button styles so it looks like the avatar ring */
-.avatarBtn {
-  position: relative;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  margin-bottom: 14px;
-  border-radius: 50%;
-}
-
-.avatarBtn:disabled { cursor: default; }
-
 .avatarRing {
   width: 88px;
   height: 88px;
   border-radius: 50%;
   padding: 3px;
   background: var(--gradient-accent);
+  margin-bottom: 14px;
 }
 
 .avatarInner {
@@ -57,62 +40,12 @@
   overflow: hidden;
 }
 
-/* Profile picture image fills the circle */
-.avatarImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
 .avatarLetter {
   font-family: var(--font-display);
   font-size: 32px;
   font-weight: 800;
   color: var(--accent);
   text-transform: uppercase;
-}
-
-/* Camera overlay — shown on hover or while uploading */
-.avatarOverlay {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity var(--t-base);
-}
-
-.avatarBtn:hover .avatarOverlay,
-.avatarOverlayActive {
-  opacity: 1 !important;
-}
-
-.avatarCameraIcon { font-size: 22px; }
-
-/* Simple CSS spinner shown while the upload is in flight */
-.avatarSpinner {
-  width: 22px;
-  height: 22px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Inline error below the avatar */
-.uploadError {
-  margin-top: 10px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--danger);
-  text-align: center;
-  max-width: 240px;
 }
 
 .userName {

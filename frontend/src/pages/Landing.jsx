@@ -16,18 +16,6 @@ function formatCount(n) {
   return String(n)
 }
 
-function StarRating({ count, total = 5 }) {
-  return (
-    <div className={styles.stars}>
-      {Array.from({ length: total }, (_, i) => (
-        <span key={i} className={`material-symbols-outlined ${styles.star} ${i < count ? styles.starFilled : ''}`}>
-          star
-        </span>
-      ))}
-    </div>
-  )
-}
-
 function Landing() {
   const navigate = useNavigate()
   const isLoggedIn = !!localStorage.getItem('token')
@@ -54,14 +42,6 @@ function Landing() {
         .catch(() => {})
     }
   }, [])
-
-  const handleFooterGame = async (title) => {
-    if (!isLoggedIn) { navigate('/login'); return }
-    try {
-      const results = await gameService.search(title)
-      if (results.length > 0) navigate(`/games/${results[0].igdbId}`)
-    } catch {}
-  }
 
   const openSheet = (game) => {
     if (!isLoggedIn) { navigate('/login'); return }
@@ -231,7 +211,7 @@ function Landing() {
                   {editorialCovers.length > 0
                     ? editorialCovers.map(game => (
                         <div key={game.igdbId} className={styles.editorialIconBox}>
-                          <img src={game.coverUrl} alt={game.title} className={styles.editorialIconBoxImg} />
+                          <img src={game.coverUrl?.replace('t_cover_big', 't_1080p')} alt={game.title} className={styles.editorialIconBoxImg} />
                         </div>
                       ))
                     : Array.from({ length: 4 }).map((_, i) => (
@@ -258,111 +238,6 @@ function Landing() {
           </div>
         </section>
 
-        {/* ── Bento Features ── */}
-        <section className={styles.section}>
-          <div className={styles.bento}>
-
-            {/* Track collection — wide */}
-            <div className={styles.bentoTrack}>
-              <div className={styles.bentoTrackText}>
-                <h3 className={styles.bentoTitle}>Track your personal game collection</h3>
-                <p className={styles.bentoBody}>Effortlessly manage your backlog and completed journeys with our intuitive tagging system.</p>
-                <button className={styles.bentoLink} onClick={() => navigate(localStorage.getItem('token') ? '/explore' : '/register')}>
-                  Start Tracking <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: 'middle' }}>trending_flat</span>
-                </button>
-              </div>
-              <div className={styles.bentoTrackCovers}>
-                {[
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuDn1SETX49JMLl7Xrw6JeQ77_cpil3-eclkMA7pSSqVK2D7ktmmCsf7F96F55hKzx5-FKuf1fjr05jZuBE9gH8G-cDNnThkioGeOJ0xNkfR-yc1CCrIyO-d_XqSOM36iEA_Nmxxa69ImkjWbKOtB3OjRI86N8aWvuocHkPGAxM3l_h1BtCfGU4hL7YBKuUA46cHiz17HETxPMx_YzW5WSP5rP3LsU9uREX4K3VqzCEqB0DdaM5Nr-xm7f1tuzUOMeOV_fkOpkHBGdM',
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuBnqeW2fXGqcvc-kqFoAifKbkbRuAiKvoCKt4YHOqsiEn20mxKF9Hbryi5dYP2qyMMnnX8z52_qxPPKBv43Fg2gDOZto2-wYE9m8enbeyhQEDsqQCRnPTAvd09bIV20w2AXj6hcvh0eH2rY-ykprT4GrhhKwxzEHdCqmlM6dq89oOc_-dGAcldT9jq4ecqGS-_jKRj3Ni2yNqRuseg0mL8TLLGFockZ8EOnfiunlH8Jhz1MF3Bkpybw-e6lzYVyeXAfK8rF5HoIlIQ',
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuBhFfm4Tzajrfx4_Ef_FDJ7T_9G5Wu0auhrdV8Gf9kXYXFg9VymR2n5618Ld0jGP8R0nZl1pUpjuM8pwLb5F0uvu0Aa5v35kf_0W7WWzre16BsuVD4kIF10E0wUS1wXUyEriRYsr9yXAb2KtqDQRxep0l-dpZgjlwbFpTwsfFaJzDRej3mm3FdmmR9Vgypb1iTGQ7c15V0FrrkKFt3K71sJrXnQLFd7lNKl_ON9vWnDlq3CvAh9sAdz3IlfJkSSkeOo2We_JptbcOE',
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuAZJ7gxpP5A5fZJdh-V1zg1v1Kfq4MPxG4s_dWUWJJU6GKshPdXLx4H4LftdVnejg8JWrX-X091y7Mc1XU-4vGWIA9OH4DyVN8xdCvljOiyQ7vDRn00EVEsh7G3PAgcZqkmmvhLiVsRorYg3X_ciERisVta8JkD26prKqGZzVBcBTQVeCIFY9E21jvv18blnrWsCn1vOwR7nQUqcVkw_oMARhlqsHHy6H8f52YwpUAGP7kiu6GMLd85UYGq0cWl4wSMzlB1n334egk',
-                ].map((src, i) => (
-                  <div key={i} className={styles.bentoMiniCover}>
-                    <img src={src} alt="" className={styles.bentoMiniCoverImg} />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Social activity — narrow */}
-            <div className={styles.bentoActivity}>
-              <h3 className={styles.bentoTitle}>Social Activity</h3>
-              <div className={styles.activityFeed}>
-                <div className={styles.activityItem}>
-                  <img className={styles.activityAvatar} src="https://lh3.googleusercontent.com/aida-public/AB6AXuBw2A_cXuWX1D7YDWhek3AipoX58a2zsazyWaFfJNPAQ2oNU7MCvc97rx4ysghFWZHF-r3wGSVAOQM2niBb3paSXukynXqYbQllNTAPBHrOxonXWOvQE-CVJdWe_wYmjghqsDs5YOEEYKoyyeAMOWV37etEcvIQ8VBm_qG22-Ew5Z0lZWK4zc_iN9mp6HoXzuoiGfG7eOrPKTChT9oF4_L-zwqIMH8w-yRi4FdYGDUFCr2_JUSSZ0tLbz0DGrUE-Ddo0Y3-Cl6NbS8" alt="Marcus" />
-                  <div>
-                    <p className={styles.activityText}><span className={styles.activityName}>Marcus</span> rated <em>Elden Ring</em></p>
-                    <StarRating count={5} />
-                  </div>
-                </div>
-                <div className={styles.activityItem}>
-                  <img className={styles.activityAvatar} src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsGpXHJKQrTBBuUyHWUHVuUNZIa5svPVJ9xvpkPZHSNyhpBiXt4weY3cQrMfoOnSGo2MlvjhOZXTaS9mS7H7gcGL-YwZzWIUQ0g9E-sCTpxHzG-KMVX2rQ2Lx4Qrce-GmeJCbrSmP6-MmNRHvf7rBT7q28vvQkMSVtr2026rIPaYDZA5vMHvKDNBGyMAcr8uuAX43_2ar41emFwA20cTCYDV3cmlOS_rmhFbnjmAF0ePA1sIezSRJhjcc1bNkQAI70eKuarHQdsXs" alt="Sarah" />
-                  <div>
-                    <p className={styles.activityText}><span className={styles.activityName}>Sarah</span> logged 4 hours in <em>Destiny 2</em></p>
-                    <p className={styles.activityTime}>2 Hours Ago</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Review feature */}
-            <div className={styles.bentoReview}>
-              <div className={styles.bentoReviewHead}>
-                <h3 className={styles.bentoTitle}>Express your thoughts</h3>
-                <span className={styles.criticBadge}>Critic Choice</span>
-              </div>
-              <div className={styles.reviewPreview}>
-                <div className={styles.reviewPreviewGame}>
-                  <img className={styles.reviewPreviewCover} src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaeeAIJ9Ijyj2ScDIguki5dyGisV9iKgjS7_9h-OA-P9DgKahzyguEB6QFmIqtM3hz926vfe1Z0fQ3jDue-qYemlKTG_oOe16HYZXyDNolgEYOsp5MGiUctV1KIrH8vk2FalJuTbH0OOA2ddD9kAv-ady70dzLP5x_-V_jQlpSlN9C2EJTxG2yZ0RiHDAvEvKp7THrRZj7JsHXWmMINgxnR1MDAMfj0AJYN2cvsKoIVMFibzX6VFEm9Lipb1zaqKJlD12l8EtiUuo" alt="" />
-                  <div>
-                    <p className={styles.reviewPreviewTitle}>Ethereal Vanguard</p>
-                    <p className={styles.reviewPreviewQuote}>"A masterclass in atmospheric storytelling. The combat system feels weighted and intentional."</p>
-                  </div>
-                </div>
-                <div className={styles.reviewPreviewFooter}>
-                  <StarRating count={4} />
-                  <span className={styles.reviewPreviewScore}>4.0 / 5.0</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Lists */}
-            <div className={styles.bentoLists}>
-              <div className={styles.bentoListsContent}>
-                <h3 className={styles.bentoTitle}>Curate your legacy</h3>
-                <p className={styles.bentoBody}>Create themed lists, ranked tiers, and specialized collections to share with the world.</p>
-                <div className={styles.listTags}>
-                  {['Soulslikes', 'Cozy Games', 'GOTY 2024'].map(tag => (
-                    <span key={tag} className={styles.listTag}>{tag}</span>
-                  ))}
-                </div>
-              </div>
-              <span className="material-symbols-outlined" style={{ fontSize: 200, opacity: 0.12, position: 'absolute', right: -24, bottom: -24, lineHeight: 1, fontVariationSettings: "'wght' 100" }}>
-                format_list_bulleted
-              </span>
-            </div>
-
-          </div>
-        </section>
-
-        {/* ── News Banner ── */}
-        <section className={styles.section}>
-          <div className={styles.newsBanner}>
-            <div className={styles.newsContent}>
-              <span className={styles.newsTag}>Developer Update</span>
-              <h2 className={styles.newsTitle}>GameShelf Roadmap</h2>
-              <p className={styles.newsBody}>
-                We're introducing real-time activity feeds, dynamic game hubs, and a completely rebuilt mobile experience. Discover how our new "Midnight" engine powers a faster, more beautiful shelf.
-              </p>
-              <button className={styles.newsBtn} onClick={() => navigate('/news')}>Read the full changelog</button>
-            </div>
-            <div className={styles.newsImageWrap}>
-              <img className={styles.newsImage} src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMXo2QuY0UwrnLeEaY6lx9YmtPNJv5XBoyjJPuzk9fJmWhSOEORDqeurJ4WU03Ms7g9vu3HT2ULQswtyGfdN_r90P_vutlAuRUBbChU_3xzV7WeGKr4Eow7arOH_eD9nVG-iz3HgpvH8-wfNxyqdPdOCAPlw5DqDhli2ovsV_2UjoPs-JQW7bJ7PA5nS1aTWBDcg-ajaZ1MZGG8TwubsXm1rwbGAkWYBnJLHWfJUQK2v0ZBI_lr7LrNkvk48b71mg0obhKZ6qUCss" alt="" />
-            </div>
-            <div className={styles.newsGlow} />
-          </div>
-        </section>
 
       </main>
 
@@ -383,40 +258,6 @@ function Landing() {
       {/* ── Footer ── */}
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
-          <div className={styles.footerGrid}>
-            <div className={styles.footerBrand}>
-              <span className={styles.footerLogo}>GameShelf</span>
-              <p className={styles.footerTagline}>The digital archivist for your personal gaming history. Discover, log, and discuss.</p>
-              <div className={styles.footerIcons}>
-                <span className="material-symbols-outlined" style={{ opacity: 0.6, cursor: 'pointer' }}>public</span>
-                <span className="material-symbols-outlined" style={{ opacity: 0.6, cursor: 'pointer' }}>rss_feed</span>
-                <span className="material-symbols-outlined" style={{ opacity: 0.6, cursor: 'pointer' }}>hub</span>
-              </div>
-            </div>
-            {[
-              { heading: 'Popular Lists', links: ['Top 100 All Time', 'Hidden Gems', '2024 GOTY', 'Indie Darling'] },
-              { heading: 'Coming Soon',   links: ['Project Omega', 'Neon Skies', 'Vanguard II', 'Eco-Shift'] },
-              { heading: 'Anticipated',   links: ['Hollow Knight: Silksong', 'GTA VI', 'Death Stranding 2', 'Metroid Prime 4'] },
-              { heading: 'Sleeper Hits',  links: ['Signal Void', 'Dust & Neon', 'Pacific Drive', 'Chants of Sennaar'] },
-            ].map(col => (
-              <div key={col.heading}>
-                <h4 className={styles.footerColHead}>{col.heading}</h4>
-                <ul className={styles.footerLinks}>
-                  {col.links.map(link => (
-                    <li key={link}>
-                      <a
-                        className={styles.footerLink}
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => handleFooterGame(link)}
-                      >
-                        {link}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
           <div className={styles.footerBottom}>
             <div className={styles.footerBottomLinks}>
               {['Privacy Policy', 'Terms of Service', 'API', 'Careers', 'Support'].map(l => (

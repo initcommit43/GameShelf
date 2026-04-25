@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { userService, BASE_URL } from '../services/api'
 import Layout from '../components/Layout'
@@ -53,10 +53,6 @@ function GameScrollRow({ title, games, loading }) {
 function UserProfile() {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [avatarUrl, setAvatarUrl] = useState(null)
-  const [uploadError, setUploadError] = useState('')
-  const [uploading, setUploading] = useState(false)
-  const fileInputRef = useRef(null)
   const navigate = useNavigate()
   const username = localStorage.getItem('username') ?? 'User'
 
@@ -68,10 +64,7 @@ function UserProfile() {
     }
 
     userService.getFullProfile()
-      .then(data => {
-        setProfile(data)
-        if (data.profilePictureUrl) setAvatarUrl(data.profilePictureUrl)
-      })
+      .then(data => setProfile(data))
       .catch(err => console.error(err))
       .finally(() => setLoading(false))
   }, [])
@@ -94,39 +87,6 @@ function UserProfile() {
     navigate('/login')
   }
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    const allowed = ['image/jpeg', 'image/png', 'image/webp']
-    if (!allowed.includes(file.type)) {
-      setUploadError('Only JPG, PNG, and WebP images are accepted.')
-      return
-    }
-    if (file.size > 3 * 1024 * 1024) {
-      setUploadError('Image must be 3 MB or less.')
-      return
-    }
-
-    const localPreview = URL.createObjectURL(file)
-    setAvatarUrl(localPreview)
-    setUploadError('')
-    setUploading(true)
-
-    try {
-      const data = await userService.uploadProfilePicture(file)
-      URL.revokeObjectURL(localPreview)
-      setAvatarUrl(data.profilePictureUrl)
-    } catch (err) {
-      URL.revokeObjectURL(localPreview)
-      setAvatarUrl(null)
-      setUploadError(err.message || 'Upload failed. Please try again.')
-    } finally {
-      setUploading(false)
-      e.target.value = ''
-    }
-  }
-
   const displayName = profile?.username ?? username
 
   return (
@@ -134,38 +94,11 @@ function UserProfile() {
       <div className={styles.heroGlow} />
 
       <section className={styles.avatarSection}>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          className={styles.fileInputHidden}
-          onChange={handleFileChange}
-        />
-
-        <button
-          className={styles.avatarBtn}
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-          title="Change profile picture"
-        >
-          <div className={styles.avatarRing}>
-            <div className={styles.avatarInner}>
-              {avatarUrl ? (
-                <img src={avatarUrl} alt="Profile" className={styles.avatarImg} />
-              ) : (
-                <span className={styles.avatarLetter}>{displayName[0]}</span>
-              )}
-            </div>
+        <div className={styles.avatarRing}>
+          <div className={styles.avatarInner}>
+            <span className={styles.avatarLetter}>{displayName[0]}</span>
           </div>
-
-          <div className={`${styles.avatarOverlay} ${uploading ? styles.avatarOverlayActive : ''}`}>
-            {uploading ? (
-              <span className={styles.avatarSpinner} />
-            ) : (
-              <span className={styles.avatarCameraIcon}>📷</span>
-            )}
-          </div>
-        </button>
+        </div>
 
         <div className={styles.userName}>{displayName}</div>
         {profile?.joinedAt && (
@@ -173,10 +106,6 @@ function UserProfile() {
         )}
         {!profile && !loading && (
           <div className={styles.userMeta}>{username}</div>
-        )}
-
-        {uploadError && (
-          <p className={styles.uploadError}>{uploadError}</p>
         )}
       </section>
 
