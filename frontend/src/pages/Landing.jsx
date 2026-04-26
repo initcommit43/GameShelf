@@ -6,8 +6,6 @@ import AddToShelfSheet from '../components/AddToShelfSheet/AddToShelfSheet'
 import styles from './Landing.module.css'
 
 
-// To swap these out, search for the game in the app and grab the ID from the URL.
-const EDITORIAL_IGDB_IDS = [7351, 1942, 119171, 1020] // Doom, Witcher 3, Baldur's Gate 3, GTA 5
 
 function formatRelativeDate(iso) {
   if (!iso) return ''
@@ -32,7 +30,6 @@ function Landing() {
   const [heroQuery, setHeroQuery] = useState('')
   const [trendingGames, setTrendingGames] = useState([])
   const [trendingLoading, setTrendingLoading] = useState(true)
-  const [editorialCovers, setEditorialCovers] = useState([])
 
   const [selected, setSelected] = useState(null)
   const [successMsg, setSuccessMsg] = useState('')
@@ -51,11 +48,6 @@ function Landing() {
       .then(data => setNewsArticles(data.content || []))
       .catch(() => {})
 
-    if (isLoggedIn) {
-      Promise.all(EDITORIAL_IGDB_IDS.map(id => gameService.getDetails(id)))
-        .then(games => setEditorialCovers(games.filter(g => g?.coverUrl)))
-        .catch(() => {})
-    }
   }, [])
 
   const openSheet = (e, game) => {
@@ -220,14 +212,14 @@ function Landing() {
             <div className={styles.editorialVisual}>
               <div className={styles.editorialCard}>
                 <div className={styles.editorialIconGrid}>
-                  {editorialCovers.length > 0
-                    ? editorialCovers.map(game => (
+                  {trendingLoading
+                    ? Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className={`${styles.editorialIconBox} ${styles.editorialIconBoxSkeleton}`} />
+                      ))
+                    : trendingGames.slice(0, 4).map(game => (
                         <div key={game.igdbId} className={styles.editorialIconBox}>
                           <img src={game.coverUrl?.replace('t_cover_big', 't_1080p')} alt={game.title} className={styles.editorialIconBoxImg} />
                         </div>
-                      ))
-                    : Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className={`${styles.editorialIconBox} ${styles.editorialIconBoxSkeleton}`} />
                       ))
                   }
                 </div>
