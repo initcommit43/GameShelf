@@ -12,6 +12,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 // 10 requests/min per IP on /api/auth/**. In-memory — won't scale past one instance.
@@ -34,7 +35,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String ip = request.getRemoteAddr();
+        String ip = Optional.ofNullable(request.getHeader("X-Forwarded-For"))
+                .map(h -> h.split(",")[0].trim())
+                .orElse(request.getRemoteAddr());
         Bucket bucket = buckets.computeIfAbsent(ip, this::newBucket);
 
         if (bucket.tryConsume(1)) {

@@ -86,7 +86,7 @@ public class SecurityConfig {
                         .referrerPolicy(referrer -> referrer
                                 .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER))
                         .addHeaderWriter(new StaticHeadersWriter(
-                                "Permissions-Policy", "camera=(), microphone=(), geolocation()"))
+                                "Permissions-Policy", "camera=(), microphone=(), geolocation=()"))
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
