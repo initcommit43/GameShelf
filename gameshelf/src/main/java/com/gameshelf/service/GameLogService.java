@@ -105,12 +105,11 @@ public class GameLogService {
         gameLogRepository.delete(log);
     }
 
-    @Transactional
     public List<GameLogResponse> getUserLogs(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        List<GameLog> logs = gameLogRepository.findByUserId(user.getId());
+        List<GameLog> logs = gameLogRepository.findByUserIdWithGame(user.getId());
 
         // Backfill any games that were added before we stored releaseYear/igdbRating locally.
         List<Game> missing = logs.stream()
