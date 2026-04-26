@@ -21,27 +21,36 @@ function formatDate(iso) {
 function SkeletonCard() {
   return (
     <div className={styles.skeletonCard}>
-      <div className={`${styles.skeletonLine} ${styles.skMeta}`} />
-      <div className={`${styles.skeletonLine} ${styles.skTitle}`} />
-      <div className={`${styles.skeletonLine} ${styles.skDesc}`} />
-      <div className={`${styles.skeletonLine} ${styles.skDescShort}`} />
+      <div className={styles.skeletonThumb} />
+      <div className={styles.skeletonBody}>
+        <div className={`${styles.skeletonLine} ${styles.skMeta}`} />
+        <div className={`${styles.skeletonLine} ${styles.skTitle}`} />
+        <div className={`${styles.skeletonLine} ${styles.skDesc}`} />
+        <div className={`${styles.skeletonLine} ${styles.skDescShort}`} />
+      </div>
     </div>
   )
 }
 
 function NewsCard({ article }) {
   return (
-    <article className={styles.card}>
-      {article.imageUrl && (
-        <div className={styles.cardThumb}>
+    <a
+      href={article.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={styles.card}
+    >
+      <div className={styles.cardThumb}>
+        <div className={styles.cardThumbPlaceholder}>{article.source}</div>
+        {article.imageUrl && (
           <img
             src={article.imageUrl}
             alt=""
             className={styles.cardThumbImg}
-            onError={e => { e.currentTarget.parentElement.style.display = 'none' }}
+            onError={e => { e.currentTarget.style.display = 'none' }}
           />
-        </div>
-      )}
+        )}
+      </div>
       <div className={styles.cardBody}>
         <div className={styles.cardMeta}>
           <span className={styles.cardSource}>{article.source}</span>
@@ -52,16 +61,8 @@ function NewsCard({ article }) {
         {article.description && (
           <p className={styles.cardDesc}>{article.description}</p>
         )}
-        <a
-          href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.cardLink}
-        >
-          Read Article →
-        </a>
       </div>
-    </article>
+    </a>
   )
 }
 
@@ -138,7 +139,7 @@ function News() {
 
         {loading ? (
           <div className={styles.list}>
-            {Array.from({ length: 5 }, (_, i) => <SkeletonCard key={i} />)}
+            {Array.from({ length: 6 }, (_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : articles.length === 0 ? (
           <div className={styles.emptyState}>

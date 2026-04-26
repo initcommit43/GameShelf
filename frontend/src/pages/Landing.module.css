@@ -1,6 +1,4 @@
-/* ─────────────────────────────────────────
-   BASE
-───────────────────────────────────────── */
+/* Base */
 .page {
   min-height: 100vh;
   background: #0e0e0e;
@@ -12,19 +10,16 @@
   padding-top: 64px;
 }
 
-/* ─────────────────────────────────────────
-   NAV
-───────────────────────────────────────── */
+/* Nav */
 .nav {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: 64px;
-  background: rgba(11, 11, 11, 0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(14, 14, 14, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   z-index: 50;
 }
 
@@ -124,9 +119,7 @@
   .navRight  { display: none; }
 }
 
-/* ─────────────────────────────────────────
-   HERO
-───────────────────────────────────────── */
+/* Hero */
 .hero {
   position: relative;
   min-height: 716px;
@@ -159,11 +152,11 @@
 
 .heroHeadline {
   font-family: 'Manrope', sans-serif;
-  font-size: clamp(40px, 8vw, 84px);
+  font-size: clamp(44px, 9vw, 96px);
   font-weight: 800;
   color: #ffffff;
   letter-spacing: -0.03em;
-  line-height: 1.05;
+  line-height: 1.02;
 }
 
 .heroAccent {
@@ -293,7 +286,7 @@
   background: #201f1f;
   border: 1px solid rgba(72, 72, 71, 0.2);
   border-radius: 9999px;
-  color: #ffffff;
+  color: #e4e2e1;
   font-family: 'Manrope', sans-serif;
   font-size: 16px;
   font-weight: 700;
@@ -305,9 +298,7 @@
 
 .ctaSecondary:hover { background: #262626; }
 
-/* ─────────────────────────────────────────
-   SHARED SECTION WRAPPER
-───────────────────────────────────────── */
+/* Shared section wrapper */
 .section {
   padding: 32px 32px 64px;
   max-width: 1440px;
@@ -350,9 +341,7 @@
 
 .viewAll:hover { color: #7aafff; }
 
-/* ─────────────────────────────────────────
-   TRENDING GRID
-───────────────────────────────────────── */
+/* Trending grid */
 .trendingGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -480,9 +469,7 @@
 
 /* @keyframes shimmer is defined globally in index.css */
 
-/* ─────────────────────────────────────────
-   EDITORIAL
-───────────────────────────────────────── */
+/* Editorial */
 .editorial {
   background: #131313;
   padding: 96px 32px;
@@ -508,23 +495,14 @@
   gap: 32px;
 }
 
-.editorialNumber {
-  font-family: 'Manrope', sans-serif;
-  font-size: 36px;
-  font-weight: 800;
-  color: #7aafff;
-  letter-spacing: -0.03em;
-  display: block;
-  margin-bottom: 8px;
-}
 
 .editorialHeadline {
   font-family: 'Manrope', sans-serif;
-  font-size: clamp(32px, 4vw, 48px);
+  font-size: clamp(36px, 5vw, 56px);
   font-weight: 800;
   color: #ffffff;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
 }
 
 .editorialBody {
@@ -548,7 +526,7 @@
 .editorialBadgeText {
   font-size: 13px;
   font-weight: 700;
-  color: #ffffff;
+  color: #e4e2e1;
 }
 
 .editorialVisual {
@@ -632,7 +610,7 @@
 .editorialOverlayValue {
   font-size: 14px;
   font-weight: 700;
-  color: #ffffff;
+  color: #e4e2e1;
 }
 
 .xpBarTrack {
@@ -649,9 +627,7 @@
   border-radius: 9999px;
 }
 
-/* ─────────────────────────────────────────
-   ADD TO SHELF MODAL
-───────────────────────────────────────── */
+/* Add to shelf modal */
 
 /* Fixed toasts */
 .successBanner,
@@ -702,9 +678,7 @@
 .confirmBtn     { composes: confirmBtn     from '../shared.module.css'; }
 .cancelBtn      { composes: cancelBtn      from '../shared.module.css'; }
 
-/* ─────────────────────────────────────────
-   LATEST NEWS
-───────────────────────────────────────── */
+/* Latest news */
 .newsGrid {
   display: flex;
   flex-direction: column;
@@ -802,12 +776,9 @@
   -webkit-box-orient: vertical;
 }
 
-/* ─────────────────────────────────────────
-   FOOTER
-───────────────────────────────────────── */
+/* Footer */
 .footer {
   background: #0e0e0e;
-  border-top: 1px solid rgba(72, 72, 71, 0.15);
   padding: 32px 32px 48px;
   font-size: 13px;
   color: #adaaaa;

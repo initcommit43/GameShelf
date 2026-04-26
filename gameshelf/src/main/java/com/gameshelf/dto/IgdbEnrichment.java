@@ -14,6 +14,7 @@ public class IgdbEnrichment {
     private String title;
     private String coverUrl;
     private String summary;
+    private Double igdbRating;
     private List<Tag> genres;
     private List<Tag> themes;
     private List<Tag> keywords;

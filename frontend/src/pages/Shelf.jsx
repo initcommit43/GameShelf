@@ -40,8 +40,7 @@ function Shelf() {
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
   const sortDropdownRef = useRef(null)
 
-  // Persist filter/sort/view in localStorage so they survive navigation and refresh.
-  // Cleared on logout (see UserProfile handleLogout).
+  // Persist filter/sort/view so they survive navigation. Cleared on logout in UserProfile.
   useEffect(() => {
     if (!sortDropdownOpen) return
     const handler = (e) => {
@@ -192,7 +191,23 @@ function Shelf() {
   return (
     <Layout title="My Shelf">
       <div className={styles.sectionHeader}>
-        <span className={styles.sectionTitle}>My shelf</span>
+        <span className={styles.sectionTitle}>My Shelf</span>
+      </div>
+
+      <div className={styles.filterRow}>
+        <div ref={filterBarRef} className={styles.filterWrapper}>
+          <div className={styles.filterScroll}>
+            {filters.map(f => (
+              <button
+                key={f}
+                className={`${styles.filterTab}${activeFilter === f ? ` ${styles.filterActive}` : ''}`}
+                onClick={() => setActiveFilter(f)}
+              >
+                {f.charAt(0) + f.slice(1).toLowerCase()}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className={styles.headerRight}>
           <div className={styles.sortWrapper} ref={sortDropdownRef}>
             <button
@@ -255,7 +270,6 @@ function Shelf() {
               onClick={() => setViewMode('list')}
             >List</button>
           </div>
-
           <label className={styles.igdbToggle} title="Show IGDB rating">
             <input
               type="checkbox"
@@ -271,36 +285,20 @@ function Shelf() {
         </div>
       </div>
 
-      <div className={styles.filterRow}>
-        <div ref={filterBarRef} className={styles.filterWrapper}>
-          <div className={styles.filterScroll}>
-            {filters.map(f => (
-              <button
-                key={f}
-                className={`${styles.filterTab}${activeFilter === f ? ` ${styles.filterActive}` : ''}`}
-                onClick={() => setActiveFilter(f)}
-              >
-                {f.charAt(0) + f.slice(1).toLowerCase()}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.searchBar}>
-          <svg className={styles.searchIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input
-            className={styles.searchInput}
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-          />
-          {searchQuery && (
-            <button className={styles.searchClear} onClick={() => setSearchQuery('')}>✕</button>
-          )}
-        </div>
+      <div className={styles.searchBar}>
+        <svg className={styles.searchIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          className={styles.searchInput}
+          type="text"
+          placeholder="Search..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+        />
+        {searchQuery && (
+          <button className={styles.searchClear} onClick={() => setSearchQuery('')}>✕</button>
+        )}
       </div>
 
       {loading ? (
@@ -382,7 +380,6 @@ function Shelf() {
         </div>
       )}
 
-      {/* ── Edit modal ── */}
       {editingLog && (
         <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && closeEdit()}>
           <div className={styles.sheet}>
@@ -429,7 +426,6 @@ function Shelf() {
         </div>
       )}
 
-      {/* ── Delete confirmation ── */}
       {confirmDeleteId && (
         <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && setConfirmDeleteId(null)}>
           <div className={styles.confirmDialog}>

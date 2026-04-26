@@ -54,8 +54,6 @@ public class RecommendationService {
         return recs;
     }
 
-    // ── Core pipeline ────────────────────────────────────────────────────────────
-
     private List<RecommendationResponse> compute(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -136,7 +134,7 @@ public class RecommendationService {
                 .toList();
     }
 
-    // ── Fallback (shelf < MIN_SHELF) ─────────────────────────────────────────────
+    // Fallback when shelf has fewer than MIN_SHELF games
 
     private List<RecommendationResponse> fallbackTopRated() {
         List<GameResponse> topGames = gameService.browseGames("rating", 0, null, null, null, null, null);
@@ -146,6 +144,7 @@ public class RecommendationService {
                         .igdbId(g.getIgdbId())
                         .title(g.getTitle())
                         .coverUrl(g.getCoverUrl())
+                        .igdbRating(g.getIgdbRating())
                         .score(0)
                         .confidencePct(0)
                         .reasons(List.of(reason))
@@ -153,7 +152,7 @@ public class RecommendationService {
                 .toList();
     }
 
-    // ── Profile building ─────────────────────────────────────────────────────────
+    // Profile building
 
     private WeightedProfile buildWeightedProfile(List<IgdbEnrichment> shelfGames,
                                                   Map<Integer, Double> influenceByIgdbId) {
@@ -187,7 +186,7 @@ public class RecommendationService {
                 genreNames, themeNames, topGenreName, new ArrayList<>(similarIds));
     }
 
-    // ── Scoring ──────────────────────────────────────────────────────────────────
+    // Scoring
 
     private ScoredGame score(IgdbEnrichment game, WeightedProfile profile) {
         double score = 0;
@@ -210,7 +209,7 @@ public class RecommendationService {
         return new ScoredGame(game, score, matchedGenres, matchedThemes);
     }
 
-    // ── Diversity filter (max MAX_PER_GENRE per genre in final results) ──────────
+    // Diversity filter — caps results at MAX_PER_GENRE per genre
 
     private List<ScoredGame> diversityFilter(List<ScoredGame> sorted) {
         Map<Integer, Integer> genreCount = new HashMap<>();
@@ -227,7 +226,7 @@ public class RecommendationService {
         return result;
     }
 
-    // ── Response mapping ─────────────────────────────────────────────────────────
+    // Response mapping
 
     private RecommendationResponse toResponse(ScoredGame sg, double maxScore,
                                                List<IgdbEnrichment> shelfGames,
@@ -240,7 +239,7 @@ public class RecommendationService {
                 .map(IgdbEnrichment.Tag::getId)
                 .collect(Collectors.toSet());
 
-        // Find the most-influential shelf game that shares a genre → "Because you liked X"
+        // Pick the shelf game with the highest influence that shares a genre — drives the "Because you liked X" label.
         String reason = null;
         double bestInfluence = 0;
         for (IgdbEnrichment shelf : shelfGames) {
@@ -262,13 +261,14 @@ public class RecommendationService {
                 .title(sg.game().getTitle())
                 .coverUrl(sg.game().getCoverUrl())
                 .summary(sg.game().getSummary())
+                .igdbRating(sg.game().getIgdbRating())
                 .score((int) Math.round(sg.score()))
                 .confidencePct(confidence)
                 .reasons(reason != null ? List.of(reason) : List.of())
                 .build();
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────────────
+    // Helpers
 
     private List<Integer> topNByWeight(Map<Integer, Double> weights, int n) {
         return weights.entrySet().stream()
@@ -279,7 +279,7 @@ public class RecommendationService {
                 .toList();
     }
 
-    // ── Internal records ─────────────────────────────────────────────────────────
+    // Internal records
 
     private record WeightedProfile(
             List<Integer> topGenreIds,

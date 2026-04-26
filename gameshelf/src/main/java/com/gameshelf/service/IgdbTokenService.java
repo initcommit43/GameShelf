@@ -35,7 +35,7 @@ public class IgdbTokenService {
     }
 
     private synchronized void refresh() {
-        // Double-checked locking: another thread may have refreshed while we waited for the lock.
+        // Another thread may have refreshed while we waited for the lock.
         if (Instant.now().isBefore(tokenExpiry.minus(REFRESH_BUFFER))) {
             return;
         }

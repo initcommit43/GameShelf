@@ -219,10 +219,12 @@ function GameDetail() {
             <div className={styles.heroInfo}>
               <h1 className={styles.title}>{game.title}</h1>
               <div className={styles.metaRow}>
-                {game.releaseYear && <span className={styles.metaChip}>{game.releaseYear}</span>}
+                {game.releaseYear && <span className={styles.yearChip}>{game.releaseYear}</span>}
                 {game.rating != null && (
-                  <span className={styles.metaChip}>
-                    ★ {game.rating.toFixed(1)}<span className={styles.metaChipSub}>/100</span>
+                  <span className={styles.ratingChip}>
+                    <span className={styles.ratingChipStar}>★</span>
+                    {game.rating.toFixed(1)}
+                    <span className={styles.ratingChipSub}>/100</span>
                   </span>
                 )}
               </div>
@@ -267,19 +269,6 @@ function GameDetail() {
                     <a href={prices.bestPrice.url} target="_blank" rel="noopener noreferrer" className={styles.buyBtnPrimary}>Buy</a>
                   </div>
                 )}
-                {prices.steamPrice && (
-                  <div className={styles.steamRow}>
-                    <svg className={styles.steamIcon} viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
-                      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.52 3.73 10.18 8.84 11.54L12 24l3.16-.46C20.27 22.18 24 17.52 24 12 24 5.37 18.63 0 12 0zm0 4.5a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15z"/>
-                    </svg>
-                    <span className={styles.steamLabel}>Steam</span>
-                    <span className={styles.steamPrice}>{prices.steamPrice.price}</span>
-                    {prices.steamPrice.discount > 0 && (
-                      <span className={styles.discountBadge}>−{prices.steamPrice.discount}%</span>
-                    )}
-                    <a href={prices.steamPrice.url} target="_blank" rel="noopener noreferrer" className={styles.steamLink}>Steam store ↗</a>
-                  </div>
-                )}
                 {prices.offers?.length > 0 && (
                   <div className={styles.offerTable}>
                     {prices.offers.map((offer, i) => (
@@ -299,7 +288,6 @@ function GameDetail() {
             )}
           </div>
 
-          {/* ── Reviews ── */}
           <div className={styles.section}>
             <div className={styles.sectionLabel}>Reviews</div>
 

@@ -1,39 +1,36 @@
-/* ── Hero glow ── */
+﻿/* Hero glow */
 .heroGlow {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 300px;
-  background: radial-gradient(circle at 50% -20%, rgba(122, 175, 255, 0.12) 0%, rgba(14, 14, 14, 0) 70%);
-  pointer-events: none;
-  z-index: 0;
+  display: none;
 }
 
-/* ── Avatar section ── */
+/* Avatar section */
 .avatarSection {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-top: 8px;
   margin-bottom: 32px;
   position: relative;
   z-index: 1;
 }
 
 .avatarRing {
-  width: 88px;
-  height: 88px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
-  padding: 3px;
-  background: var(--gradient-accent);
-  margin-bottom: 14px;
+  border: 2px solid #7aafff;
+  background: #131313;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  flex-shrink: 0;
 }
 
 .avatarInner {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -41,84 +38,90 @@
 }
 
 .avatarLetter {
-  font-family: var(--font-display);
-  font-size: 32px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 36px;
   font-weight: 800;
-  color: var(--accent);
+  color: #7aafff;
+  line-height: 1;
   text-transform: uppercase;
 }
 
 .userName {
-  font-family: var(--font-display);
-  font-size: 24px;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(24px, 3vw, 36px);
   font-weight: 800;
-  color: var(--text);
+  color: #e4e2e1;
   letter-spacing: -0.02em;
-  text-transform: uppercase;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .userMeta {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #adaaaa;
 }
 
-/* ── Stats grid ── */
+/* Stats grid */
 .statsGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 32px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 40px;
   position: relative;
   z-index: 1;
 }
 
+@media (min-width: 480px) {
+  .statsGrid { grid-template-columns: repeat(5, 1fr); }
+}
+
 @media (min-width: 768px) {
-  .statsGrid { grid-template-columns: repeat(4, 1fr); }
+  .statsGrid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+  }
 }
 
 .statCard {
-  background: var(--bg-mid);
-  border-radius: var(--r-xl);
-  padding: 14px 16px;
+  background: #131313;
+  border-radius: 8px;
+  padding: 16px 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  transition: transform var(--t);
+  gap: 4px;
 }
 
-.statCard:active { transform: scale(0.97); }
+.statIcon { font-size: 16px; margin-bottom: 4px; }
 
-.statIcon { font-size: 18px; }
-
-.statIconBlue  { color: var(--accent); }
+.statIconBlue  { color: #7aafff; }
 .statIconGreen { color: var(--success); }
 .statIconAmber { color: var(--warning); }
 
 .statValue {
-  font-family: var(--font-display);
-  font-size: 28px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 24px;
   font-weight: 800;
-  color: var(--text);
+  color: #7aafff;
   line-height: 1;
-  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .statLabel {
+  font-family: 'Inter', sans-serif;
   font-size: 9px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #adaaaa;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
-/* ── Activity section ── */
+/* Section header */
 .sectionHeader {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
   position: relative;
@@ -126,144 +129,23 @@
 }
 
 .sectionTitle {
-  font-family: var(--font-display);
-  font-size: 16px;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(18px, 2.5vw, 24px);
   font-weight: 800;
-  color: var(--text);
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
+  color: #ffffff;
+  letter-spacing: -0.02em;
 }
 
-/* ── Activity list ── */
-.activityList {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 32px;
-  position: relative;
-  z-index: 1;
-}
-
-.activityRow {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: var(--bg-hover);
-  border-radius: 14px;
-  padding: 12px;
-  transition: background var(--t);
-}
-
-.activityRow:active { background: var(--bg-active); }
-
-@media (min-width: 768px) {
-  .activityRow:hover { background: var(--bg-active); }
-}
-
-.activityThumb {
-  width: 44px;
-  height: 58px;
-  border-radius: var(--r-md);
-  overflow: hidden;
-  background: var(--bg-mid);
-  flex-shrink: 0;
-}
-
-.activityThumbImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.activityThumbPlaceholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
-  color: var(--text-muted);
-  text-align: center;
-  padding: 4px;
-  line-height: 1.2;
-}
-
-.activityInfo { flex: 1; min-width: 0; }
-
-.activityTitle {
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
-  margin-bottom: 4px;
-}
-
-.activityMeta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.activityStatus {
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-/* Status colors — composed from shared */
-.statusPlaying   { composes: statusPlaying   from '../shared.module.css'; }
-.statusCompleted { composes: statusCompleted from '../shared.module.css'; }
-.statusDropped   { composes: statusDropped   from '../shared.module.css'; }
-.statusBacklog   { composes: statusBacklog   from '../shared.module.css'; }
-.statusWishlist  { composes: statusWishlist  from '../shared.module.css'; }
-
-.activityDot {
-  font-size: 10px;
-  color: var(--text-muted);
-}
-
-.activityRating {
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-/* ── Empty activity ── */
-.emptyActivity {
-  text-align: center;
-  padding: 40px 0;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-/* ── Wide stat card (genre) ── */
-.statCardWide {
-  grid-column: 1 / -1;
-}
-
-@media (min-width: 768px) {
-  .statCardWide { grid-column: auto; }
-}
-
-/* ── Scroll row section ── */
+/* Scroll row section */
 .rowSection {
-  margin-bottom: 32px;
+  margin-bottom: 40px;
   position: relative;
   z-index: 1;
 }
 
 .scrollTrack {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   overflow-x: auto;
   padding-bottom: 8px;
   scrollbar-width: none;
@@ -271,26 +153,27 @@
 
 .scrollTrack::-webkit-scrollbar { display: none; }
 
-/* ── Scroll card ── */
+/* Scroll card */
 .scrollCard {
   flex: 0 0 auto;
-  width: 90px;
+  width: 108px;
   cursor: pointer;
   text-decoration: none;
 }
 
 .scrollCoverWrapper {
   position: relative;
-  width: 90px;
-  height: 120px;
-  border-radius: var(--r-md);
+  width: 108px;
+  height: 144px;
+  border-radius: 8px;
   overflow: hidden;
   background: var(--bg-mid);
-  margin-bottom: 6px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  margin-bottom: 8px;
   transition: opacity var(--t), transform var(--t);
 }
 
-.scrollCard:hover .scrollCoverWrapper { opacity: 0.85; transform: scale(0.97); }
+.scrollCard:hover .scrollCoverWrapper  { opacity: 0.85; transform: scale(0.97); }
 .scrollCard:active .scrollCoverWrapper { opacity: 0.75; transform: scale(0.95); }
 
 .scrollCoverImg {
@@ -306,10 +189,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 8px;
+  font-size: 9px;
   color: var(--text-muted);
   text-align: center;
-  padding: 6px;
+  padding: 8px;
   line-height: 1.3;
 }
 
@@ -318,7 +201,7 @@
   bottom: 4px;
   right: 4px;
   background: rgba(0, 0, 0, 0.75);
-  color: var(--accent);
+  color: #7aafff;
   font-size: 9px;
   font-weight: 700;
   border-radius: 4px;
@@ -327,16 +210,17 @@
 }
 
 .scrollTitle {
-  font-size: 10px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: #e4e2e1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.3;
 }
 
-/* ── Skeletons ── */
+/* Skeletons */
 @keyframes shimmer {
   0%   { background-position: -300px 0; }
   100% { background-position:  300px 0; }
@@ -344,14 +228,14 @@
 
 .skeletonCard {
   flex: 0 0 auto;
-  width: 90px;
+  width: 108px;
 }
 
 .skeletonCover {
-  width: 90px;
-  height: 120px;
-  border-radius: var(--r-md);
-  margin-bottom: 6px;
+  width: 108px;
+  height: 144px;
+  border-radius: 8px;
+  margin-bottom: 8px;
   background: linear-gradient(90deg, var(--bg-mid) 25%, var(--bg-hover) 50%, var(--bg-mid) 75%);
   background-size: 600px 100%;
   animation: shimmer 1.4s infinite;
@@ -366,34 +250,107 @@
   animation: shimmer 1.4s infinite;
 }
 
-/* ── Actions ── */
+/* Status colors */
+.statusPlaying   { composes: statusPlaying   from '../shared.module.css'; }
+.statusCompleted { composes: statusCompleted from '../shared.module.css'; }
+.statusDropped   { composes: statusDropped   from '../shared.module.css'; }
+.statusBacklog   { composes: statusBacklog   from '../shared.module.css'; }
+.statusWishlist  { composes: statusWishlist  from '../shared.module.css'; }
+
+/* Actions */
 .actions {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  justify-content: center;
+  padding-top: 48px;
+  padding-bottom: 16px;
   position: relative;
   z-index: 1;
 }
 
 .logoutBtn {
-  width: 100%;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: var(--r-pill);
-  padding: 14px;
-  font-family: var(--font-display);
+  background: rgba(255, 113, 108, 0.15);
+  border: 1px solid rgba(255, 113, 108, 0.3);
+  border-radius: 9999px;
+  padding: 12px 32px;
+  font-family: 'Manrope', sans-serif;
   font-size: 13px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--danger);
   cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  transition: background var(--t), color var(--t);
+  letter-spacing: 0.04em;
+  transition: background var(--t), transform var(--t);
 }
 
-.logoutBtn:active { background: var(--bg-hover); color: var(--text); }
+.logoutBtn:active { background: rgba(255, 113, 108, 0.25); transform: scale(0.98); }
 
 @media (min-width: 768px) {
-  .logoutBtn { max-width: 240px; }
-  .logoutBtn:hover { background: var(--bg-hover); color: var(--text); }
+  .logoutBtn:hover { background: rgba(255, 113, 108, 0.22); }
+}
+
+/* Scroll outer (arrow container) */
+.scrollOuter {
+  position: relative;
+}
+
+/* Arrow buttons — hidden on desktop, shown on mobile */
+.arrowBtn {
+  display: none;
+  position: absolute;
+  top: calc((144px / 2) - 16px); /* vertically centered on cover */
+  left: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #131313;
+  border: none;
+  color: #7aafff;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  transition: background var(--t);
+}
+
+.arrowBtn:active { background: #201f1f; }
+
+.arrowBtnRight {
+  left: auto;
+  right: 0;
+}
+
+/* Mobile overrides (≤640px) */
+@media (max-width: 640px) {
+  /* Stats: 2-column grid, Fav Genre spans full width */
+  .statsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .statsGrid > :nth-child(5) {
+    grid-column: 1 / -1;
+  }
+
+  /* Show scroll arrows */
+  .arrowBtn {
+    display: flex;
+  }
+
+  /* Ensure scroll container is not clipped */
+  .scrollOuter {
+    overflow: visible;
+  }
+
+  /* Ensure horizontal swipe scroll works on mobile/iOS */
+  .scrollTrack {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    scrollbar-width: none;
+  }
+
+  /* Sign Out: add space above bottom nav bar */
+  .actions {
+    padding-bottom: 80px;
+  }
 }

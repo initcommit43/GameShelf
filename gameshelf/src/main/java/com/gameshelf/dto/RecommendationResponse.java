@@ -13,6 +13,7 @@ public class RecommendationResponse {
     private String title;
     private String coverUrl;
     private String summary;
+    private Double igdbRating;
     private int score;
     private int confidencePct;
     private List<String> reasons;

@@ -1,8 +1,8 @@
-/* ── Inline feedback banners ── */
+﻿/* Inline feedback banners */
 .successBanner { composes: bannerSuccess from '../shared.module.css'; }
 .errorBanner   { composes: bannerError   from '../shared.module.css'; }
 
-/* ── Search bar ── */
+/* Search bar */
 .searchBar {
   display: flex;
   align-items: center;
@@ -38,10 +38,10 @@
 
 .searchInput::placeholder { color: var(--text-faint); }
 
-/* ── Hint / empty ── */
+/* Hint / empty */
 .hint { composes: emptyState from '../shared.module.css'; }
 
-/* ── Cover grid ── */
+/* Cover grid */
 .grid { composes: coverGrid from '../shared.module.css'; }
 
 .gameCard {
@@ -49,7 +49,7 @@
   cursor: pointer;
 }
 
-/* ── Cover card with hover interaction ── */
+/* Cover card with hover interaction */
 .gameCoverWrapper {
   composes: coverCard from '../shared.module.css';
   transition: opacity var(--t), transform var(--t);
@@ -64,7 +64,7 @@
 .coverImg         { composes: coverFill  from '../shared.module.css'; }
 .coverPlaceholder { composes: coverEmpty from '../shared.module.css'; }
 
-/* ── Quick-add overlay button ── */
+/* Quick-add overlay button */
 .addOverlay {
   position: absolute;
   bottom: 6px;
@@ -91,10 +91,10 @@
 
 .addOverlay:active { background: var(--accent-dark); }
 
-/* ── Card title ── */
+/* Card title */
 .gameTitle { composes: cardTitle from '../shared.module.css'; }
 
-/* ── Sheet / modal ── */
+/* Sheet / modal */
 .overlay        { composes: overlay        from '../shared.module.css'; }
 .sheet          { composes: sheet          from '../shared.module.css'; }
 .sheetHandle    { composes: sheetHandle    from '../shared.module.css'; }

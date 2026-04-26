@@ -14,10 +14,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Rate-limits /api/auth/** to 10 requests per minute per IP.
- * Buckets are kept in memory — sufficient for a single-instance deployment.
- */
+// 10 requests/min per IP on /api/auth/**. In-memory — won't scale past one instance.
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
 

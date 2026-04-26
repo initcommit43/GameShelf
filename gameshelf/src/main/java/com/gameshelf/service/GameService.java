@@ -221,16 +221,12 @@ public class GameService {
         return map;
     }
 
-    // ── Recommendation support ──────────────────────────────────────────────────
+    // Recommendation support
 
-    /**
-     * Fetches genres, themes, keywords, and similar_games for a list of IGDB IDs.
-     * Used to enrich shelf games and to resolve similar-game candidates.
-     */
     public List<IgdbEnrichment> enrichGames(List<Integer> igdbIds) {
         if (igdbIds.isEmpty()) return List.of();
         String ids = igdbIds.stream().map(String::valueOf).collect(Collectors.joining(","));
-        String body = "fields id,name,cover.url,summary,genres.id,genres.name,themes.id,themes.name,keywords.id,keywords.name,similar_games;"
+        String body = "fields id,name,cover.url,summary,rating,genres.id,genres.name,themes.id,themes.name,keywords.id,keywords.name,similar_games;"
                 + " where id = (" + ids + "); limit " + Math.min(igdbIds.size(), 500) + ";";
 
         IgdbGame[] results = igdbClient.post().uri("/games").body(body).retrieve().body(IgdbGame[].class);
@@ -238,12 +234,8 @@ public class GameService {
         return Arrays.stream(results).map(this::toEnrichment).toList();
     }
 
-    /**
-     * Fetches up to 50 high-rated games in a given genre with full genre/theme/keyword data.
-     * Results are pre-sorted by rating descending.
-     */
     public List<IgdbEnrichment> fetchCandidatesByGenre(int genreId) {
-        String body = "fields id,name,cover.url,summary,genres.id,genres.name,themes.id,themes.name,keywords.id,keywords.name;"
+        String body = "fields id,name,cover.url,summary,rating,genres.id,genres.name,themes.id,themes.name,keywords.id,keywords.name;"
                 + " where genres = " + genreId + " & cover != null & rating > 70 & rating_count > 100;"
                 + " sort rating desc; limit 50;";
 
@@ -262,6 +254,7 @@ public class GameService {
                 .title(g.name)
                 .coverUrl(coverUrl)
                 .summary(g.summary)
+                .igdbRating(g.rating)
                 .genres(toTags(g.genres))
                 .themes(toTags(g.themes))
                 .keywords(toTags(g.keywords))
@@ -302,15 +295,9 @@ public class GameService {
     private static final Pattern STEAM_APP_ID_PATTERN =
             Pattern.compile("store\\.steampowered\\.com/app/(\\d+)");
 
-    /**
-     * Returns the Steam App ID for a given IGDB game.
-     * Tries two sources in order:
-     *   1. /external_games  (category 1 = Steam) — uid is the App ID directly
-     *   2. /websites        (category 13 = Steam storefront) — parse App ID from URL
-     * Returns null if neither source has a Steam entry.
-     */
+    // Tries /external_games first (category 1 = Steam), then scans /websites for a Steam URL.
+    // The website category field is often null in IGDB so we can't filter by it there.
     public Integer getSteamAppId(Integer igdbId) {
-        // --- source 1: external_games ---
         String extBody = "fields uid; where game = " + igdbId + " & category = 1; limit 1;";
         IgdbExternalGame[] extResults = igdbClient
                 .post().uri("/external_games").body(extBody).retrieve()
@@ -323,7 +310,6 @@ public class GameService {
             } catch (NumberFormatException ignored) {}
         }
 
-        // --- source 2: all websites for this game — scan for a Steam URL (category is often null in IGDB) ---
         String webBody = "fields url; where game = " + igdbId + "; limit 20;";
         IgdbWebsite[] webResults = igdbClient
                 .post().uri("/websites").body(webBody).retrieve()
@@ -344,9 +330,8 @@ public class GameService {
         return null;
     }
 
-    // Returns true for mobile-first games: has Android/iOS AND no major console platform.
-    // Keeps cross-platform titles (Minecraft, Fortnite) that have console versions.
-    // Excludes mobile-only and mobile-first games (Subway Surfers, Geometry Dash, Cookie Clicker).
+    // True if the game is on Android/iOS but has no major console release.
+    // Keeps cross-platform titles like Minecraft; excludes Subway Surfers etc.
     private boolean isMobileFirst(IgdbGame game) {
         if (game.platforms == null || game.platforms.length == 0) return false;
         List<Integer> knownIds = Arrays.stream(game.platforms)
@@ -385,7 +370,7 @@ public class GameService {
         public String url;
     }
 
-    // Reused for genres, themes, and keywords — all have id + name in IGDB
+    // Used for genres, themes, and keywords — same shape in IGDB
     private static class IgdbGenre {
         public Integer id;
         public String name;

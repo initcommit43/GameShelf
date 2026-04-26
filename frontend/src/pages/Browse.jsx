@@ -54,7 +54,6 @@ const YEAR_TO_OPTIONS   = [2010, 2015, 2018, 2020, 2022, 2023, 2024, currentYear
 function Browse() {
   const navigate = useNavigate()
 
-  // Browse state
   const [showIgdb, setShowIgdbState]  = useState(() => localStorage.getItem('browse_igdb') === 'true')
   const setShowIgdb = (val) => { setShowIgdbState(val); localStorage.setItem('browse_igdb', String(val)) }
 
@@ -65,7 +64,6 @@ function Browse() {
   const [offset, setOffset]           = useState(0)
   const [hasMore, setHasMore]         = useState(true)
 
-  // Filter state
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [genreId, setGenreId]         = useState(null)
   const [platformId, setPlatformId]   = useState(null)
@@ -86,14 +84,12 @@ function Browse() {
     return () => el.removeEventListener('wheel', onWheel)
   }, [])
 
-  // Quick-add sheet
   const [selected, setSelected]       = useState(null)
   const [successMsg, setSuccessMsg]   = useState('')
 
-  // Shelf membership — used to badge already-shelved games
+  // Track which IGDB IDs are already on the shelf so we can badge them in the grid.
   const [shelfIds, setShelfIds]       = useState(new Set())
 
-  // Recommendation state
   const [category, setCategory]       = useState('browse')
   const [recs, setRecs]               = useState([])
   const [recsLoading, setRecsLoading] = useState(false)
@@ -379,6 +375,9 @@ function Browse() {
                       ? <img src={rec.coverUrl} alt={rec.title} className={styles.coverImg} />
                       : <div className={styles.coverPlaceholder}>{rec.title}</div>
                     }
+                    {showIgdb && rec.igdbRating != null && (
+                      <div className={styles.igdbBadge}>★ {Math.round(rec.igdbRating)}</div>
+                    )}
                     {shelfIds.has(rec.igdbId)
                       ? <div className={styles.shelvedBadge}>On shelf</div>
                       : <button className={styles.addOverlay} onClick={(e) => openSheet(e, rec)}>+</button>

@@ -6,8 +6,8 @@ import AddToShelfSheet from '../components/AddToShelfSheet/AddToShelfSheet'
 import styles from './Landing.module.css'
 
 
-// Find an ID by searching the game on the app and checking the URL on its detail page.
-const EDITORIAL_IGDB_IDS = [7351, 1942, 119171, 1020] // Doom, Witcher 3, Baldurs Gate 3, GTA 5
+// To swap these out, search for the game in the app and grab the ID from the URL.
+const EDITORIAL_IGDB_IDS = [7351, 1942, 119171, 1020] // Doom, Witcher 3, Baldur's Gate 3, GTA 5
 
 function formatRelativeDate(iso) {
   if (!iso) return ''
@@ -81,7 +81,6 @@ function Landing() {
   return (
     <div className={styles.page}>
 
-      {/* ── Nav ── */}
       <nav className={styles.nav}>
         <div className={styles.navInner}>
           <div className={styles.navLeft}>
@@ -106,7 +105,6 @@ function Landing() {
 
       <main className={styles.main}>
 
-        {/* ── Hero ── */}
         <section className={styles.hero}>
           <div className={styles.heroGlow} />
           <div className={styles.heroContent}>
@@ -162,7 +160,6 @@ function Landing() {
           </div>
         </section>
 
-        {/* ── Recently Trending ── */}
         <section className={styles.section}>
           <div className={styles.sectionHead}>
             <div>
@@ -200,12 +197,10 @@ function Landing() {
           </div>
         </section>
 
-        {/* ── Editorial ── */}
         <section className={styles.editorial}>
           <div className={styles.editorialInner}>
             <div className={styles.editorialText}>
               <div>
-                <span className={styles.editorialNumber}>01</span>
                 <h2 className={styles.editorialHeadline}>Your gaming life,<br />meticulously archived.</h2>
               </div>
               <p className={styles.editorialBody}>
@@ -255,7 +250,6 @@ function Landing() {
           </div>
         </section>
 
-        {/* ── Latest News ── */}
         {newsArticles.length > 0 && (
           <section className={styles.section}>
             <div className={styles.sectionHead}>
@@ -302,7 +296,6 @@ function Landing() {
 
       </main>
 
-      {/* ── Success / error banner ── */}
       {successMsg && (
         <div className={successMsg.startsWith('Already') ? styles.errorBanner : styles.successBanner}>
           {successMsg}
@@ -316,7 +309,6 @@ function Landing() {
         onConfirm={handleAddToShelf}
       />
 
-      {/* ── Footer ── */}
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
           <div className={styles.footerBottom}>

@@ -24,9 +24,9 @@ public class PriceService {
     @Value("${ggdeals.api-key:}")
     private String ggDealsApiKey;
 
-    // Built in @PostConstruct so @Value fields are populated first
+    // Initialized in @PostConstruct so @Value fields are available first
     private RestClient steamClient;
-    private RestClient ggDealsClient; // null when API key not configured
+    private RestClient ggDealsClient; // null when key not configured
 
     private static final long CACHE_TTL_MS = 6 * 60 * 60 * 1_000L;
 
@@ -50,8 +50,6 @@ public class PriceService {
         }
     }
 
-    // ── Public API ──────────────────────────────────────────────────────────────
-
     public GamePriceResponse getPrices(Integer igdbId, String gameName, Integer steamAppId) {
         CachedEntry hit = cache.get(igdbId);
         if (hit != null && !hit.isExpired()) return hit.response();
@@ -60,8 +58,6 @@ public class PriceService {
         cache.put(igdbId, new CachedEntry(response));
         return response;
     }
-
-    // ── Aggregation ─────────────────────────────────────────────────────────────
 
     private GamePriceResponse buildResponse(String gameName, Integer steamAppId) {
         log.info("[prices] building response for '{}' steamAppId={}", gameName, steamAppId);
@@ -74,8 +70,7 @@ public class PriceService {
                 (ggDealsClient != null && steamAppId != null) ? fetchGgDealsOffers(steamAppId) : List.of();
         log.info("[prices] ggOffers count={}", ggOffers.size());
 
-        // Merge: start with GG.deals offers, prepend Steam if GG.deals doesn't already
-        // list it (GG.deals sometimes includes official Steam pricing too).
+        // GG.deals sometimes already includes Steam pricing, so only add it if missing.
         List<StoreOffer> allOffers = new ArrayList<>(ggOffers);
         if (steamPrice != null) {
             boolean alreadyPresent = allOffers.stream()
@@ -110,7 +105,7 @@ public class PriceService {
                 .build();
     }
 
-    // ── Steam ────────────────────────────────────────────────────────────────────
+    // Steam
 
     private GamePriceResponse.SteamPrice fetchSteamPrice(Integer appId) {
         try {
@@ -156,12 +151,9 @@ public class PriceService {
         }
     }
 
-    // ── GG.deals ─────────────────────────────────────────────────────────────────
+    // GG.deals
 
-    // GG.deals API: prices/by-steam-app-id — returns best retail + keyshop price for a Steam app.
-    // Key goes as query param ?key=…, not a header.
-    // Response: { "data": { "{appid}": { "url": "…", "prices": { "currentRetail": "9.99",
-    //                                   "currentKeyshops": "6.49", "currency": "USD" } } } }
+    // API key goes as a query param, not a header — that's GG.deals' auth scheme.
     private List<StoreOffer> fetchGgDealsOffers(Integer steamAppId) {
         try {
             log.info("[ggdeals] fetching prices for steamAppId={}", steamAppId);
@@ -217,9 +209,9 @@ public class PriceService {
         }
     }
 
-    // ── Utilities ────────────────────────────────────────────────────────────────
+    // Utilities
 
-    /** Strips currency symbols and parses to double. Free → 0.0. */
+    // Strips currency symbols. "Free" → 0.0.
     private double parseAmount(String price) {
         if (price == null || price.equalsIgnoreCase("free")) return 0.0;
         try { return Double.parseDouble(price.replaceAll("[^0-9.]", "")); }

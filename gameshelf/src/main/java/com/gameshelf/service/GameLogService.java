@@ -112,7 +112,7 @@ public class GameLogService {
 
         List<GameLog> logs = gameLogRepository.findByUserId(user.getId());
 
-        // One-time batch backfill: fetch missing releaseYear/igdbRating in a single IGDB call
+        // Backfill any games that were added before we stored releaseYear/igdbRating locally.
         List<Game> missing = logs.stream()
                 .map(GameLog::getGame)
                 .filter(g -> g.getIgdbId() != null && (g.getReleaseYear() == null || g.getIgdbRating() == null))

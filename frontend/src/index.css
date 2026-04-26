@@ -1,6 +1,4 @@
-/* ─────────────────────────────────────────
-   DESIGN TOKENS
-───────────────────────────────────────── */
+/* Design tokens */
 :root {
   /* Backgrounds */
   --bg:        #0e0e0e;
@@ -66,9 +64,7 @@
   --z-toast:   300;
 }
 
-/* ─────────────────────────────────────────
-   RESET
-───────────────────────────────────────── */
+/* Reset */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -90,9 +86,7 @@ img     { display: block; max-width: 100%; }
 
 ::-webkit-scrollbar { display: none; }
 
-/* ─────────────────────────────────────────
-   GLOBAL ANIMATION
-───────────────────────────────────────── */
+/* Global animation */
 @keyframes shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }

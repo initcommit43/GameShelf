@@ -17,7 +17,7 @@ const parseError = async (res) => {
   }
 }
 
-// Any 401 clears auth state and redirects to login (expired / invalid token)
+// On 401, clear auth and bounce to login — handles expired or revoked tokens.
 const guardAuth = (res) => {
   if (res.status === 401) {
     localStorage.removeItem('token')

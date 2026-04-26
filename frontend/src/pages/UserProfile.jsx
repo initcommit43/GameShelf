@@ -1,10 +1,33 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { userService, BASE_URL } from '../services/api'
 import Layout from '../components/Layout'
 import styles from './UserProfile.module.css'
 
 function GameScrollRow({ title, games, loading }) {
+  const trackRef = useRef(null)
+  const [canScrollLeft, setCanScrollLeft]   = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  const updateArrows = () => {
+    const el = trackRef.current
+    if (!el) return
+    setCanScrollLeft(el.scrollLeft > 4)
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4)
+  }
+
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el) return
+    updateArrows()
+    el.addEventListener('scroll', updateArrows, { passive: true })
+    return () => el.removeEventListener('scroll', updateArrows)
+  }, [games])
+
+  const scrollBy = (dir) => {
+    trackRef.current?.scrollBy({ left: dir * 120, behavior: 'smooth' })
+  }
+
   if (loading) {
     return (
       <section className={styles.rowSection}>
@@ -30,21 +53,37 @@ function GameScrollRow({ title, games, loading }) {
       <div className={styles.sectionHeader}>
         <span className={styles.sectionTitle}>{title}</span>
       </div>
-      <div className={styles.scrollTrack}>
-        {games.map(g => (
-          <Link key={g.logId} to={`/games/${g.igdbId}`} className={styles.scrollCard}>
-            <div className={styles.scrollCoverWrapper}>
-              {g.coverUrl
-                ? <img src={g.coverUrl} alt={g.title} className={styles.scrollCoverImg} />
-                : <div className={styles.scrollCoverEmpty}>{g.title}</div>
-              }
-              {g.rating && (
-                <div className={styles.scrollRatingBadge}>{g.rating}</div>
-              )}
-            </div>
-            <div className={styles.scrollTitle}>{g.title}</div>
-          </Link>
-        ))}
+      <div className={styles.scrollOuter}>
+        {canScrollLeft && (
+          <button className={styles.arrowBtn} onClick={() => scrollBy(-1)} aria-label="Scroll left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+        )}
+        <div className={styles.scrollTrack} ref={trackRef}>
+          {games.map(g => (
+            <Link key={g.logId} to={`/games/${g.igdbId}`} className={styles.scrollCard}>
+              <div className={styles.scrollCoverWrapper}>
+                {g.coverUrl
+                  ? <img src={g.coverUrl} alt={g.title} className={styles.scrollCoverImg} />
+                  : <div className={styles.scrollCoverEmpty}>{g.title}</div>
+                }
+                {g.rating && (
+                  <div className={styles.scrollRatingBadge}>{g.rating}</div>
+                )}
+              </div>
+              <div className={styles.scrollTitle}>{g.title}</div>
+            </Link>
+          ))}
+        </div>
+        {canScrollRight && (
+          <button className={`${styles.arrowBtn} ${styles.arrowBtnRight}`} onClick={() => scrollBy(1)} aria-label="Scroll right">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        )}
       </div>
     </section>
   )
@@ -131,7 +170,7 @@ function UserProfile() {
           <div className={styles.statLabel}>Avg Rating</div>
         </div>
         {(loading || profile?.mostPlayedGenre) && (
-          <div className={`${styles.statCard} ${styles.statCardWide}`}>
+          <div className={styles.statCard}>
             <span className={`${styles.statIcon} ${styles.statIconAmber}`}>♟</span>
             <div className={styles.statValue}>{loading ? '—' : profile?.mostPlayedGenre}</div>
             <div className={styles.statLabel}>Fav Genre</div>
