@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import SideNav from './SideNav'
 import BottomNav from './BottomNav'
+import Footer from './Footer/Footer'
 import styles from './Layout.module.css'
 
 function Layout({ children }) {
@@ -18,6 +19,7 @@ function Layout({ children }) {
         {children}
       </main>
 
+      <Footer />
       <BottomNav />
     </div>
   )

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { gameService, logService, statsService, newsService } from '../services/api'
 import BottomNav from '../components/BottomNav'
 import AddToShelfSheet from '../components/AddToShelfSheet/AddToShelfSheet'
+import Footer from '../components/Footer/Footer'
 import styles from './Landing.module.css'
 
 const EDITORIAL_IGDB_IDS = [119133, 1942, 119171, 1877] // Elden Ring, Witcher 3, Baldur's Gate 3, Cyberpunk 2077
@@ -105,7 +106,7 @@ function Landing() {
           <div className={styles.heroGlow} />
           <div className={styles.heroContent}>
             <h1 className={styles.heroHeadline}>
-              Discover, collect, analyze your <em className={styles.heroAccent}>games</em>
+              Log, rate, and own your <em className={styles.heroAccent}>games</em>
             </h1>
 
             <form
@@ -200,16 +201,16 @@ function Landing() {
                 <h2 className={styles.editorialHeadline}>Your gaming life,<br />meticulously archived.</h2>
               </div>
               <p className={styles.editorialBody}>
-                GameShelf is the definitive digital journal for the modern player. We've stripped away the noise of traditional social media to focus on what matters: your journey through virtual worlds. From the first credit to the platinum trophy, every moment is preserved in high-fidelity detail.
+                GameShelf is a personal game tracker. Add games to your shelf, rate what you've finished, and get recommendations based on what you actually play, not what's trending. Whether you're working through a backlog or hunting for your next obsession, your collection lives here.
               </p>
               <div className={styles.editorialBadges}>
                 <div className={styles.editorialBadge}>
                   <span className="material-symbols-outlined" style={{ color: '#7aafff' }}>verified</span>
-                  <span className={styles.editorialBadgeText}>Verified Database</span>
+                  <span className={styles.editorialBadgeText}>IGDB Powered</span>
                 </div>
                 <div className={styles.editorialBadge}>
                   <span className="material-symbols-outlined" style={{ color: '#7aafff' }}>analytics</span>
-                  <span className={styles.editorialBadgeText}>Deep Analytics</span>
+                  <span className={styles.editorialBadgeText}>Price Tracking</span>
                 </div>
               </div>
             </div>
@@ -305,18 +306,7 @@ function Landing() {
         onConfirm={handleAddToShelf}
       />
 
-      <footer className={styles.footer}>
-        <div className={styles.footerInner}>
-          <div className={styles.footerBottom}>
-            <div className={styles.footerBottomLinks}>
-              {['Privacy Policy', 'Terms of Service', 'API', 'Careers', 'Support'].map(l => (
-                <a key={l} className={styles.footerLink}>{l}</a>
-              ))}
-            </div>
-            <p>© 2026 GameShelf</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       <BottomNav />
     </div>
