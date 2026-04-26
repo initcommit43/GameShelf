@@ -13,11 +13,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +33,10 @@ public class UserService {
 
     private static final DateTimeFormatter JOINED_FMT =
             DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
+
+    private final ConcurrentHashMap<String, CachedGenre> genreCache = new ConcurrentHashMap<>();
+
+    private record CachedGenre(String genre, Instant expiresAt) {}
 
     public UserProfileResponse getProfile(String username) {
         User user = userRepository.findByUsername(username)
@@ -46,7 +52,7 @@ public class UserService {
         String avgRating = rated.isEmpty() ? "—"
                 : String.format("%.1f", rated.stream().mapToInt(GameLog::getRating).average().orElse(0));
 
-        String mostPlayedGenre = computeMostPlayedGenre(logs);
+        String mostPlayedGenre = computeMostPlayedGenre(username, logs);
 
         List<GameLogSummary> recentlyPlayed = logs.stream()
                 .filter(l -> l.getCreatedAt() != null)
@@ -83,8 +89,14 @@ public class UserService {
         );
     }
 
-    private String computeMostPlayedGenre(List<GameLog> logs) {
+    private String computeMostPlayedGenre(String username, List<GameLog> logs) {
         if (logs.isEmpty()) return null;
+
+        CachedGenre cached = genreCache.get(username);
+        if (cached != null && Instant.now().isBefore(cached.expiresAt())) {
+            return cached.genre();
+        }
+
         try {
             List<Integer> igdbIds = logs.stream()
                     .map(l -> l.getGame().getIgdbId())
@@ -96,10 +108,14 @@ public class UserService {
                     .filter(e -> e.getGenres() != null)
                     .flatMap(e -> e.getGenres().stream())
                     .collect(Collectors.groupingBy(IgdbEnrichment.Tag::getName, Collectors.counting()));
-            return genreCounts.entrySet().stream()
+            String genre = genreCounts.entrySet().stream()
                     .max(Map.Entry.comparingByValue())
                     .map(Map.Entry::getKey)
                     .orElse(null);
+            if (genre != null) {
+                genreCache.put(username, new CachedGenre(genre, Instant.now().plusSeconds(3600)));
+            }
+            return genre;
         } catch (Exception e) {
             log.warn("[UserService] genre enrichment failed: {}", e.getMessage());
             return null;
