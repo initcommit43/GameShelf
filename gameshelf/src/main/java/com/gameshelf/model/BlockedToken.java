@@ -9,7 +9,10 @@ import java.time.Instant;
 @Table(
     name = "blocked_tokens",
     uniqueConstraints = @UniqueConstraint(name = "uq_blocked_token", columnNames = "token"),
-    indexes = @Index(name = "idx_blocked_token_expires_at", columnList = "expires_at")
+    indexes = {
+        @Index(name = "idx_blocked_token_expires_at", columnList = "expires_at"),
+        @Index(name = "idx_blocked_tokens_token",    columnList = "token")
+    }
 )
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class BlockedToken {
