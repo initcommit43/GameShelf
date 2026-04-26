@@ -114,7 +114,7 @@ public class PriceService {
                     .retrieve()
                     .body(String.class);
 
-            log.info("[steam] raw response for appId={}: {}", appId, json);
+            log.debug("[steam] raw response for appId={}: {}", appId, json);
 
             if (json == null) return null;
 
@@ -163,7 +163,7 @@ public class PriceService {
                     .retrieve()
                     .body(String.class);
 
-            log.info("[ggdeals] response: {}", json);
+            log.debug("[ggdeals] response: {}", json);
 
             if (json == null) return List.of();
 
