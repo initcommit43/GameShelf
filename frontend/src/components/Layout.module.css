@@ -1,5 +1,7 @@
 ﻿.shell {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: var(--bg);
 }
 
@@ -31,6 +33,7 @@
 
 /* Main content */
 .main {
+  flex: 1;
   padding: 80px 20px 100px;
   max-width: 480px;
   margin: 0 auto;
