@@ -70,7 +70,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/games/trending").permitAll()
+                        .requestMatchers("/api/games/**").permitAll()
                         .requestMatchers("/api/news").permitAll()
                         .requestMatchers("/api/stats").permitAll()
                         .anyRequest().authenticated()
