@@ -212,7 +212,7 @@ function GameDetail() {
           <div className={styles.hero}>
             <div className={styles.coverWrapper}>
               {game.coverUrl
-                ? <img src={game.coverUrl} alt={game.title} className={styles.coverImg} />
+                ? <img src={game.coverUrl?.replace('t_cover_big', 't_1080p')} alt={game.title} className={styles.coverImg} />
                 : <div className={styles.coverPlaceholder}>{game.title}</div>
               }
             </div>
