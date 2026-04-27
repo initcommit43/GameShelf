@@ -130,12 +130,15 @@
   text-align: center;
   padding: 48px 24px;
   overflow: hidden;
+  background-image: url('/hero-bg.jpg');
+  background-size: cover;
+  background-position: center top;
 }
 
 .heroGlow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(122, 175, 255, 0.1) 0%, transparent 70%);
+  background: linear-gradient(to bottom, rgba(14,14,14,0.5) 0%, rgba(14,14,14,0.85) 100%);
   pointer-events: none;
   z-index: 0;
 }
