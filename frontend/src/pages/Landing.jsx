@@ -106,7 +106,7 @@ function Landing() {
           <div className={styles.heroGlow} />
           <div className={styles.heroContent}>
             <h1 className={styles.heroHeadline}>
-              Log, rate, and own your <em className={styles.heroAccent}>games</em>
+              Log, rate and archive your <em className={styles.heroAccent}>games</em>
             </h1>
 
             <form
