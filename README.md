@@ -140,3 +140,15 @@ A few decisions worth noting:
 - **Flyway + `ddl-auto=validate`** — every schema change is an explicit versioned SQL file. No silent drift.
 - **In-memory price cache (6h)** — avoids hammering Steam and GG.deals APIs without needing Redis.
 - **No frontend state library** — hooks + localStorage is sufficient at this scale. Redux would have been overhead without payoff.
+
+---
+
+## 📄 License
+
+Copyright (c) 2026 initcommit43
+
+GameShelf is licensed under the [GNU Affero General Public License v3.0](LICENSE).
+
+In short: you are free to use, modify, and share this code, but any modified version
+you distribute **or run as a network service** must also be released under the AGPL
+with its source made available to users.
