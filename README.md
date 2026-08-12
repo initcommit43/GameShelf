@@ -21,7 +21,7 @@ Tools like this already exist, but I kept bouncing off them. The UIs feel overlo
 Most trackers are built around the catalog first, the user second. GameShelf flips that:
 
 - **Clean onboarding** — register, search a game, add it to your shelf. That's the whole flow. No configuration required.
-- **Live store prices** — see current Steam and GG.deals prices directly on the game page, so you know whether to buy now or wait.
+- **Live store prices** — compare current prices across Steam, GOG, Humble, GreenManGaming and more directly on the game page, so you know whether to buy now or wait.
 - **Recommendations from your shelf** — suggestions are based on what you've actually logged, not global trending lists.
 
 ---
@@ -41,7 +41,7 @@ Most trackers are built around the catalog first, the user second. GameShelf fli
 
 **External APIs**
 - IGDB via Twitch OAuth (game data)
-- Steam Store + GG.deals (live pricing)
+- Steam Store + CheapShark (live per-store pricing), GG.deals (optional market summary)
 - RSS feeds (gaming news aggregation)
 
 ---
@@ -53,7 +53,7 @@ Most trackers are built around the catalog first, the user second. GameShelf fli
 - **Search & browse** — full IGDB catalog search, or filter by genre, platform, year, and rating
 - **Recommendations** — personalized picks based on your shelf history
 - **Gaming news** — RSS-aggregated articles, filterable by source
-- **Live pricing** — Steam and GG.deals prices on every game detail page
+- **Live pricing** — store-by-store price comparison on every game detail page, sorted cheapest first
 - **Rate limiting** — 10 req/min per IP on auth routes via Bucket4j
 
 <table><tr><td><img src="docs/shelf.png" alt="Shelf view"></td><td><img src="docs/browse.png" alt="Browse view"></td></tr></table>
@@ -95,7 +95,7 @@ Open `local.properties` and fill in your values:
 JWT_SECRET=           # min 32 characters, generate with: openssl rand -hex 32
 IGDB_CLIENT_ID=       # from dev.twitch.tv
 IGDB_CLIENT_SECRET=   # from dev.twitch.tv
-GGDEALS_API_KEY=      # optional, omit to disable store pricing
+GGDEALS_API_KEY=      # optional, adds the market-summary rows only; per-store prices need no key
 ```
 
 ### 4. Start the backend
@@ -138,7 +138,7 @@ A few decisions worth noting:
 
 - **JWT revocation via DB blocklist** — on logout the token is stored in `blocked_tokens` until it naturally expires. Real logout without sessions.
 - **Flyway + `ddl-auto=validate`** — every schema change is an explicit versioned SQL file. No silent drift.
-- **In-memory price cache (6h)** — avoids hammering Steam and GG.deals APIs without needing Redis.
+- **In-memory price cache (6h)** — avoids hammering the Steam, CheapShark and GG.deals APIs without needing Redis. Responses missing a provider are cached for 10min instead, so an outage clears quickly rather than sticking for 6h.
 - **No frontend state library** — hooks + localStorage is sufficient at this scale. Redux would have been overhead without payoff.
 
 ---

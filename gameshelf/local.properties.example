@@ -19,8 +19,10 @@ JWT_SECRET=
 IGDB_CLIENT_ID=
 IGDB_CLIENT_SECRET=
 
-# ── GG.deals (store price offers, optional) ───────────────────────────────────
-# From https://gg.deals/affiliate/ — leave blank to disable store offers.
+# ── GG.deals (market summary, optional) ───────────────────────────────────────
+# Per-store prices come from CheapShark and need no key. GG.deals only adds the
+# "Best retail" / "Key shops" summary rows — leave blank to disable them.
+# Generate a key in your GG.deals account settings: https://gg.deals/settings/
 GGDEALS_API_KEY=
 
 # ── CORS ──────────────────────────────────────────────────────────────────────

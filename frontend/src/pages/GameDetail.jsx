@@ -105,7 +105,10 @@ function GameDetail() {
     gameService.getPrices(parseInt(igdbId))
       .then(data => {
         setPrices(data)
-        setPriceState(data?.bestPrice || data?.offers?.length > 0 ? 'ok' : 'empty')
+        const hasAnything = data?.bestPrice
+          || data?.offers?.length > 0
+          || data?.aggregates?.length > 0
+        setPriceState(hasAnything ? 'ok' : 'empty')
       })
       .catch(() => setPriceState('error'))
   }, [igdbId])
@@ -129,6 +132,8 @@ function GameDetail() {
       .catch(console.error)
       .finally(() => setReviewsLoading(false))
   }, [igdbId, reviewSort])
+
+  const degradedProviders = prices?.degradedProviders ?? []
 
   const openSheet = () => setSheetOpen(true)
   const closeSheet = () => setSheetOpen(false)
@@ -256,7 +261,13 @@ function GameDetail() {
               </div>
             )}
             {priceState === 'error' && <p className={styles.priceEmpty}>Price data unavailable.</p>}
-            {priceState === 'empty' && <p className={styles.priceEmpty}>No deals found for this game.</p>}
+            {priceState === 'empty' && (
+              <p className={styles.priceEmpty}>
+                {degradedProviders.length > 0
+                  ? `No deals found — couldn't reach ${degradedProviders.join(' or ')}.`
+                  : 'No deals found for this game.'}
+              </p>
+            )}
             {priceState === 'ok' && prices && (
               <>
                 {prices.bestPrice && (
@@ -274,7 +285,12 @@ function GameDetail() {
                     {prices.offers.map((offer, i) => (
                       <div key={i} className={styles.offerRow}>
                         <span className={styles.offerStore}>{offer.storeName}</span>
-                        <span className={styles.offerPrice}>{offer.price}</span>
+                        <span className={styles.offerPrice}>
+                          {offer.price}
+                          {offer.discount > 0 && offer.normalPrice && (
+                            <span className={styles.offerNormalPrice}>{offer.normalPrice}</span>
+                          )}
+                        </span>
                         {offer.discount > 0
                           ? <span className={styles.offerDiscount}>−{offer.discount}%</span>
                           : <span />
@@ -283,6 +299,37 @@ function GameDetail() {
                       </div>
                     ))}
                   </div>
+                )}
+
+                {prices.aggregates?.length > 0 && (
+                  <div className={styles.aggregateBlock}>
+                    <div className={styles.aggregateLabel}>Market summary</div>
+                    {prices.aggregates.map((agg, i) => (
+                      <a
+                        key={i}
+                        href={agg.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.aggregateRow}
+                      >
+                        <span className={styles.aggregateName}>{agg.label}</span>
+                        <span className={styles.aggregatePrice}>{agg.price}</span>
+                      </a>
+                    ))}
+                  </div>
+                )}
+
+                {degradedProviders.length > 0 && (
+                  <p className={styles.priceDegraded}>
+                    Prices from {degradedProviders.join(' and ')} are temporarily unavailable.
+                  </p>
+                )}
+
+                {prices.aggregates?.length > 0 && (
+                  <p className={styles.priceAttribution}>
+                    Market summary by{' '}
+                    <a href="https://gg.deals/" target="_blank" rel="noopener noreferrer">GG.deals</a>
+                  </p>
                 )}
               </>
             )}

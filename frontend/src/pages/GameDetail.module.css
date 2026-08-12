@@ -383,6 +383,86 @@
   white-space: nowrap;
 }
 
+.offerNormalPrice {
+  margin-left: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #adaaaa;
+  text-decoration: line-through;
+}
+
+/* Market-wide aggregates (GG.deals), kept visually distinct from buyable stores. */
+.aggregateBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.aggregateLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #adaaaa;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+.aggregateRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border: 1px solid #262626;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.aggregateRow:hover {
+  border-color: #3a3a3a;
+}
+
+.aggregateName {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #adaaaa;
+}
+
+.aggregatePrice {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #e4e2e1;
+  white-space: nowrap;
+}
+
+.priceDegraded {
+  margin-top: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.priceAttribution {
+  margin-top: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.priceAttribution a {
+  color: #7aafff;
+  text-decoration: none;
+}
+
+.priceAttribution a:hover {
+  text-decoration: underline;
+}
+
 .buyBtnSmall {
   font-family: 'Inter', sans-serif;
   font-size: 11px;
