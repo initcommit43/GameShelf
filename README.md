@@ -1,3 +1,15 @@
+> ### ⚠️ Discontinued — superseded by Nexus Media Tracker
+>
+> **GameShelf is no longer in development.** It was my bootcamp capstone project,
+> and it's kept public and unchanged as a record of that work.
+>
+> The concept lives on in **[Nexus Media Tracker](https://github.com/initcommit43/NexusMediaTracker)**,
+> a general media tracker covering games, films, series, and books rather than
+> games alone. Everything here is being rebuilt there properly — that's the
+> project to look at for current work.
+
+---
+
 # 🎮 GameShelf
 
 > Log, rate, and archive your games.
